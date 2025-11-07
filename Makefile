@@ -12,5 +12,6 @@ all: rungame
 
 $(TARGET): src/main.c
 	$(CC) src/main.c -o $(TARGET) $(LIBS)
+	$(TARGET)
 
 all: $(TARGET)
