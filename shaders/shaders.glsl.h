@@ -9,13 +9,13 @@
 
     Overview:
     =========
-    Shader program: 'triangle':
-        Get shader desc: triangle_shader_desc(sg_query_backend());
+    Shader program: 'quad':
+        Get shader desc: quad_shader_desc(sg_query_backend());
         Vertex Shader: vs
         Fragment Shader: fs
         Attributes:
-            ATTR_triangle_position => 0
-            ATTR_triangle_color0 => 1
+            ATTR_quad_position => 0
+            ATTR_quad_color0 => 1
     Bindings:
 */
 #if !defined(SOKOL_GFX_INCLUDED)
@@ -28,8 +28,8 @@
 #define SOKOL_SHDC_ALIGN(a) __attribute__((aligned(a)))
 #endif
 #endif
-#define ATTR_triangle_position (0)
-#define ATTR_triangle_color0 (1)
+#define ATTR_quad_position (0)
+#define ATTR_quad_color0 (1)
 /*
     #version 430
 
@@ -320,7 +320,7 @@ static const uint8_t fs_source_metal_macos[315] = {
     0x63,0x6f,0x6c,0x6f,0x72,0x3b,0x0a,0x20,0x20,0x20,0x20,0x72,0x65,0x74,0x75,0x72,
     0x6e,0x20,0x6f,0x75,0x74,0x3b,0x0a,0x7d,0x0a,0x0a,0x00,
 };
-static inline const sg_shader_desc* triangle_shader_desc(sg_backend backend) {
+static inline const sg_shader_desc* quad_shader_desc(sg_backend backend) {
     if (backend == SG_BACKEND_GLCORE) {
         static sg_shader_desc desc;
         static bool valid;
@@ -334,7 +334,7 @@ static inline const sg_shader_desc* triangle_shader_desc(sg_backend backend) {
             desc.attrs[0].glsl_name = "position";
             desc.attrs[1].base_type = SG_SHADERATTRBASETYPE_FLOAT;
             desc.attrs[1].glsl_name = "color0";
-            desc.label = "triangle_shader";
+            desc.label = "quad_shader";
         }
         return &desc;
     }
@@ -355,7 +355,7 @@ static inline const sg_shader_desc* triangle_shader_desc(sg_backend backend) {
             desc.attrs[1].base_type = SG_SHADERATTRBASETYPE_FLOAT;
             desc.attrs[1].hlsl_sem_name = "TEXCOORD";
             desc.attrs[1].hlsl_sem_index = 1;
-            desc.label = "triangle_shader";
+            desc.label = "quad_shader";
         }
         return &desc;
     }
@@ -370,7 +370,7 @@ static inline const sg_shader_desc* triangle_shader_desc(sg_backend backend) {
             desc.fragment_func.entry = "main0";
             desc.attrs[0].base_type = SG_SHADERATTRBASETYPE_FLOAT;
             desc.attrs[1].base_type = SG_SHADERATTRBASETYPE_FLOAT;
-            desc.label = "triangle_shader";
+            desc.label = "quad_shader";
         }
         return &desc;
     }

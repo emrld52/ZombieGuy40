@@ -11,5 +11,5 @@ rungame:
 	$(TARGET)
 
 $(TARGET): src/main.c shaders/vs_fs_shader.glsl
-	sokol-shdc --input shaders/vs_fs_shader.glsl --output shaders/shaders.h --slang glsl430:hlsl5:metal_macos
+	sokol-shdc --input shaders/vs_fs_shader.glsl --output shaders/shaders.glsl.h --slang glsl430:hlsl5:metal_macos
 	$(CC) src/main.c -o $(TARGET) $(LIBS)

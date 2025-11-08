@@ -7,7 +7,7 @@
 #include "../deps/sokol_app.h"
 #include "../deps/sokol_gfx.h"
 #include "../deps/sokol_glue.h"
-#include "../shaders/shaders.h"
+#include "../shaders/shaders.glsl.h"
 
 // rendering state, only visible for this file, doesnt overwrite game state
 static struct {
@@ -51,7 +51,7 @@ static void init(void)
     });
 
     // create shader out of basic shaders wrote before
-    sg_shader shd = sg_make_shader(triangle_shader_desc(sg_query_backend()));
+    sg_shader shd = sg_make_shader(quad_shader_desc(sg_query_backend()));
 
     state.pip = sg_make_pipeline(&(sg_pipeline_desc){
         .shader = shd,
@@ -59,14 +59,14 @@ static void init(void)
         //define how to read input data into shader
         .layout = {
             .attrs = {
-                [ATTR_triangle_position].format = SG_VERTEXFORMAT_FLOAT3,
-                [ATTR_triangle_color0].format = SG_VERTEXFORMAT_FLOAT4
+                [ATTR_quad_position].format = SG_VERTEXFORMAT_FLOAT3,
+                [ATTR_quad_color0].format = SG_VERTEXFORMAT_FLOAT4
             }
         },
 
         .index_type = SG_INDEXTYPE_UINT16,
 
-        .label = "triangle-pipeline"
+        .label = "quad-pipeline"
     });
 
     state.pass_action = (sg_pass_action)
