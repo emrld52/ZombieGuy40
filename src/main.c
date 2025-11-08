@@ -38,18 +38,18 @@ static void init(void)
     });
 
     // define quad, along with indicies buffer
-    float vertices[] =
+    const float vertices[] =
     {
         // pos              // uv
-        0.5f, 0.5f, 0.0f,   1.0f, 0.0f, // top right
-        0.5f, -0.5f, 0.0f,  1.0f, 1.0f // bottom right
-        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // bottom left
         -0.5f, 0.5f, 0.0f,  0.0f, 0.0f, // top left
+        0.5f, 0.5f, 0.0f,   1.0f, 0.0f, // top right
+        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // bottom left
+        0.5f, -0.5f, 0.0f,  1.0f, 1.0f // bottom right
     };
 
-    uint16_t indices[] = {
+    const uint16_t indices[] = {
         0, 1, 3,
-        1, 2, 3
+        0, 2, 3
     };
 
     state.bind.vertex_buffers[0] = sg_make_buffer(&(sg_buffer_desc)
@@ -69,6 +69,8 @@ static void init(void)
     int width=0, height=0, channels=0;
 
     unsigned char* pixels = stbi_load("assets/img/bob.png", &width, &height, &channels, 0);
+
+    printf("width %d, height %d, channels %d", width, height, channels);
     
     bob = sg_make_image(&(sg_image_desc){
         .width = width,
@@ -83,12 +85,12 @@ static void init(void)
 
     state.bind.views[0] = sg_make_view(&(sg_view_desc){
         .texture = { .image = bob },
-        .label = "texcube-texture-view",
+        .label = "tex-view",
     });
 
     // create a sampler object with default attributes
     state.bind.samplers[1] = sg_make_sampler(&(sg_sampler_desc){
-        .label = "texcube-sampler"
+        .label = "tex-sampler"
     });
 
     stbi_image_free(pixels);
