@@ -5,13 +5,10 @@ BIN_DIR = bin
 
 TARGET = $(BIN_DIR)/zom.exe
 
-rungame: $(TARGET)
-	$(TARGET)
+all: $(TARGET) rungame
 
-all: rungame
+rungame:
+	$(TARGET)
 
 $(TARGET): src/main.c
 	$(CC) src/main.c -o $(TARGET) $(LIBS)
-	$(TARGET)
-
-all: $(TARGET)
