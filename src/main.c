@@ -7,7 +7,7 @@
 #include "../deps/sokol_app.h"
 #include "../deps/sokol_gfx.h"
 #include "../deps/sokol_glue.h"
-#include "../shaders/triangle_shader.h"
+#include "../shaders/shaders.h"
 
 // rendering state, only visible for this file, doesnt overwrite game state
 static struct {
@@ -23,19 +23,31 @@ static void init(void)
         .environment = sglue_environment()
     });
 
-    // define triangle
+    // define quad, along with indicies buffer
     float verticies[] =
     {
         // pos              // col
-        0.0f, 0.5f, 0.5f,   1, 0, 0, 1,
-        0.5f, -0.5f, 0.5f,  0, 1, 0, 1,
-        -0.5f, -0.5f, 0.5f, 0, 0, 1, 1
+        0.5f, 0.5f, 0.0f,   1, 0, 0, 1, // top right
+        0.5f, -0.5f, 0.0f,  0, 1, 0, 1, // bottom right
+        -0.5f, -0.5f, 0.0f, 0, 0, 1, 1, // bottom left
+        -0.5f, 0.5f, 0.0f,  0, 1, 0, 1, // top left
+    };
+
+    uint16_t indices[] = {
+        0, 1, 3,
+        1, 2, 3
     };
 
     state.bind.vertex_buffers[0] = sg_make_buffer(&(sg_buffer_desc)
     {
         .data = SG_RANGE(verticies),
         .label = "vertex-buffer"
+    });
+
+    state.bind.index_buffer = sg_make_buffer(&(sg_buffer_desc){
+        .usage.index_buffer = true,
+        .data = SG_RANGE(indices),
+        .label = "index-buffer"
     });
 
     // create shader out of basic shaders wrote before
@@ -51,6 +63,8 @@ static void init(void)
                 [ATTR_triangle_color0].format = SG_VERTEXFORMAT_FLOAT4
             }
         },
+
+        .index_type = SG_INDEXTYPE_UINT16,
 
         .label = "triangle-pipeline"
     });
@@ -68,7 +82,7 @@ void frame()
     sg_apply_pipeline(state.pip);
     sg_apply_bindings(&state.bind);
 
-    sg_draw(0, 3, 1);
+    sg_draw(0, 6, 1);
     
     sg_end_pass();
 
@@ -84,7 +98,7 @@ void event()
 {
 
 }
-
+            
 sapp_desc sokol_main(int argc, char* argv[]) {
     return (sapp_desc) {
         .width = 640,
@@ -93,6 +107,6 @@ sapp_desc sokol_main(int argc, char* argv[]) {
         .frame_cb = frame,
         .cleanup_cb = cleanup,
         .event_cb = event,
-        .window_title = "fart"
+        .window_title = "ZombieGuy40"
     };
 }
