@@ -38,7 +38,7 @@ static void init(void)
     });
 
     // define quad, along with indicies buffer
-    float verticies[] =
+    float vertices[] =
     {
         // pos              // col
         0.5f, 0.5f, 0.0f,   1, 0, 0, 1, // top right
@@ -54,7 +54,7 @@ static void init(void)
 
     state.bind.vertex_buffers[0] = sg_make_buffer(&(sg_buffer_desc)
     {
-        .data = SG_RANGE(verticies),
+        .data = SG_RANGE(vertices),
         .label = "vertex-buffer"
     });
 
@@ -101,7 +101,7 @@ static void init(void)
         .data.mip_levels[0] = (sg_range)
         {
             .ptr = pixels,
-            .size = (size_t)(32 * 32 * 4)
+            .size = (size_t)(width * height * channels)
         }
     });
 
