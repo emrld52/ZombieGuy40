@@ -1,21 +1,24 @@
 @vs vs
-in vec4 position;
-in vec4 color0;
+layout(location = 0) in vec3 a_pos;
+layout(location = 1) in vec2 a_uv;
 
-out vec4 color;
+out vec2 v_uv;
 
 void main() {
-    gl_Position = position;
-    color = color0;
+    gl_Position = vec4(a_pos, 1.0);
+    v_uv = a_uv;
 }
 @end
 
 @fs fs
-in vec4 color;
+in vec2 v_uv;
 out vec4 frag_color;
 
+layout(binding = 0) uniform texture2D tex;
+layout(binding = 1) uniform sampler samp;
+
 void main() {
-    frag_color = color;
+    frag_color = texture(sampler2D(tex, samp), v_uv);
 }
 @end
 

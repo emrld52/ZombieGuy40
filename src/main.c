@@ -40,11 +40,11 @@ static void init(void)
     // define quad, along with indicies buffer
     float vertices[] =
     {
-        // pos              // col
-        0.5f, 0.5f, 0.0f,   1, 0, 0, 1, // top right
-        0.5f, -0.5f, 0.0f,  0, 1, 0, 1, // bottom right
-        -0.5f, -0.5f, 0.0f, 0, 0, 1, 1, // bottom left
-        -0.5f, 0.5f, 0.0f,  0, 1, 0, 1, // top left
+        // pos              // uv
+        0.5f, 0.5f, 0.0f,   1.0f, 0.0f, // top right
+        0.5f, -0.5f, 0.0f,  1.0f, 1.0f // bottom right
+        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // bottom left
+        -0.5f, 0.5f, 0.0f,  0.0f, 0.0f, // top left
     };
 
     uint16_t indices[] = {
@@ -64,30 +64,6 @@ static void init(void)
         .label = "index-buffer"
     });
 
-    // create shader out of basic shaders wrote before
-    sg_shader shd = sg_make_shader(quad_shader_desc(sg_query_backend()));
-
-    state.pip = sg_make_pipeline(&(sg_pipeline_desc){
-        .shader = shd,
-
-        //define how to read input data into shader
-        .layout = {
-            .attrs = {
-                [ATTR_quad_position].format = SG_VERTEXFORMAT_FLOAT3,
-                [ATTR_quad_color0].format = SG_VERTEXFORMAT_FLOAT4
-            }
-        },
-
-        .index_type = SG_INDEXTYPE_UINT16,
-
-        .label = "quad-pipeline"
-    });
-
-    state.pass_action = (sg_pass_action)
-    {
-        .colors[0] = { .load_action = SG_LOADACTION_CLEAR, .clear_value = {0.0f, 0.0f, 0.0f, 0.0f}}
-    };
-
     // load test image
 
     int width=0, height=0, channels=0;
@@ -105,7 +81,42 @@ static void init(void)
         }
     });
 
+    state.bind.views[0] = sg_make_view(&(sg_view_desc){
+        .texture = { .image = bob },
+        .label = "texcube-texture-view",
+    });
+
+    // create a sampler object with default attributes
+    state.bind.samplers[1] = sg_make_sampler(&(sg_sampler_desc){
+        .label = "texcube-sampler"
+    });
+
     stbi_image_free(pixels);
+
+    // create shader out of basic shaders wrote before
+    sg_shader shd = sg_make_shader(quad_shader_desc(sg_query_backend()));
+
+    state.pip = sg_make_pipeline(&(sg_pipeline_desc){
+        .shader = shd,
+
+        //define how to read input data into shader
+        .layout = {
+            .buffers[0].stride = 5 * sizeof(float),
+            .attrs = {
+                [ATTR_quad_a_pos].format = SG_VERTEXFORMAT_FLOAT3,
+                [ATTR_quad_a_uv].format = SG_VERTEXFORMAT_FLOAT2
+            }
+        },
+
+        .index_type = SG_INDEXTYPE_UINT16,
+
+        .label = "quad-pipeline"
+    });
+
+    state.pass_action = (sg_pass_action)
+    {
+        .colors[0] = { .load_action = SG_LOADACTION_CLEAR, .clear_value = {0.0f, 0.0f, 0.0f, 0.0f}}
+    };
 }
 
 
