@@ -88,22 +88,24 @@ static void init(void)
         .colors[0] = { .load_action = SG_LOADACTION_CLEAR, .clear_value = {0.0f, 0.0f, 0.0f, 0.0f}}
     };
 
-    // load test image, currently not working
+    // load test image
 
-    /*
-    int width, height, channels;
+    int width=0, height=0, channels=0;
 
-    unsigned char* pixels = stbi_load("assets/img/bob.png", &width, &height, &channels, 4);
-
+    unsigned char* pixels = stbi_load("assets/img/bob.png", &width, &height, &channels, 0);
+    
     bob = sg_make_image(&(sg_image_desc){
         .width = width,
         .height = height,
         .pixel_format = SG_PIXELFORMAT_RGBA8,
-        .data = SG_RANGE(pixels),
-        .label = "bob"
+        .data.mip_levels[0] = (sg_range)
+        {
+            .ptr = pixels,
+            .size = (size_t)(32 * 32 * 4)
+        }
     });
 
-    stbi_image_free(pixels);*/
+    stbi_image_free(pixels);
 }
 
 
