@@ -1,20 +1,34 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// sokol stuff
+
 #define SOKOL_IMPL
 #define SOKOL_D3D11
 
 #include "../deps/sokol_app.h"
 #include "../deps/sokol_gfx.h"
 #include "../deps/sokol_glue.h"
+
+// use stb image for image decoding
+
+#define STB_IMAGE_IMPLEMENTATION
+
+#include "../deps/stb_image.h"
+
+// shaders
+
 #include "../shaders/shaders.glsl.h"
 
-// rendering state, only visible for this file, doesnt overwrite game state
+// rendering state
 static struct {
     sg_pipeline pip;
     sg_bindings bind;
     sg_pass_action pass_action;
 } state;
+
+// test image for now
+sg_image bob;
 
 static void init(void)
 {
@@ -73,6 +87,23 @@ static void init(void)
     {
         .colors[0] = { .load_action = SG_LOADACTION_CLEAR, .clear_value = {0.0f, 0.0f, 0.0f, 0.0f}}
     };
+
+    // load test image, currently not working
+
+    /*
+    int width, height, channels;
+
+    unsigned char* pixels = stbi_load("assets/img/bob.png", &width, &height, &channels, 4);
+
+    bob = sg_make_image(&(sg_image_desc){
+        .width = width,
+        .height = height,
+        .pixel_format = SG_PIXELFORMAT_RGBA8,
+        .data = SG_RANGE(pixels),
+        .label = "bob"
+    });
+
+    stbi_image_free(pixels);*/
 }
 
 
