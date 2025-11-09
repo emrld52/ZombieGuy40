@@ -6,6 +6,8 @@
 #include "../deps/sokol_app.h"
 #include "../deps/sokol_gfx.h"
 #include "../deps/sokol_glue.h"
+#include "../deps/sokol_time.h"
+#include "../deps/sokol_log.h"
 
 // use stb image for image decoding
 
@@ -27,6 +29,10 @@
 
 #include "r_renderfuncs.h"
 
+// global state
+
+#include "g_state.h"
+
 #define MAX_DRAW_CALLS 128
 
 // rendering state
@@ -41,12 +47,19 @@ static struct {
 // test image for now
 sg_image bob;
 
+uint64_t raw_delta_time = 0;
+
 void init_rendering()
 {
     sg_setup(&(sg_desc)
     {
-        .environment = sglue_environment()
+        .environment = sglue_environment(),
+        .logger.func = slog_func
     });
+
+    // set up frame time count
+
+    stm_setup();
 
     // define quad, along with indicies buffer
     
@@ -170,21 +183,19 @@ void end_call()
     }
 }
 
-// after initializing begin drawing from drawcall list
-
-int framecount = 0;
-
 void draw_game()
 {
+    // set global delta-time
+
+    //delta_time = (float)(stm_ms(stm_laptime(&raw_delta_time)) / 1000);
+
+    // print frame-time
+
+    printf("frametime : %f \n", stm_ms(stm_laptime(&raw_delta_time)) / 1000);
+
     sg_begin_pass(&(sg_pass) { .action = state.pass_action, .swapchain = sglue_swapchain() });
     sg_apply_pipeline(state.pip);
     sg_apply_bindings(&state.bind);
-
-    // count frames, debug
-
-    printf("frame count : %d draw calls : %d\n", framecount, len);
-
-    framecount += 1;
 
     // if no draw calls just render nothing
 

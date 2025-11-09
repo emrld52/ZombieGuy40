@@ -9,6 +9,10 @@
 
 #include "../deps/cglm/cglm.h"
 
+// sokol
+
+#include "../deps/sokol_app.h"
+
 // rendering, might do this in core loop, not sure right now. player pos currently not exposed
 
 #include "r_renderfuncs.h"
@@ -22,16 +26,15 @@ static sprite p;
 
 void player_init()
 {
-    for(int i = 0; i < 3; i++)
-    {
-        pos[i] = 0.0f;
-        vel[i] = 0.0f;
-    }
+    glm_vec3_copy((vec3){ 0.0f, 0.0f, 0.0f }, pos);
+    glm_vec3_copy((vec3){ 0.0f, 0.0f, 0.0f }, vel);
 }
 
 void player_loop()
 {
     glm_vec3_copy(pos, p.pos);
+
+    if(global_input.keysPressed[SAPP_KEYCODE_D]) pos[0] += 0.1f;
 
     draw_call(p);
 }

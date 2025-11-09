@@ -9,6 +9,8 @@
 #include "../deps/sokol_app.h"
 #include "../deps/sokol_gfx.h"
 #include "../deps/sokol_glue.h"
+#include "../deps/sokol_log.h"
+#include "../deps/sokol_time.h"
 
 // use stb image for image decoding
 
@@ -37,11 +39,19 @@
 
 #include "g_state.h"
 
+// init input
+
+input_reader global_input = { 0 };
+
 static void init(void)
-{
+{ 
+    memset(&global_input, 0, sizeof(input_reader));
+
     player_init();
     gameloop_init();
     init_rendering();
+
+    
 }
 
 
@@ -57,9 +67,26 @@ void cleanup()
     sg_shutdown();
 }
 
-void event()
-{
+// poll input
 
+void event(const sapp_event* ev) {
+    switch (ev->type) {
+        case SAPP_EVENTTYPE_KEY_DOWN:
+            if (ev->key_code < 512) {
+                global_input.keysPressed[ev->key_code] = true;
+            }
+            break;
+
+        case SAPP_EVENTTYPE_KEY_UP:
+            if (ev->key_code < 512) {
+                global_input.keysPressed[ev->key_code] = false;
+            }
+            break;
+
+        default:
+            
+            break;
+    }
 }
             
 sapp_desc sokol_main(int argc, char* argv[]) {
