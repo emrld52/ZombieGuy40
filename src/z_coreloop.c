@@ -18,4 +18,7 @@ void run_gameloop()
 {
     draw_call(player);
     draw_call(player2);
+
+    player2.pos[0] += 0.1f;
+    player.pos[1] += 0.1f;
 }

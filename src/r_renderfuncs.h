@@ -10,8 +10,10 @@ typedef struct sprite_t {
 
 void draw_call(sprite s);
 
-//void draw_call(sprite s);
+// call each frame
 
 void draw_game();
+
+// call at start of program
 
 void init_rendering();

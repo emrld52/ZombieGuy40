@@ -4,7 +4,7 @@
 // sokol stuff
 
 #define SOKOL_IMPL
-#define SOKOL_GLCORE
+#define SOKOL_D3D11
 
 #include "../deps/sokol_app.h"
 #include "../deps/sokol_gfx.h"
@@ -29,8 +29,17 @@
 #include "r_renderfuncs.h"
 #include "z_coreloop.h"
 
+// player
+
+#include "z_player.h"
+
+// global state
+
+#include "g_state.h"
+
 static void init(void)
 {
+    player_init();
     gameloop_init();
     init_rendering();
 }
@@ -38,6 +47,7 @@ static void init(void)
 
 void frame()
 {
+    player_loop();
     run_gameloop();
     draw_game();
 }

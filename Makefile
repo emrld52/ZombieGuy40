@@ -5,14 +5,16 @@ BIN_DIR = bin
 
 TARGET = $(BIN_DIR)/zom.exe
 
+SRC += src/g_main.c src/r_renderfuncs.c src/z_coreloop.c src/z_player.c
+
 all: $(TARGET) rungame
 
 rungame:
 	$(TARGET)
 
-$(TARGET): src/g_main.c src/r_renderfuncs.c src/z_coreloop.c shaders/vs_fs_shader.glsl
+$(TARGET): $(SRC) shaders/vs_fs_shader.glsl
 	sokol-shdc --input shaders/vs_fs_shader.glsl --output shaders/shaders.glsl.h --slang glsl430:hlsl5:metal_macos
-	$(CC) src/g_main.c src/r_renderfuncs.c src/z_coreloop.c -o $(TARGET) $(LIBS)
+	$(CC) $(SRC) -o $(TARGET) $(LIBS)
 
 shader:
 	sokol-shdc --input shaders/vs_fs_shader.glsl --output shaders/shaders.glsl.h --slang glsl430:hlsl5:metal_macos

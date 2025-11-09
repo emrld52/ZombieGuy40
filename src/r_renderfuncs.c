@@ -19,7 +19,7 @@
 
 #include "../deps/cglm/cglm.h"
 
-// memcpy stuff for some reason, no idea why this fixes things
+// memcpy stuff for some reason, no idea why this fixes things. didnt need it when i was doing all this in main but need it here
 
 #include <string.h>
 
@@ -82,8 +82,12 @@ void init_rendering()
 
     unsigned char* pixels = stbi_load("assets/img/bob.png", &width, &height, &channels, 0);
 
+    // debug stuff
+
     printf("width %d, height %d, channels %d", width, height, channels);
     
+    // make image out of data just loaded in ram, send to vram
+
     bob = sg_make_image(&(sg_image_desc){
         .width = width,
         .height = height,
@@ -105,10 +109,14 @@ void init_rendering()
         .label = "tex-sampler"
     });
 
+    // free from ram
+
     stbi_image_free(pixels);
 
     // create shader out of basic shaders wrote before
     sg_shader shd = sg_make_shader(quad_shader_desc(sg_query_backend()));
+
+    // shader pipeline
 
     state.pip = sg_make_pipeline(&(sg_pipeline_desc){
         .shader = shd,
@@ -164,21 +172,26 @@ void end_call()
 
 // after initializing begin drawing from drawcall list
 
+int framecount = 0;
+
 void draw_game()
 {
-
     sg_begin_pass(&(sg_pass) { .action = state.pass_action, .swapchain = sglue_swapchain() });
     sg_apply_pipeline(state.pip);
     sg_apply_bindings(&state.bind);
 
-    printf("draw calls : %d\n", len);
+    // count frames, debug
+
+    printf("frame count : %d draw calls : %d\n", framecount, len);
+
+    framecount += 1;
 
     // if no draw calls just render nothing
 
     if(len > 0) {
         // go through all draw calls
 
-        for (int i = 0; i < len; i++)
+        for (int i = 0; i <= len; i++)
         {
             // define simple ortho matrix to avoid stretching, keep aspect ratios and such consistent
 
