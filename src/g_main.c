@@ -137,8 +137,10 @@ void frame()
     // define simple ortho matrix to avoid stretching, keep aspect ratios and such consistent
 
     mat4 proj;
-    glm_ortho(0.0f, 640.0f, 480.0f, 0.0f, -1.0f, 1.0f, proj);
+    glm_ortho(0.0f, sapp_width(), sapp_height(), 0.0f, -1.0f, 1.0f, proj);
     memcpy(state.vertex_shader_params.projection, proj, sizeof(float) * 16);
+
+    // disgusting test, not sure how to modify that vert shader param it doesnt let me modify state
 
     y += 0.1f;
 

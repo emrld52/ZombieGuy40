@@ -10,9 +10,9 @@ all: $(TARGET) rungame
 rungame:
 	$(TARGET)
 
-$(TARGET): src/main.c shaders/vs_fs_shader.glsl
+$(TARGET): src/g_main.c shaders/vs_fs_shader.glsl
 	sokol-shdc --input shaders/vs_fs_shader.glsl --output shaders/shaders.glsl.h --slang glsl430:hlsl5:metal_macos
-	$(CC) src/main.c -o $(TARGET) $(LIBS)
+	$(CC) src/g_main.c -o $(TARGET) $(LIBS)
 
 shader:
 	sokol-shdc --input shaders/vs_fs_shader.glsl --output shaders/shaders.glsl.h --slang glsl430:hlsl5:metal_macos
