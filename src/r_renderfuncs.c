@@ -1,10 +1,5 @@
-// include parent header
-
-#include "r_renderfuncs.h"
-
-// cglm
-
-#include "../deps/cglm/cglm.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 // sokol stuff
 
@@ -14,13 +9,25 @@
 
 // use stb image for image decoding
 
-#define STB_IMAGE_IMPLEMENTATION
-
 #include "../deps/stb_image.h"
 
 // shaders
 
 #include "../shaders/shaders.glsl.h"
+
+// cglm gl math
+
+#include "../deps/cglm/cglm.h"
+
+// memcpy stuff for some reason, no idea why this fixes things
+
+#include <string.h>
+
+// include parent header
+
+#include "r_renderfuncs.h"
+
+#define MAX_DRAW_CALLS 128
 
 // rendering state
 
@@ -126,23 +133,70 @@ void init_rendering()
     };
 }
 
+// init draw queue that we will append draw calls to as sprites. circular queue. max draw calls of 128
+
+sprite draw_queue[MAX_DRAW_CALLS];
+
+//start of queue, end of queue, length of queue
+
+int head = 0, tail = 0, len = 0;
+
+void draw_call(sprite s)
+{
+    if(len != MAX_DRAW_CALLS) {
+        draw_queue[tail] = s;
+
+        tail = (tail + 1) % MAX_DRAW_CALLS;
+        len += 1;
+    }
+}
+
+void end_call()
+{
+    if(len > 0)
+    {
+        memset(&draw_queue[head], 0, sizeof(sprite));
+
+        head = (head + 1) % MAX_DRAW_CALLS;
+        len -= 1;
+    }
+}
+
+// after initializing begin drawing from drawcall list
+
 void draw_game()
 {
+
     sg_begin_pass(&(sg_pass) { .action = state.pass_action, .swapchain = sglue_swapchain() });
     sg_apply_pipeline(state.pip);
     sg_apply_bindings(&state.bind);
 
-    // define simple ortho matrix to avoid stretching, keep aspect ratios and such consistent
+    printf("draw calls : %d\n", len);
 
-    mat4 proj;
-    glm_ortho(0.0f, sapp_width(), sapp_height(), 0.0f, -1.0f, 1.0f, proj);
-    memcpy(state.vertex_shader_params.projection, proj, sizeof(float) * 16);
+    // if no draw calls just render nothing
 
-    memcpy(state.vertex_shader_params.position, (vec3){ 0, 0, 0 }, sizeof(vec3) * 1);
+    if(len > 0) {
+        // go through all draw calls
 
-    sg_apply_uniforms(UB_quad_vs_params, &SG_RANGE(state.vertex_shader_params));
+        for (int i = 0; i < len; i++)
+        {
+            // define simple ortho matrix to avoid stretching, keep aspect ratios and such consistent
 
-    sg_draw(0, 6, 1);
+            mat4 proj;
+            glm_ortho(0.0f, sapp_width(), sapp_height(), 0.0f, -1.0f, 1.0f, proj);
+            memcpy(state.vertex_shader_params.projection, proj, sizeof(float) * 16);
+
+            memcpy(state.vertex_shader_params.position, draw_queue[head].pos, sizeof(vec3) * 1);
+
+            sg_apply_uniforms(UB_quad_vs_params, &SG_RANGE(state.vertex_shader_params));
+
+            sg_draw(0, 6, 1);
+
+            // confirm draw call complete
+
+            end_call();
+        }
+    }
     
     sg_end_pass();
 

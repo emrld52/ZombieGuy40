@@ -1,1 +1,2 @@
-void run_game_loop() {}
+void run_gameloop();
+void gameloop_init();
