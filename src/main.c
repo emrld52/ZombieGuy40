@@ -4,7 +4,7 @@
 // sokol stuff
 
 #define SOKOL_IMPL
-#define SOKOL_D3D11
+#define SOKOL_GLCORE
 
 #include "../deps/sokol_app.h"
 #include "../deps/sokol_gfx.h"
@@ -20,11 +20,16 @@
 
 #include "../shaders/shaders.glsl.h"
 
+// cglm gl math
+
+#include "../deps/cglm/cglm.h"
+
 // rendering state
 static struct {
     sg_pipeline pip;
     sg_bindings bind;
     sg_pass_action pass_action;
+    quad_vs_params_t vertex_shader_params;
 } state;
 
 // test image for now
@@ -41,10 +46,10 @@ static void init(void)
     const float vertices[] =
     {
         // pos              // uv
-        -0.5f, 0.5f, 0.0f,  0.0f, 0.0f, // top left
-        0.5f, 0.5f, 0.0f,   1.0f, 0.0f, // top right
-        -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // bottom left
-        0.5f, -0.5f, 0.0f,  1.0f, 1.0f // bottom right
+        0.0f, 0.0f, 0.0f,  0.0f, 0.0f, // top left
+        32.0f, 0.0f, 0.0f,   1.0f, 0.0f, // top right
+        0.0f, 32.0f, 0.0f, 0.0f, 1.0f, // bottom left
+        32.0f, 32.0f, 0.0f,  1.0f, 1.0f // bottom right
     };
 
     const uint16_t indices[] = {
@@ -121,12 +126,25 @@ static void init(void)
     };
 }
 
+float y = 0.0f;
 
 void frame()
 {
     sg_begin_pass(&(sg_pass) { .action = state.pass_action, .swapchain = sglue_swapchain() });
     sg_apply_pipeline(state.pip);
     sg_apply_bindings(&state.bind);
+
+    // define simple ortho matrix to avoid stretching, keep aspect ratios and such consistent
+
+    mat4 proj;
+    glm_ortho(0.0f, 640.0f, 480.0f, 0.0f, -1.0f, 1.0f, proj);
+    memcpy(state.vertex_shader_params.projection, proj, sizeof(float) * 16);
+
+    y += 0.1f;
+
+    memcpy(state.vertex_shader_params.position, (vec3){ 0, y, 0 }, sizeof(vec3) * 1);
+
+    sg_apply_uniforms(UB_quad_vs_params, &SG_RANGE(state.vertex_shader_params));
 
     sg_draw(0, 6, 1);
     

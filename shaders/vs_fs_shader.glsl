@@ -4,8 +4,13 @@ layout(location = 1) in vec2 a_uv;
 
 out vec2 v_uv;
 
+layout(binding=0) uniform quad_vs_params {
+    mat4 projection;
+    vec3 position;
+};
+
 void main() {
-    gl_Position = vec4(a_pos, 1.0);
+    gl_Position = projection * vec4(a_pos + position, 1.0);
     v_uv = a_uv;
 }
 @end
