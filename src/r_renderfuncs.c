@@ -1,10 +1,12 @@
-#include <stdio.h>
-#include <stdlib.h>
+// include parent header
+
+#include "r_renderfuncs.h"
+
+// cglm
+
+#include "../deps/cglm/cglm.h"
 
 // sokol stuff
-
-#define SOKOL_IMPL
-#define SOKOL_GLCORE
 
 #include "../deps/sokol_app.h"
 #include "../deps/sokol_gfx.h"
@@ -20,13 +22,8 @@
 
 #include "../shaders/shaders.glsl.h"
 
-// cglm gl math
-
-#include "../deps/cglm/cglm.h"
-
-// abstracted rendering file
-
 // rendering state
+
 static struct {
     sg_pipeline pip;
     sg_bindings bind;
@@ -37,7 +34,7 @@ static struct {
 // test image for now
 sg_image bob;
 
-static void init(void)
+void init_rendering()
 {
     sg_setup(&(sg_desc)
     {
@@ -129,9 +126,7 @@ static void init(void)
     };
 }
 
-float y = 0.0f;
-
-void frame()
+void draw_game()
 {
     sg_begin_pass(&(sg_pass) { .action = state.pass_action, .swapchain = sglue_swapchain() });
     sg_apply_pipeline(state.pip);
@@ -143,11 +138,7 @@ void frame()
     glm_ortho(0.0f, sapp_width(), sapp_height(), 0.0f, -1.0f, 1.0f, proj);
     memcpy(state.vertex_shader_params.projection, proj, sizeof(float) * 16);
 
-    // disgusting test, not sure how to modify that vert shader param it doesnt let me modify state
-
-    y += 0.1f;
-
-    memcpy(state.vertex_shader_params.position, (vec3){ 0, y, 0 }, sizeof(vec3) * 1);
+    memcpy(state.vertex_shader_params.position, (vec3){ 0, 0, 0 }, sizeof(vec3) * 1);
 
     sg_apply_uniforms(UB_quad_vs_params, &SG_RANGE(state.vertex_shader_params));
 
@@ -156,26 +147,4 @@ void frame()
     sg_end_pass();
 
     sg_commit();
-}
-
-void cleanup()
-{
-    sg_shutdown();
-}
-
-void event()
-{
-
-}
-            
-sapp_desc sokol_main(int argc, char* argv[]) {
-    return (sapp_desc) {
-        .width = 640,
-        .height = 480,
-        .init_cb = init,
-        .frame_cb = frame,
-        .cleanup_cb = cleanup,
-        .event_cb = event,
-        .window_title = "ZombieGuy40"
-    };
 }
