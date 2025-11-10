@@ -7,7 +7,7 @@
 
 #include "r_renderfuncs.h"
 
-#define MAX_ZOMBIES 48
+#define MAX_ZOMBIES 64
 
 typedef struct zombie_t {
     sprite zombie_sprite;

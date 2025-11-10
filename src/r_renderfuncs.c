@@ -33,12 +33,12 @@
 
 #include "g_state.h"
 
-#define MAX_DRAW_CALLS 128
+#define MAX_DRAW_CALLS 256
 
 // how many sprites horizontally and vertically (rows and columns)
 
-#define TEXTURE_ATLAS_SPRITE_X_COUNT 4
-#define TEXTURE_ATLAS_SPRITE_Y_COUNT 2
+#define TEXTURE_ATLAS_SPRITE_X_COUNT 20
+#define TEXTURE_ATLAS_SPRITE_Y_COUNT 20
 
 // rendering state
 
@@ -56,6 +56,16 @@ uint64_t global_raw_delta_time = 0;
 float global_delta_time = 0;
 
 int render_game_width = 640;
+
+sprite make_sprite(vec3 pos, vec2 sprite_coord, bool ui)
+{
+    return (sprite)
+    {
+        .pos[0] = pos[0], .pos[1] = pos[1],
+        .sprite_coord[0] = sprite_coord[0], .sprite_coord[1] = sprite_coord[1],
+        .ui = ui
+    };
+}
 
 void init_rendering()
 {
@@ -153,12 +163,25 @@ void init_rendering()
 
         .index_type = SG_INDEXTYPE_UINT16,
 
-        .label = "quad-pipeline"
+        .label = "quad-pipeline",
+
+        .colors[0].blend.enabled = true,
+        .colors[0].blend.src_factor_rgb = SG_BLENDFACTOR_SRC_ALPHA,
+        .colors[0].blend.dst_factor_rgb = SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+        .colors[0].blend.op_rgb = SG_BLENDOP_ADD,
+
+        .colors[0].blend.src_factor_alpha = SG_BLENDFACTOR_ONE,
+        .colors[0].blend.dst_factor_alpha = SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+        .colors[0].blend.op_alpha = SG_BLENDOP_ADD,
+
+        .colors[0].write_mask = SG_COLORMASK_RGBA
     });
+
+    // define simple sky blue for pass action
 
     state.pass_action = (sg_pass_action)
     {
-        .colors[0] = { .load_action = SG_LOADACTION_CLEAR, .clear_value = {0.0f, 0.0f, 0.0f, 0.0f}}
+        .colors[0] = { .load_action = SG_LOADACTION_CLEAR, .clear_value = {0.7f, 0.7f, 1.0f, 1.0f}}
     };
 
     // set texture atlas dimensions in uniform
@@ -240,7 +263,17 @@ void draw_game()
             state.vertex_shader_params.sprite_coord[0] = draw_queue[head].sprite_coord[0];
             state.vertex_shader_params.sprite_coord[1] = draw_queue[head].sprite_coord[1];
 
-            sg_apply_uniforms(UB_quad_vs_params, &SG_RANGE(state.vertex_shader_params));
+            if(draw_queue[head].ui == true)
+            {
+                state.vertex_shader_params.cam_position[0] = 0;
+                state.vertex_shader_params.cam_position[1] = 0;
+
+                sg_apply_uniforms(UB_quad_vs_params, &SG_RANGE(state.vertex_shader_params));
+
+                state.vertex_shader_params.cam_position[0] = global_camera_position[0];
+                state.vertex_shader_params.cam_position[1] = global_camera_position[1];
+            }
+            else sg_apply_uniforms(UB_quad_vs_params, &SG_RANGE(state.vertex_shader_params));
 
             sg_draw(0, 6, 1);
 

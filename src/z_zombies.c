@@ -36,8 +36,8 @@ void spawn_zombie(int tier, int hit_points, float speed, float jump_height)
         {
             // init zombie sprite, no animations yet
 
-            zombie_pool[i].zombie_sprite.sprite_coord[0] = 2;
-            zombie_pool[i].zombie_sprite.sprite_coord[1] = 1;
+            zombie_pool[i].zombie_sprite.sprite_coord[0] = 1;
+            zombie_pool[i].zombie_sprite.sprite_coord[1] = 5 + ((rand() % 3) * 3);
 
             // spawn in sky at any horizontal position in game-space. will fall down
 
@@ -98,19 +98,22 @@ void simulate_zombies(sprite player)
 
             if(zombie_pool[i].is_grounded) 
             {
-                if(player.pos[1] < zombie_pool[i].zombie_sprite.pos[1]) zombie_pool[i].vel[1] = -zombie_pool[i].jump_height;
+                // perform this check once every second and a half
 
-                // perform this check once every 2 seconds
+                if(player.pos[1] < zombie_pool[i].zombie_sprite.pos[1] && zombie_pool[i].logic_frame_time >= 1.5f) 
+                {
+                    zombie_pool[i].vel[1] = -zombie_pool[i].jump_height;
 
-                if(zombie_pool[i].time_til_next_jump_impulse <= 0.0f && zombie_pool[i].logic_frame_time >= 2.0f)
+                    // reset logic timer
+                    zombie_pool[i].logic_frame_time = 0.0f;
+                }
+
+                if(zombie_pool[i].time_til_next_jump_impulse <= 0.0f)
                 {
                     // small impulse jumps shouldnt be as big as actual jumps
 
                     zombie_pool[i].vel[1] = -zombie_pool[i].jump_height / 3;
                     zombie_pool[i].time_til_next_jump_impulse = rand() % (6 - 1) + 1;
-
-                    // reset logic timer
-                    zombie_pool[i].logic_frame_time = 0.0f;
                 }
             }
             
@@ -120,7 +123,7 @@ void simulate_zombies(sprite player)
             zombie_pool[i].zombie_sprite.pos[0] += zombie_pool[i].vel[0] * global_delta_time * global_game_speed;
             zombie_pool[i].zombie_sprite.pos[1] += zombie_pool[i].vel[1] * global_delta_time * global_game_speed;
 
-            printf("\nzom %d pos %f %f logic timer %f time til next jump %f\n", i, zombie_pool[i].zombie_sprite.pos[0], zombie_pool[i].zombie_sprite.pos[1], zombie_pool[i].logic_frame_time, zombie_pool[i].time_til_next_jump_impulse);
+            //printf("\nzom %d pos %f %f logic timer %f time til next jump %f\n", i, zombie_pool[i].zombie_sprite.pos[0], zombie_pool[i].zombie_sprite.pos[1], zombie_pool[i].logic_frame_time, zombie_pool[i].time_til_next_jump_impulse);
         }
     }
 }

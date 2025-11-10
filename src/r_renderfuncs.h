@@ -9,7 +9,15 @@
 typedef struct sprite_t {
     vec3 pos;
     vec2 sprite_coord;
+
+    // ui sprites ignore camera position and draw exclusively in screen pixels
+
+    bool ui;
 } sprite;
+
+// avoid tedious manual field filling, nice function. lookup table for sprites available
+
+sprite make_sprite(vec3 pos, vec2 sprite_coord, bool ui);
 
 // function where you pass in sprite data, will be added to drawcall queue in main
 

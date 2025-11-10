@@ -13,6 +13,8 @@
 
 vec2 global_camera_position;
 
+sprite heart;
+
 void camera_shake(float magnitude)
 {
     float angle = ((float)rand() / (float)RAND_MAX) * 2.0f * M_PI;
@@ -28,9 +30,11 @@ void gameloop_init()
     global_camera_position[0] = 0;
     global_camera_position[1] = 0;
 
+    heart = make_sprite(GLM_VEC2_ZERO, (vec2){20, 1}, true);
+
     player_init();
 
-    spawn_zombie(0, 1, 48.0f, 512.0f);
+    spawn_zombie(0, 1, 48.0f, 448.0f);
 }
 
 void run_gameloop()
@@ -40,6 +44,23 @@ void run_gameloop()
     simulate_zombies(p);
 
     render_zombies();
+
+    // debug ui
+
+    for(int i = 0; i < 3; i++)
+    {
+        draw_call((sprite){
+            .sprite_coord[0] = 20,
+            .sprite_coord[1] = 1,
+            .pos[0] = 8 + (4 * i) + (32 * i),
+            .pos[1] = 8,
+            .ui = true
+        }); 
+    }
+
+    // screen shake test
+
+    if(global_input.keysPressed[SAPP_KEYCODE_E]) spawn_zombie(0, 1, ((float)rand()/(float)(RAND_MAX/25.0f)) + 25.0f, ((float)rand()/(float)(RAND_MAX/256.0f)) + 256.0f);
 
     // smooth camera back to 0, 0. shake will automatically resolve to 0, 0
 
