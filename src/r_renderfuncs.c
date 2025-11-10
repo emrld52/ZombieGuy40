@@ -49,11 +49,13 @@ static struct {
     quad_vs_params_t vertex_shader_params;
 } state;
 
-// test image for now
-sg_image bob;
+// texture atlas
+sg_image texture_atlas;
 
 uint64_t global_raw_delta_time = 0;
 float global_delta_time = 0;
+
+int render_game_width = 640;
 
 void init_rendering()
 {
@@ -95,11 +97,11 @@ void init_rendering()
         .label = "index-buffer"
     });
 
-    // load texture atlas
+    // load texture atlas, assets0.zmb is just a renamed png file to slightly obfuscate the game. also zmb because zombie
 
     int width=0, height=0, channels=0;
 
-    unsigned char* pixels = stbi_load("assets/img/bob_atlas.png", &width, &height, &channels, 0);
+    unsigned char* pixels = stbi_load("assets0.zmb", &width, &height, &channels, 0);
 
     // debug stuff
 
@@ -107,7 +109,7 @@ void init_rendering()
     
     // make image out of data just loaded in ram, send to vram
 
-    bob = sg_make_image(&(sg_image_desc){
+    texture_atlas = sg_make_image(&(sg_image_desc){
         .width = width,
         .height = height,
         .pixel_format = SG_PIXELFORMAT_RGBA8,
@@ -119,7 +121,7 @@ void init_rendering()
     });
 
     state.bind.views[0] = sg_make_view(&(sg_view_desc){
-        .texture = { .image = bob },
+        .texture = { .image = texture_atlas },
         .label = "tex-view",
     });
 
@@ -214,6 +216,11 @@ void draw_game()
     sg_begin_pass(&(sg_pass) { .action = state.pass_action, .swapchain = sglue_swapchain() });
     sg_apply_pipeline(state.pip);
     sg_apply_bindings(&state.bind);
+
+    // update camera position in shader
+
+    state.vertex_shader_params.cam_position[0] = global_camera_position[0];
+    state.vertex_shader_params.cam_position[1] = global_camera_position[1];
 
     // if no draw calls just render nothing
 

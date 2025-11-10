@@ -5,6 +5,8 @@
 
 #include "g_state.h"
 
+#include "z_coreloop.h"
+
 // libraries
 
 #include "../deps/cglm/cglm.h"
@@ -24,7 +26,7 @@
 static vec3 pos;
 static vec2 vel;
 
-static sprite p;
+sprite p;
 
 static bool is_grounded = false;
 
@@ -32,7 +34,7 @@ static bool is_grounded = false;
 
 void player_init()
 {
-    glm_vec3_copy((vec3){ 0.0f, 0.0f, 0.0f }, pos);
+    glm_vec3_copy((vec3){ (sapp_width() / 2) - 32, 0.0f, 0.0f }, pos);
     glm_vec3_copy((vec3){ 0.0f, 0.0f, 0.0f }, vel);
 
     p.sprite_coord[0] = 1;
@@ -63,6 +65,13 @@ void player_loop()
     if(global_input.keysPressed[SAPP_KEYCODE_D]) vel[0] = PLAYER_MAX_SPEED;
     else if(global_input.keysPressed[SAPP_KEYCODE_A]) vel[0] = -PLAYER_MAX_SPEED;
     else vel[0] = 0;
+
+    // screen shake test
+
+    if(global_input.keysPressed[SAPP_KEYCODE_E] && global_camera_position[0] <= 0.25f)
+    {
+        camera_shake(5.0f);
+    }
 
     // add velocity to position. first index (0) = x axis, second index = y
 

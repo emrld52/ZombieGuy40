@@ -1,3 +1,5 @@
+#pragma once
+
 // cglm gl math
 
 #include "../deps/cglm/cglm.h"
@@ -20,3 +22,5 @@ void draw_game();
 // call at start of program
 
 void init_rendering();
+
+extern int render_game_width;

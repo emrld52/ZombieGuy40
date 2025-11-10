@@ -48,17 +48,13 @@ static void init(void)
 { 
     memset(&global_input, 0, sizeof(input_reader));
 
-    player_init();
     gameloop_init();
     init_rendering();
-
-    
 }
 
 
 void frame()
 {
-    player_loop();
     run_gameloop();
     draw_game();
 }

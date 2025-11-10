@@ -5,7 +5,7 @@ BIN_DIR = bin
 
 TARGET = $(BIN_DIR)/zom.exe
 
-SRC += src/g_main.c src/r_renderfuncs.c src/z_coreloop.c src/z_player.c
+SRC += src/g_main.c src/r_renderfuncs.c src/z_coreloop.c src/z_player.c src/z_zombies.c
 
 all: $(TARGET) rungame
 
