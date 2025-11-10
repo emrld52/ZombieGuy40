@@ -35,6 +35,11 @@
 
 #define MAX_DRAW_CALLS 128
 
+// how many sprites horizontally and vertically (rows and columns)
+
+#define TEXTURE_ATLAS_SPRITE_X_COUNT 4
+#define TEXTURE_ATLAS_SPRITE_Y_COUNT 2
+
 // rendering state
 
 static struct {
@@ -90,11 +95,11 @@ void init_rendering()
         .label = "index-buffer"
     });
 
-    // load test image
+    // load texture atlas
 
     int width=0, height=0, channels=0;
 
-    unsigned char* pixels = stbi_load("assets/img/bob.png", &width, &height, &channels, 0);
+    unsigned char* pixels = stbi_load("assets/img/bob_atlas.png", &width, &height, &channels, 0);
 
     // debug stuff
 
@@ -153,6 +158,16 @@ void init_rendering()
     {
         .colors[0] = { .load_action = SG_LOADACTION_CLEAR, .clear_value = {0.0f, 0.0f, 0.0f, 0.0f}}
     };
+
+    // set texture atlas dimensions in uniform
+
+    state.vertex_shader_params.texture_atlas_dimensions[0] = width;
+    state.vertex_shader_params.texture_atlas_dimensions[1] = height;
+
+    // how many rows and columns
+
+    state.vertex_shader_params.sprite_count[0] = TEXTURE_ATLAS_SPRITE_X_COUNT;
+    state.vertex_shader_params.sprite_count[1] = TEXTURE_ATLAS_SPRITE_Y_COUNT;
 }
 
 // init draw queue that we will append draw calls to as sprites. circular queue. max draw calls of 128
@@ -192,7 +207,7 @@ void draw_game()
 
     // print frame-time
 
-    printf("frametime : %f \n", global_delta_time);
+    printf("frametime : %f (%f fps)\n", global_delta_time, 1.0f / global_delta_time);
 
     //printf("frametime : %f \n", stm_ms(stm_laptime(&global_raw_delta_time)) / 1000);
 
@@ -214,6 +229,9 @@ void draw_game()
             memcpy(state.vertex_shader_params.projection, proj, sizeof(float) * 16);
 
             memcpy(state.vertex_shader_params.position, draw_queue[head].pos, sizeof(vec3) * 1);
+
+            state.vertex_shader_params.sprite_coord[0] = draw_queue[head].sprite_coord[0];
+            state.vertex_shader_params.sprite_coord[1] = draw_queue[head].sprite_coord[1];
 
             sg_apply_uniforms(UB_quad_vs_params, &SG_RANGE(state.vertex_shader_params));
 

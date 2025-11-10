@@ -12,6 +12,10 @@ void gameloop_init()
 {
     glm_vec3_copy( (vec3){ 0.0f, 0.0f, 0.0f }, player.pos);
     glm_vec3_copy( (vec3){ 32.0f, 32.0f, 0.0f }, player2.pos);
+    player.sprite_coord[0] = 2;
+    player.sprite_coord[1] = 1;
+    player2.sprite_coord[0] = 2;
+    player2.sprite_coord[1] = 1;
 }
 
 void run_gameloop()

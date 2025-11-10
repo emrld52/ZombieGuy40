@@ -34,6 +34,9 @@ void player_init()
 {
     glm_vec3_copy((vec3){ 0.0f, 0.0f, 0.0f }, pos);
     glm_vec3_copy((vec3){ 0.0f, 0.0f, 0.0f }, vel);
+
+    p.sprite_coord[0] = 1;
+    p.sprite_coord[1] = 1;
 }
 
 void player_loop()
