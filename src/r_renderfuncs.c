@@ -47,7 +47,8 @@ static struct {
 // test image for now
 sg_image bob;
 
-uint64_t raw_delta_time = 0;
+uint64_t global_raw_delta_time = 0;
+float global_delta_time = 0;
 
 void init_rendering()
 {
@@ -185,13 +186,15 @@ void end_call()
 
 void draw_game()
 {
-    // set global delta-time
+    // set global delta-time, get time in ticks, convert to miliseconds, divide by 1000 to get the time that is out of one second to multiply movement by
 
-    //delta_time = (float)(stm_ms(stm_laptime(&raw_delta_time)) / 1000);
+    global_delta_time = stm_ms(stm_laptime(&global_raw_delta_time)) / 1000;
 
     // print frame-time
 
-    printf("frametime : %f \n", stm_ms(stm_laptime(&raw_delta_time)) / 1000);
+    printf("frametime : %f \n", global_delta_time);
+
+    //printf("frametime : %f \n", stm_ms(stm_laptime(&global_raw_delta_time)) / 1000);
 
     sg_begin_pass(&(sg_pass) { .action = state.pass_action, .swapchain = sglue_swapchain() });
     sg_apply_pipeline(state.pip);

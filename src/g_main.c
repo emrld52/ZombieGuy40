@@ -42,6 +42,7 @@
 // init input
 
 input_reader global_input = { 0 };
+float global_game_speed = 1.0f;
 
 static void init(void)
 { 

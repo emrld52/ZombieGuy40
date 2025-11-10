@@ -5,22 +5,28 @@
 
 #include "g_state.h"
 
-// cglm gl math
+// libraries
 
 #include "../deps/cglm/cglm.h"
-
-// sokol
-
 #include "../deps/sokol_app.h"
+#include <stdbool.h>
 
 // rendering, might do this in core loop, not sure right now. player pos currently not exposed
 
 #include "r_renderfuncs.h"
 
+// player-movmement variables
+
+#define PLAYER_MAX_SPEED 256.0f
+#define PLAYER_GRAVITY 1024.0f
+#define PLAYER_JUMP_FORCE 512.0f
+
 static vec3 pos;
 static vec2 vel;
 
 static sprite p;
+
+static bool is_grounded = false;
 
 // init player position and velocity
 
@@ -32,9 +38,37 @@ void player_init()
 
 void player_loop()
 {
-    glm_vec3_copy(pos, p.pos);
+    // if in the air, begin applying gravity, if grounded y velocity = 0. for now ground is just the bottom of the window, no collision yet.
 
-    if(global_input.keysPressed[SAPP_KEYCODE_D]) pos[0] += 0.1f;
+    if(pos[1] + 32 < 480) 
+    {
+        is_grounded = false;
+        vel[1] += PLAYER_GRAVITY * global_delta_time * global_game_speed;
+    }
+    else 
+    {
+        // if frame timing led to dropping slightly through floor adjust the next frame after
+
+        if(pos[1] + 32 > 480) pos[1] = 480 - 32;
+
+        is_grounded = true;
+        vel[1] = 0;
+    }
+
+    if(is_grounded && global_input.keysPressed[SAPP_KEYCODE_SPACE]) vel[1] = -PLAYER_JUMP_FORCE;
+
+    if(global_input.keysPressed[SAPP_KEYCODE_D]) vel[0] = PLAYER_MAX_SPEED;
+    else if(global_input.keysPressed[SAPP_KEYCODE_A]) vel[0] = -PLAYER_MAX_SPEED;
+    else vel[0] = 0;
+
+    // add velocity to position. first index (0) = x axis, second index = y
+
+    pos[0] += vel[0] * global_delta_time * global_game_speed;
+    pos[1] += vel[1] * global_delta_time * global_game_speed;
+
+    // pass off calculated position into a sprite and send off to the draw queue
+
+    glm_vec3_copy(pos, p.pos);
 
     draw_call(p);
 }

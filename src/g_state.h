@@ -12,7 +12,10 @@ typedef struct input_reader_t {
 extern input_reader global_input;
 
 // delta time in ticks
-extern uint64_t raw_delta_time;
+extern uint64_t global_raw_delta_time;
 
 // delt-time out of 1 second as a float, can multiply values by to get them over 1 second (e.g move 10 units a sec = 10 * delta_time)
-extern uint64_t delta_time;
+extern float global_delta_time;
+
+// game-speed in the event that i want to slow down or speed up time, maybe some kind of power up or death animation, im unsure
+extern float global_game_speed;
