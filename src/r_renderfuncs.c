@@ -47,6 +47,7 @@ static struct {
     sg_bindings bind;
     sg_pass_action pass_action;
     quad_vs_params_t vertex_shader_params;
+    quad_fs_params_t fragment_shader_params;
 } state;
 
 // texture atlas
@@ -57,13 +58,18 @@ float global_delta_time = 0;
 
 int render_game_width = 640;
 
-sprite make_sprite(vec3 pos, vec2 sprite_coord, bool ui)
+// define simple ortho matrix to avoid stretching, keep aspect ratios and such consistent
+
+mat4 proj;
+
+sprite make_sprite(vec3 pos, vec2 sprite_coord, bool ui, vec2 resolution)
 {
     return (sprite)
     {
         .pos[0] = pos[0], .pos[1] = pos[1],
         .sprite_coord[0] = sprite_coord[0], .sprite_coord[1] = sprite_coord[1],
-        .ui = ui
+        .ui = ui,
+        .resolution[0] = resolution[0], .resolution[1] = resolution[1]
     };
 }
 
@@ -84,10 +90,10 @@ void init_rendering()
     const float vertices[] =
     {
         // pos              // uv
-        0.0f, 0.0f, 0.0f,  0.0f, 0.0f, // top left
-        32.0f, 0.0f, 0.0f,   1.0f, 0.0f, // top right
-        0.0f, 32.0f, 0.0f, 0.0f, 1.0f, // bottom left
-        32.0f, 32.0f, 0.0f,  1.0f, 1.0f // bottom right
+        0.0f, 0.0f, 0.0f,   0.0f, 0.0f, // top left
+        1.0f, 0.0f, 0.0f,   1.0f, 0.0f, // top right
+        0.0f, 1.0f, 0.0f,   0.0f, 1.0f, // bottom left
+        1.0f, 1.0f, 0.0f,   1.0f, 1.0f // bottom right
     };
 
     const uint16_t indices[] = {
@@ -140,6 +146,16 @@ void init_rendering()
         .label = "tex-sampler"
     });
 
+    // set texture atlas dimensions in uniform
+
+    state.fragment_shader_params.texture_atlas_dimensions[0] = 640;
+    state.fragment_shader_params.texture_atlas_dimensions[1] = 640;
+
+    // how many rows and columns
+
+    state.fragment_shader_params.sprite_count[0] = (float)TEXTURE_ATLAS_SPRITE_X_COUNT;
+    state.fragment_shader_params.sprite_count[1] = (float)TEXTURE_ATLAS_SPRITE_Y_COUNT;
+
     // free from ram
 
     stbi_image_free(pixels);
@@ -183,16 +199,6 @@ void init_rendering()
     {
         .colors[0] = { .load_action = SG_LOADACTION_CLEAR, .clear_value = {0.7f, 0.7f, 1.0f, 1.0f}}
     };
-
-    // set texture atlas dimensions in uniform
-
-    state.vertex_shader_params.texture_atlas_dimensions[0] = width;
-    state.vertex_shader_params.texture_atlas_dimensions[1] = height;
-
-    // how many rows and columns
-
-    state.vertex_shader_params.sprite_count[0] = TEXTURE_ATLAS_SPRITE_X_COUNT;
-    state.vertex_shader_params.sprite_count[1] = TEXTURE_ATLAS_SPRITE_Y_COUNT;
 }
 
 // init draw queue that we will append draw calls to as sprites. circular queue. max draw calls of 128
@@ -232,7 +238,7 @@ void draw_game()
 
     // print frame-time
 
-    printf("frametime : %f (%f fps)\n", global_delta_time, 1.0f / global_delta_time);
+    printf("frametime : %f (%f fps) draw calls : %d\n", global_delta_time, 1.0f / global_delta_time, len);
 
     //printf("frametime : %f \n", stm_ms(stm_laptime(&global_raw_delta_time)) / 1000);
 
@@ -245,6 +251,9 @@ void draw_game()
     state.vertex_shader_params.cam_position[0] = global_camera_position[0];
     state.vertex_shader_params.cam_position[1] = global_camera_position[1];
 
+    // each frame rebuild matrix in the event that window has been stretched, might remove when i implement fixed aspect ratio
+    glm_ortho(0.0f, sapp_width(), sapp_height(), 0.0f, -1.0f, 1.0f, proj);
+
     // if no draw calls just render nothing
 
     if(len > 0) {
@@ -252,16 +261,17 @@ void draw_game()
 
         for (int i = 0; i <= len; i++)
         {
-            // define simple ortho matrix to avoid stretching, keep aspect ratios and such consistent
-
-            mat4 proj;
-            glm_ortho(0.0f, sapp_width(), sapp_height(), 0.0f, -1.0f, 1.0f, proj);
             memcpy(state.vertex_shader_params.projection, proj, sizeof(float) * 16);
 
             memcpy(state.vertex_shader_params.position, draw_queue[head].pos, sizeof(vec3) * 1);
 
-            state.vertex_shader_params.sprite_coord[0] = draw_queue[head].sprite_coord[0];
-            state.vertex_shader_params.sprite_coord[1] = draw_queue[head].sprite_coord[1];
+            state.fragment_shader_params.sprite_coord[0] = draw_queue[head].sprite_coord[0];
+            state.fragment_shader_params.sprite_coord[1] = draw_queue[head].sprite_coord[1];
+
+            // pass in sprite resolution
+
+            state.vertex_shader_params.scale[0] = draw_queue[head].resolution[0];
+            state.vertex_shader_params.scale[1] = draw_queue[head].resolution[1];
 
             if(draw_queue[head].ui == true)
             {
@@ -274,6 +284,8 @@ void draw_game()
                 state.vertex_shader_params.cam_position[1] = global_camera_position[1];
             }
             else sg_apply_uniforms(UB_quad_vs_params, &SG_RANGE(state.vertex_shader_params));
+
+            sg_apply_uniforms(UB_quad_fs_params, &SG_RANGE(state.fragment_shader_params));
 
             sg_draw(0, 6, 1);
 

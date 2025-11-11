@@ -39,6 +39,8 @@ void player_init()
 
     p.sprite_coord[0] = 1;
     p.sprite_coord[1] = 1;
+    p.resolution[0] = 32;
+    p.resolution[1] = 32;
 }
 
 void player_loop()

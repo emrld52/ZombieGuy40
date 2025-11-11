@@ -38,6 +38,9 @@ void spawn_zombie(int tier, int hit_points, float speed, float jump_height)
 
             zombie_pool[i].zombie_sprite.sprite_coord[0] = 1;
             zombie_pool[i].zombie_sprite.sprite_coord[1] = 5 + ((rand() % 3) * 3);
+            zombie_pool[i].zombie_sprite.resolution[0] = 32;
+            zombie_pool[i].zombie_sprite.resolution[1] = 32;
+            zombie_pool[i].zombie_sprite.ui = false;
 
             // spawn in sky at any horizontal position in game-space. will fall down
 

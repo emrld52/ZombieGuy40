@@ -14,6 +14,9 @@
 vec2 global_camera_position;
 
 sprite heart;
+sprite text;
+sprite half_bob;
+sprite full_bob;
 
 void camera_shake(float magnitude)
 {
@@ -30,7 +33,12 @@ void gameloop_init()
     global_camera_position[0] = 0;
     global_camera_position[1] = 0;
 
-    heart = make_sprite(GLM_VEC2_ZERO, (vec2){20, 1}, true);
+    heart = make_sprite(GLM_VEC2_ZERO, (vec2){20, 1}, true, (vec2){ 32, 32 });
+
+    text = make_sprite((vec2) {0,64}, (vec2){1, 15}, true, (vec2){ 32 * 7, 32 });
+
+    half_bob = make_sprite((vec2) {64,64}, (vec2){1, 16}, true, (vec2){ 32, 64 });
+    full_bob = make_sprite((vec2) {0,128}, (vec2){1, 16}, true, (vec2){ 64, 64 });
 
     player_init();
 
@@ -54,9 +62,15 @@ void run_gameloop()
             .sprite_coord[1] = 1,
             .pos[0] = 8 + (4 * i) + (32 * i),
             .pos[1] = 8,
-            .ui = true
+            .ui = true,
+            .resolution[0] = 32,
+            .resolution[1] = 32
         }); 
     }
+
+    draw_call(text);
+    draw_call(full_bob);
+    draw_call(half_bob);
 
     // screen shake test
 

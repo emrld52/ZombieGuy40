@@ -21,3 +21,6 @@ assets/img/bob_atlas-export-expor2t.png
 assets/img/bob_atlas-export-export.png
 assets/img/bob_atlas-export.png
 assets/img/bob_atlas.png
+src/r_renderfuncs.c
+bin/majBuild6/zom.exe
+bin/majBuild6/readme.txt
