@@ -253,6 +253,7 @@ void draw_game()
 
     // each frame rebuild matrix in the event that window has been stretched, might remove when i implement fixed aspect ratio
     glm_ortho(0.0f, sapp_width(), sapp_height(), 0.0f, -1.0f, 1.0f, proj);
+    memcpy(state.vertex_shader_params.projection, proj, sizeof(float) * 16);
 
     // if no draw calls just render nothing
 
@@ -261,8 +262,6 @@ void draw_game()
 
         for (int i = 0; i <= len; i++)
         {
-            memcpy(state.vertex_shader_params.projection, proj, sizeof(float) * 16);
-
             memcpy(state.vertex_shader_params.position, draw_queue[head].pos, sizeof(vec3) * 1);
 
             state.fragment_shader_params.sprite_coord[0] = draw_queue[head].sprite_coord[0];

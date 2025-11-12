@@ -24,3 +24,7 @@ assets/img/bob_atlas.png
 src/r_renderfuncs.c
 bin/majBuild6/zom.exe
 bin/majBuild6/readme.txt
+src/r_renderfuncs.c
+bin/majBuild7/readme.txt
+bin/majBuild7/zom.exe
+bin/majBuild7.zip
