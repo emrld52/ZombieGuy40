@@ -117,7 +117,7 @@ void init_rendering()
 
     int width=0, height=0, channels=0;
 
-    unsigned char* pixels = stbi_load("assets0.zmb", &width, &height, &channels, 0);
+    unsigned char* pixels = stbi_load("bin/assets0.zmb", &width, &height, &channels, 0);
 
     // debug stuff
 
