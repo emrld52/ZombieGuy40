@@ -62,7 +62,7 @@ int render_game_width = 640;
 
 mat4 proj;
 
-sprite make_sprite(vec3 pos, vec2 sprite_coord, bool ui, vec2 resolution)
+sprite make_sprite(vec2 pos, vec2 sprite_coord, bool ui, vec2 resolution)
 {
     return (sprite)
     {

@@ -85,6 +85,8 @@ void event(const sapp_event* ev) {
             break;
     }
 }
+
+// program entry point called by sokol app header
             
 sapp_desc sokol_main(int argc, char* argv[]) {
     return (sapp_desc) {

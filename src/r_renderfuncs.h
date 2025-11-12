@@ -21,7 +21,7 @@ typedef struct sprite_t {
 
 // avoid tedious manual field filling, nice function. lookup table for sprites available
 
-sprite make_sprite(vec3 pos, vec2 sprite_coord, bool ui, vec2 resolution);
+sprite make_sprite(vec2 pos, vec2 sprite_coord, bool ui, vec2 resolution);
 
 // function where you pass in sprite data, will be added to drawcall queue in main
 
