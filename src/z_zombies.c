@@ -79,14 +79,14 @@ void simulate_zombies(sprite player)
 
             // gravity
 
-            if(zombie_pool[i].zombie_sprite.pos[1] + 32 < 480) 
+            if(zombie_pool[i].zombie_sprite.pos[1] + 32 < 448) 
             {
                 zombie_pool[i].is_grounded = false;
                 zombie_pool[i].vel[1] += ZOMBIE_GRAV * global_delta_time * global_game_speed;
             }
             else 
             {
-                if(zombie_pool[i].zombie_sprite.pos[1] + 32 > 480) zombie_pool[i].zombie_sprite.pos[1] = 480 - 32;
+                if(zombie_pool[i].zombie_sprite.pos[1] + 32 > 448) zombie_pool[i].zombie_sprite.pos[1] = 448 - 32;
 
                 zombie_pool[i].is_grounded = true;
                 zombie_pool[i].vel[1] = 0;

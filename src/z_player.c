@@ -47,7 +47,7 @@ void player_loop()
 {
     // if in the air, begin applying gravity, if grounded y velocity = 0. for now ground is just the bottom of the window, no collision yet.
 
-    if(pos[1] + 32 < 480) 
+    if(pos[1] + 32 < 448) 
     {
         is_grounded = false;
         vel[1] += PLAYER_GRAVITY * global_delta_time * global_game_speed;
@@ -56,7 +56,7 @@ void player_loop()
     {
         // if frame timing led to dropping slightly through floor adjust the next frame after
 
-        if(pos[1] + 32 > 480) pos[1] = 480 - 32;
+        if(pos[1] + 32 > 448) pos[1] = 448 - 32;
 
         is_grounded = true;
         vel[1] = 0;

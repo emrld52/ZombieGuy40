@@ -1,5 +1,13 @@
 #pragma once
 
+// game logic
+
 void run_gameloop();
 void gameloop_init();
-void camera_shake(float magnitude);
+
+// program life cycle stuff
+
+void program_loop();
+void program_cleanup();
+void program_event();
+void program_init();

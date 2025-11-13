@@ -9,36 +9,20 @@
 #include "../deps/sokol_time.h"
 #include "../deps/sokol_log.h"
 
-// use stb image for image decoding
+// libs
 
+#include "../deps/cglm/cglm.h"
+#include <string.h>
 #include "../deps/stb_image.h"
 
 // shaders
 
 #include "../shaders/shaders.glsl.h"
 
-// cglm gl math
-
-#include "../deps/cglm/cglm.h"
-
-// memcpy stuff for some reason, no idea why this fixes things. didnt need it when i was doing all this in main but need it here
-
-#include <string.h>
-
-// include parent header
+// source
 
 #include "r_renderfuncs.h"
-
-// global state
-
 #include "g_state.h"
-
-#define MAX_DRAW_CALLS 256
-
-// how many sprites horizontally and vertically (rows and columns)
-
-#define TEXTURE_ATLAS_SPRITE_X_COUNT 20
-#define TEXTURE_ATLAS_SPRITE_Y_COUNT 20
 
 // rendering state
 
@@ -297,4 +281,14 @@ void draw_game()
     sg_end_pass();
 
     sg_commit();
+}
+
+void camera_shake(float magnitude)
+{
+    float angle = ((float)rand() / (float)RAND_MAX) * 2.0f * M_PI;
+    vec2 dir; 
+    dir[0] = cosf(angle) * magnitude;
+    dir[1] = sinf(angle) * magnitude;
+
+    glm_vec2_add(global_camera_position, dir, global_camera_position);
 }

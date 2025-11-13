@@ -4,6 +4,16 @@
 
 #include "../deps/cglm/cglm.h"
 
+#define VIRTUAL_WIDTH 640
+#define VIRTUAL_HEIGHT 480
+
+#define MAX_DRAW_CALLS 512
+
+// how many sprites horizontally and vertically (rows and columns)
+
+#define TEXTURE_ATLAS_SPRITE_X_COUNT 20
+#define TEXTURE_ATLAS_SPRITE_Y_COUNT 20
+
 // see texture atlas file for textures available
 
 typedef struct sprite_t {
@@ -34,5 +44,9 @@ void draw_game();
 // call at start of program
 
 void init_rendering();
+
+// camera shake function, jolts camera based on a magnitude
+
+void camera_shake(float magnitude);
 
 extern int render_game_width;
