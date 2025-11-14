@@ -23,6 +23,7 @@ scene *loaded_scene;
 
 void gameloop_init()
 {
+    sapp_dpi_scale();
     // make scene
 
     loaded_scenes[0] = (scene)
@@ -51,6 +52,18 @@ void gameloop_init()
         }
     }
 
+    loaded_scene->tilemap[8][4].is_filled = true;
+    loaded_scene->tilemap[8][5].is_filled = true;
+    loaded_scene->tilemap[8][6].is_filled = true;
+
+    for(int y = 11; y < 15; y++)
+    {
+        for(int x = 5; x < 9; x++)
+        {
+            loaded_scene->tilemap[y][x].is_filled = true;
+        }
+    }
+
     init_tilemap(loaded_scene->tilemap);
     autotiler_build_tilemap(loaded_scene->tilemap);
 }
@@ -59,7 +72,7 @@ void run_gameloop()
 {
     switch(loaded_scene->type)
     {
-    // scene is a menu
+    // scene is a menu, no menu yet so this is whatever
     case 0:
 
     break;

@@ -15,7 +15,7 @@
 
 // player-movmement variables
 
-#define PLAYER_MAX_SPEED 256.0f
+#define PLAYER_MAX_SPEED 256.0f * 0.75f
 #define PLAYER_GRAVITY 1024.0f
 #define PLAYER_JUMP_FORCE 512.0f
 
@@ -31,7 +31,8 @@ void player_init()
     glm_vec3_copy((vec2){ 0.0f, 0.0f }, ply->velocity);
     glm_vec2_copy((vec2){ 32, 32 }, ply->sprite_data.resolution);
     glm_vec2_copy((vec2){ 1, 1 }, ply->sprite_data.sprite_coord);
-    glm_vec2_copy(ply->sprite_data.resolution, ply->hit_box);
+    glm_vec2_copy((vec2){16, ply->sprite_data.resolution[1]}, ply->hit_box);
+    glm_vec2_copy((vec2){8, 0}, ply->hit_box_offset);
     ply->gravity = PLAYER_GRAVITY;
 }
 

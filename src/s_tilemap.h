@@ -13,7 +13,7 @@
 #define LEVELS_WIDTH 20
 #define LEVELS_HEIGHT 15
 
-// resolution of tiles on either axis
+// resolution of tiles on either axis. tiles must be square in dimensions
 
 #define LEVELS_TILE_RESOLUTION 32
 

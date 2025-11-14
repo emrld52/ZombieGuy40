@@ -214,8 +214,8 @@ glm_aabb2d_center(vec2 aabb[2], vec2 dest) {
 CGLM_INLINE
 bool
 glm_aabb2d_aabb(vec2 aabb[2], vec2 other[2]) {
-  return (aabb[0][0] <= other[1][0] && aabb[1][0] >= other[0][0])
-      && (aabb[0][1] <= other[1][1] && aabb[1][1] >= other[0][1]);
+  return (aabb[0][0] < other[1][0] && aabb[1][0] > other[0][0])
+      && (aabb[0][1] < other[1][1] && aabb[1][1] > other[0][1]);
 }
 
 /*!

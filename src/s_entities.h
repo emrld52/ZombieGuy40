@@ -12,6 +12,7 @@ typedef struct entity_t {
     vec2 position;
     vec2 velocity;
     vec2 hit_box;
+    vec2 hit_box_offset;
     bool is_grounded;
     float gravity;
     sprite sprite_data;
