@@ -1,3 +1,5 @@
+![App screenshot](git_images/logo.png)
+
 # ZombieGuy40 🕹
 
 ZombieGuy40 is a game made in 2 weeks for a college game jam in C with only a handful of low-level single header libraries (Sokol + CGLM + stb_image).
