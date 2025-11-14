@@ -5,3 +5,4 @@ g_ : represents files that store globally accessible values/functions or the ent
 r_ : represents rendering related files
 p_ : represents physics related files
 m_ : represents miscellanious files
+s_ : represents systems and interfacing functionality (such as scene/entity system)

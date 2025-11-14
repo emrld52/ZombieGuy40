@@ -3,7 +3,7 @@
 #include "z_player.h"
 #include "g_state.h"
 #include "z_zombies.h"
-#include "p_tilemap.h"
+#include "s_tilemap.h"
 
 // libs
 

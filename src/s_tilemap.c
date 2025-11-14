@@ -5,7 +5,7 @@
 
 // source
 
-#include "p_tilemap.h"
+#include "s_tilemap.h"
 
 // each tile name represents a coordinate on our sprite atlas
 
