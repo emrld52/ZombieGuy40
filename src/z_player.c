@@ -1,11 +1,11 @@
+// source
 
 #include "z_player.h"
-
-// global state
-
+#include "r_renderfuncs.h"
 #include "g_state.h"
-
 #include "z_coreloop.h"
+#include "s_entities.h"
+#include "s_scene.h"
 
 // libraries
 
@@ -13,78 +13,37 @@
 #include "../deps/sokol_app.h"
 #include <stdbool.h>
 
-// rendering, might do this in core loop, not sure right now. player pos currently not exposed
-
-#include "r_renderfuncs.h"
-
 // player-movmement variables
 
 #define PLAYER_MAX_SPEED 256.0f
 #define PLAYER_GRAVITY 1024.0f
 #define PLAYER_JUMP_FORCE 512.0f
 
-static vec3 pos;
-static vec2 vel;
-
-sprite p;
-
-static bool is_grounded = false;
+entity *ply;
 
 // init player position and velocity
 
 void player_init()
 {
-    glm_vec3_copy((vec3){ (sapp_width() / 2) - 32, 0.0f, 0.0f }, pos);
-    glm_vec3_copy((vec3){ 0.0f, 0.0f, 0.0f }, vel);
+    ply = make_entity_in_scene(loaded_scene);
 
-    p.sprite_coord[0] = 1;
-    p.sprite_coord[1] = 1;
-    p.resolution[0] = 32;
-    p.resolution[1] = 32;
+    glm_vec3_copy((vec2){ (sapp_width() / 2) - 32, 0.0f }, ply->position);
+    glm_vec3_copy((vec2){ 0.0f, 0.0f }, ply->velocity);
+    glm_vec2_copy((vec2){ 32, 32 }, ply->sprite_data.resolution);
+    glm_vec2_copy((vec2){ 1, 1 }, ply->sprite_data.sprite_coord);
+    glm_vec2_copy(ply->sprite_data.resolution, ply->hit_box);
+    ply->gravity = PLAYER_GRAVITY;
 }
 
 void player_loop()
 {
-    // if in the air, begin applying gravity, if grounded y velocity = 0. for now ground is just the bottom of the window, no collision yet.
+    if(ply->is_grounded && global_input.keysPressed[SAPP_KEYCODE_SPACE]) entity_override_velocity(ply, (vec2){ply->velocity[0], -PLAYER_JUMP_FORCE});
 
-    if(pos[1] + 32 < 448) 
-    {
-        is_grounded = false;
-        vel[1] += PLAYER_GRAVITY * global_delta_time * global_game_speed;
-    }
-    else 
-    {
-        // if frame timing led to dropping slightly through floor adjust the next frame after
+    if(global_input.keysPressed[SAPP_KEYCODE_D]) ply->velocity[0] = PLAYER_MAX_SPEED;
+    else if(global_input.keysPressed[SAPP_KEYCODE_A]) ply->velocity[0] = -PLAYER_MAX_SPEED;
+    else ply->velocity[0] = 0;
 
-        if(pos[1] + 32 > 448) pos[1] = 448 - 32;
-
-        is_grounded = true;
-        vel[1] = 0;
-    }
-
-    if(is_grounded && global_input.keysPressed[SAPP_KEYCODE_SPACE]) vel[1] = -PLAYER_JUMP_FORCE;
-
-    if(global_input.keysPressed[SAPP_KEYCODE_D]) vel[0] = PLAYER_MAX_SPEED;
-    else if(global_input.keysPressed[SAPP_KEYCODE_A]) vel[0] = -PLAYER_MAX_SPEED;
-    else vel[0] = 0;
-
-    // screen shake test
-
-    if(global_input.keysPressed[SAPP_KEYCODE_E] && global_camera_position[0] <= 0.25f)
-    {
-        camera_shake(5.0f);
-    }
-
-    // add velocity to position. first index (0) = x axis, second index = y
-
-    pos[0] += vel[0] * global_delta_time * global_game_speed;
-    pos[1] += vel[1] * global_delta_time * global_game_speed;
-
-    // pass off calculated position into a sprite and send off to the draw queue
-
-    glm_vec3_copy(pos, p.pos);
-
-    draw_call(p);
+    if(global_input.keysPressed[SAPP_KEYCODE_E]) camera_shake(5.0f);
 }
 
 void player_reset()

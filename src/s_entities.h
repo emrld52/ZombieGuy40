@@ -1,3 +1,5 @@
+#pragma once
+
 // libs
 
 #include "../deps/cglm/cglm.h"
@@ -10,6 +12,11 @@ typedef struct entity_t {
     vec2 position;
     vec2 velocity;
     vec2 hit_box;
+    bool is_grounded;
+    float gravity;
     sprite sprite_data;
     bool enabled;
 } entity;
+
+void entity_run_physics(entity* ent);
+void entity_override_velocity(entity* ent, vec2 vel);

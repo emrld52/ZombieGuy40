@@ -4,6 +4,8 @@
 #include "g_state.h"
 #include "z_zombies.h"
 #include "s_tilemap.h"
+#include "s_scene.h"
+#include "s_entities.h"
 
 // libs
 
@@ -16,12 +18,21 @@
 
 vec2 global_camera_position;
 
-tile tilemap[15][20];
-
-int global_game_state = 1;
+scene loaded_scenes[MAX_LOADED_SCENES];
+scene *loaded_scene;
 
 void gameloop_init()
 {
+    // make scene
+
+    loaded_scenes[0] = (scene)
+    {
+        .scene_game_speed = 1.0f,
+        .type = SCENE_TYPE_LEVEL
+    };
+
+    loaded_scene = &loaded_scenes[0];
+
     // init camera pos
 
     global_camera_position[0] = 0;
@@ -35,60 +46,49 @@ void gameloop_init()
     {
         for(int x = 0; x < 20; x++)
         {
-            if(y < 14) tilemap[y][x].is_filled = false;
-            else tilemap[y][x].is_filled = true;
+            if(y < 14) loaded_scene->tilemap[y][x].is_filled = false;
+            else loaded_scene->tilemap[y][x].is_filled = true;
         }
     }
 
-    init_tilemap(tilemap);
-    autotiler_build_tilemap(tilemap);
+    init_tilemap(loaded_scene->tilemap);
+    autotiler_build_tilemap(loaded_scene->tilemap);
 }
 
 void run_gameloop()
 {
-    switch(global_game_state)
+    switch(loaded_scene->type)
     {
+    // scene is a menu
     case 0:
+
     break;
 
+    // scene is a level
     case 1:
         player_loop();
 
-        simulate_zombies(p);
-
-        render_zombies();
-
-        // debug ui
-
-        for(int i = 0; i < 3; i++)
+        for(int i = 0; i < MAX_ENTITIES; i++)
         {
-            draw_call((sprite){
-                .sprite_coord[0] = 20,
-                .sprite_coord[1] = 1,
-                .pos[0] = 8 + (4 * i) + (32 * i),
-                .pos[1] = 8,
-                .ui = true,
-                .resolution[0] = 32,
-                .resolution[1] = 32
-            }); 
+            if(loaded_scene->entities[i].enabled)
+            {
+                entity_run_physics(&loaded_scene->entities[i]);
+                draw_call(loaded_scene->entities[i].sprite_data);
+            }
         }
 
         // render tiles
 
-        for(int y = 0; y < 20; y++)
+        for(int y = 0; y < LEVELS_HEIGHT; y++)
         {
-            for(int x = 0; x < 20; x++)
+            for(int x = 0; x < LEVELS_WIDTH; x++)
             {
-                if(tilemap[y][x].is_filled == true)
+                if(loaded_scene->tilemap[y][x].is_filled == true)
                 {
-                    draw_call(tilemap[y][x].tile_sprite);
+                    draw_call(loaded_scene->tilemap[y][x].tile_sprite);
                 }
             }
         }
-
-        // smooth camera back to 0, 0. shake will automatically resolve to 0, 0
-
-        glm_vec2_lerp(global_camera_position, GLM_VEC2_ZERO, 8 * global_delta_time, global_camera_position);
 
     break;
     }

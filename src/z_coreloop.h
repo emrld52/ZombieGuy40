@@ -11,3 +11,5 @@ void program_loop();
 void program_cleanup();
 void program_event();
 void program_init();
+
+#define MAX_LOADED_SCENES 4

@@ -1,15 +1,14 @@
 #pragma once
 
+// libs
+
 #include <stdbool.h>
 #include <stdint.h>
-
-// cglm gl math
-
 #include "../deps/cglm/cglm.h"
 
-//0 = main menu, 1 = ingame, 2 = death screen
+// source
 
-extern int global_game_state;
+#include "s_scene.h"
 
 // big array which contains all keys currently pressed
 
@@ -30,3 +29,6 @@ extern float global_game_speed;
 
 // camera pos for screen shake and such
 extern vec2 global_camera_position;
+
+// currently loaded scene
+extern scene *loaded_scene;

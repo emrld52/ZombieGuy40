@@ -220,11 +220,7 @@ void draw_game()
 
     global_delta_time = stm_ms(stm_laptime(&global_raw_delta_time)) / 1000;
 
-    // print frame-time
-
-    printf("frametime : %f (%f fps) draw calls : %d\n", global_delta_time, 1.0f / global_delta_time, len);
-
-    //printf("frametime : %f \n", stm_ms(stm_laptime(&global_raw_delta_time)) / 1000);
+    glm_vec2_lerp(global_camera_position, GLM_VEC2_ZERO, 8 * global_delta_time * loaded_scene->scene_game_speed, global_camera_position);
 
     sg_begin_pass(&(sg_pass) { .action = state.pass_action, .swapchain = sglue_swapchain() });
     sg_apply_pipeline(state.pip);
