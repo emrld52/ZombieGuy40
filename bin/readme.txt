@@ -1,4 +1,4 @@
-major build 7 :
+major build 9 :
 
 features :
 
@@ -17,7 +17,7 @@ animation system - YES
 tilemap and real collision system - YES
 projectiles - NO
 upgrades that fall from sky - NO
-multiple enemy ai types - NO
+multiple enemy ai types - SORTA
 scaling enemies overtime/actual game loop - NO
 main menu - NO
 sound - NO
