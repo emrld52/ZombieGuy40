@@ -7,7 +7,7 @@ triangle rendering - YES
 quad rendering - YES
 texture rendering - YES
 converting from world space to clip space - YES
-sprites of different aspect ratios and resolutions - YES // new!!!
+sprites of different aspect ratios and resolutions - YES
 alpha blending - YES
 basic platformer controls with psuedo collision - YES
 WIP ai with psuedo collision - YES
@@ -33,4 +33,4 @@ screen shake
 
 debug :
 
-press e to spawn zombies
+press 1 and 2 to destroy blocks

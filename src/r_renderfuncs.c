@@ -101,7 +101,10 @@ void init_rendering()
 
     int width=0, height=0, channels=0;
 
-    unsigned char* pixels = stbi_load("bin/assets0.zmb", &width, &height, &channels, 0);
+    // check root folder or bin for assets
+
+    unsigned char* pixels = stbi_load("assets0.zmb", &width, &height, &channels, 0);
+    if(pixels == NULL) pixels = stbi_load("bin/assets0.zmb", &width, &height, &channels, 0);
 
     // debug stuff
 
@@ -219,6 +222,8 @@ void draw_game()
     // set global delta-time, get time in ticks, convert to miliseconds, divide by 1000 to get the time that is out of one second to multiply movement by
 
     global_delta_time = stm_ms(stm_laptime(&global_raw_delta_time)) / 1000;
+
+    //printf("\n%f", 1 / global_delta_time);
 
     //glm_vec2_lerp(global_camera_position, (vec2){16 + loaded_scene->entities[0].position[0] - sapp_width() / 2, 16 + loaded_scene->entities[0].position[1] - sapp_height() / 2}, 8 * global_delta_time * loaded_scene->scene_game_speed, global_camera_position);
     glm_vec2_lerp(global_camera_position, GLM_VEC2_ZERO, 8 * global_delta_time * loaded_scene->scene_game_speed, global_camera_position);

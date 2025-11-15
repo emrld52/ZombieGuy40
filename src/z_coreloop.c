@@ -59,9 +59,15 @@ void gameloop_init()
         }
     }
 
+    loaded_scene->tilemap[12][8].is_sniping_position = true;
+
     loaded_scene->tilemap[10][6].is_filled = true;
     loaded_scene->tilemap[10][7].is_filled = true;
     loaded_scene->tilemap[10][8].is_filled = true;
+    loaded_scene->tilemap[9][8].direction_for_pathing = 2;
+    loaded_scene->tilemap[9][10].direction_for_pathing = 2;
+
+    loaded_scene->tilemap[9][7].is_sniping_position = true;
 
     for(int y = 12; y < 16; y++)
     {
@@ -71,9 +77,13 @@ void gameloop_init()
         }
     }
 
+    loaded_scene->tilemap[11][2].is_sniping_position = true;
+
     loaded_scene->tilemap[10][19 - 6].is_filled = true;
     loaded_scene->tilemap[10][19 - 7].is_filled = true;
     loaded_scene->tilemap[10][19 - 8].is_filled = true;
+
+    loaded_scene->tilemap[9][19 - 7].is_sniping_position = true;
 
     for(int y = 12; y < 16; y++)
     {
@@ -82,6 +92,15 @@ void gameloop_init()
             loaded_scene->tilemap[y][x].is_filled = true;
         }
     }
+
+    loaded_scene->tilemap[11][18].is_sniping_position = true;
+
+    loaded_scene->tilemap[13][3].direction_for_pathing = 2;
+    loaded_scene->tilemap[11][2].direction_for_pathing = 3;
+    loaded_scene->tilemap[11][3].direction_for_pathing = 1;
+    loaded_scene->tilemap[13][15].direction_for_pathing = 2;
+    loaded_scene->tilemap[11][16].direction_for_pathing = 4;
+    loaded_scene->tilemap[11][15].direction_for_pathing = 1;
 
     init_tilemap(loaded_scene->tilemap);
     autotiler_build_tilemap(loaded_scene->tilemap);
@@ -99,6 +118,7 @@ void run_gameloop()
     // scene is a level
     case 1:
         player_loop();
+        simulate_zombies(get_player());
 
         for(int i = 0; i < MAX_ENTITIES; i++)
         {
@@ -131,6 +151,10 @@ void run_gameloop()
             .pos[0] = 4, .pos[1] = 4,
             .ui = true
         });
+
+        // debug spawn zom
+
+        if(global_input.keys_released[SAPP_KEYCODE_Z]) spawn_zombie(1, 1, 72.0f, 512.0f * 0.75f);
 
         // debug bouncy hearts UI
 

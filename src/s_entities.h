@@ -21,6 +21,10 @@ typedef struct entity_t {
     sprite sprite_data;
     animator animator_component;
 
+    int health_points;
+    int damage;
+    int team;
+
     bool enabled;
 } entity;
 
