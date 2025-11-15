@@ -261,7 +261,7 @@ void play_override_animation(animator *amtr, animation ovrd)
 
 void play_animation(animator *amtr, animation *anim)
 {
-    //check not about to play same animation and also make sure priority of passed in animation is higher than the current
+    //check not about to play same animation
 
     if(amtr->passive_animation.id != anim->id)
     {

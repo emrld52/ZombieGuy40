@@ -46,9 +46,9 @@ void gameloop_init()
 
     // fill tilemap with basic floor for now
 
-    for(int y = 0; y < 15; y++)
+    for(int y = 0; y < LEVELS_HEIGHT; y++)
     {
-        for(int x = 0; x < 20; x++)
+        for(int x = 0; x < LEVELS_WIDTH; x++)
         {
             if(y < 14) loaded_scene->tilemap[y][x].is_filled = false;
             else loaded_scene->tilemap[y][x].is_filled = true;
@@ -59,7 +59,7 @@ void gameloop_init()
     loaded_scene->tilemap[8][5].is_filled = true;
     loaded_scene->tilemap[8][6].is_filled = true;
 
-    for(int y = 11; y < 15; y++)
+    for(int y = 11; y < 16; y++)
     {
         for(int x = 5; x < 9; x++)
         {
@@ -108,6 +108,14 @@ void run_gameloop()
             }
         }
 
+        draw_call((sprite)
+        {
+            .resolution[0] = 32, .resolution[1] = 32,
+            .sprite_coord[0] = 19, .sprite_coord[1] = 1,
+            .pos[0] = global_input.mouse_x - 16, .pos[1] = global_input.mouse_y - 16,
+            .ui = true
+        });
+
     break;
     }
 }
@@ -141,10 +149,21 @@ void program_event(const sapp_event* ev) {
             }
             break;
 
+        case SAPP_EVENTTYPE_MOUSE_ENTER:
+            sapp_show_mouse(false);
+            break;
+
+        case SAPP_EVENTTYPE_MOUSE_LEAVE:
+            sapp_show_mouse(true);
+            break;
+
         default:
             
             break;
     }
+
+    global_input.mouse_x = ev->mouse_x;
+    global_input.mouse_y = ev->mouse_y;
 }
 
 void program_loop()
@@ -155,5 +174,6 @@ void program_loop()
 
 void program_cleanup()
 {
+    sapp_show_mouse(true);
     sg_shutdown();
 }

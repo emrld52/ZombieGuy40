@@ -8,10 +8,10 @@
 
 #include "r_renderfuncs.h"
 
-// dimensions all tilemaps must be
+// dimensions all tilemaps must be, make height slightly taller than game window just so when screen shakes you dont see ugly edge
 
 #define LEVELS_WIDTH 20
-#define LEVELS_HEIGHT 15
+#define LEVELS_HEIGHT 16
 
 // resolution of tiles on either axis. tiles must be square in dimensions
 

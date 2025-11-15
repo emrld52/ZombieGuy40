@@ -55,17 +55,14 @@ void player_loop()
 
     // basic movement
 
-    if(global_input.keysPressed[SAPP_KEYCODE_D]) 
-    {
-        ply->velocity[0] = PLAYER_MAX_SPEED;
-        ply->sprite_data.flip_x = false;
-    }
-    else if(global_input.keysPressed[SAPP_KEYCODE_A]) 
-    {
-        ply->velocity[0] = -PLAYER_MAX_SPEED;
-        ply->sprite_data.flip_x = true;
-    }
+    if(global_input.keysPressed[SAPP_KEYCODE_D]) ply->velocity[0] = PLAYER_MAX_SPEED;
+    else if(global_input.keysPressed[SAPP_KEYCODE_A]) ply->velocity[0] = -PLAYER_MAX_SPEED;
     else ply->velocity[0] = 0;
+
+    // look right or left dependent on where the mouse is of the player center
+
+    if(global_input.mouse_x >= ply->position[0] + (ply->hit_box[0] / 2) + ply->hit_box_offset[0]) ply->sprite_data.flip_x = false;
+    else ply->sprite_data.flip_x = true;
 
     // debug
 
