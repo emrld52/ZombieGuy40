@@ -6,6 +6,7 @@
 #include "z_coreloop.h"
 #include "s_entities.h"
 #include "s_scene.h"
+#include "s_animation.h"
 
 // libraries
 
@@ -34,15 +35,39 @@ void player_init()
     glm_vec2_copy((vec2){16, ply->sprite_data.resolution[1]}, ply->hit_box);
     glm_vec2_copy((vec2){8, 0}, ply->hit_box_offset);
     ply->gravity = PLAYER_GRAVITY;
+
+    animator_init(&ply->animator_component);
+    play_animation(&ply->animator_component, &ANIM_PLAYER_IDLE);
 }
 
 void player_loop()
 {
-    if(ply->is_grounded && global_input.keysPressed[SAPP_KEYCODE_SPACE]) entity_override_velocity(ply, (vec2){ply->velocity[0], -PLAYER_JUMP_FORCE});
+    // animation states and jump logic
 
-    if(global_input.keysPressed[SAPP_KEYCODE_D]) ply->velocity[0] = PLAYER_MAX_SPEED;
-    else if(global_input.keysPressed[SAPP_KEYCODE_A]) ply->velocity[0] = -PLAYER_MAX_SPEED;
+    if(ply->is_grounded) 
+    {
+        if(global_input.keysPressed[SAPP_KEYCODE_SPACE]) entity_override_velocity(ply, (vec2){ply->velocity[0], -PLAYER_JUMP_FORCE});
+
+        if(ply->velocity[0] == 0) play_animation(&ply->animator_component, &ANIM_PLAYER_IDLE);
+        else if(ply->is_grounded) play_animation(&ply->animator_component, &ANIM_PLAYER_RUN);
+    }
+    else play_animation(&ply->animator_component, &ANIM_PLAYER_JUMP);
+
+    // basic movement
+
+    if(global_input.keysPressed[SAPP_KEYCODE_D]) 
+    {
+        ply->velocity[0] = PLAYER_MAX_SPEED;
+        ply->sprite_data.flip_x = false;
+    }
+    else if(global_input.keysPressed[SAPP_KEYCODE_A]) 
+    {
+        ply->velocity[0] = -PLAYER_MAX_SPEED;
+        ply->sprite_data.flip_x = true;
+    }
     else ply->velocity[0] = 0;
+
+    // debug
 
     if(global_input.keysPressed[SAPP_KEYCODE_E]) camera_shake(5.0f);
 }

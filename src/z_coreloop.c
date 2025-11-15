@@ -6,6 +6,7 @@
 #include "s_tilemap.h"
 #include "s_scene.h"
 #include "s_entities.h"
+#include "s_animation.h"
 
 // libs
 
@@ -38,6 +39,8 @@ void gameloop_init()
 
     global_camera_position[0] = 0;
     global_camera_position[1] = 0;
+
+    animation_load_animations();
 
     player_init();
 
@@ -86,6 +89,8 @@ void run_gameloop()
             if(loaded_scene->entities[i].enabled)
             {
                 entity_run_physics(&loaded_scene->entities[i]);
+                animator_update(&loaded_scene->entities[i].animator_component);
+                animator_get_frame(&loaded_scene->entities[i].animator_component, &loaded_scene->entities[i].sprite_data);
                 draw_call(loaded_scene->entities[i].sprite_data);
             }
         }

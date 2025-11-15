@@ -27,6 +27,8 @@ typedef struct sprite_t {
     // resolution of sprite to pass into vert shader, support for wider textures and textures of different aspect ratios
 
     vec2 resolution;
+
+    bool flip_x;
 } sprite;
 
 // avoid tedious manual field filling, nice function. lookup table for sprites available

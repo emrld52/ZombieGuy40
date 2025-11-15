@@ -10,10 +10,22 @@ layout(binding=0) uniform quad_vs_params {
     vec3 position;
     vec2 scale;
     vec3 cam_position;
+    int flip_x;
 };
 
 void main() {
-    gl_Position = projection * vec4(vec3(a_pos.x * scale.x, a_pos.y * scale.y, a_pos.z) + position + (cam_position * -1), 1.0);
+    vec3 b_pos;
+
+    if(flip_x == 1) 
+    {
+        b_pos = vec3(a_pos.x * -1, a_pos.y, a_pos.z);
+    }
+    else 
+    {
+        b_pos = vec3(a_pos.x, a_pos.y, a_pos.z);
+    }
+
+    gl_Position = projection * vec4(vec3(b_pos.x * scale.x, b_pos.y * scale.y, b_pos.z) + position + (cam_position * -1), 1.0);
     v_uv = a_uv;
     resolution = scale;
 }

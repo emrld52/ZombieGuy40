@@ -220,7 +220,7 @@ void draw_game()
 
     global_delta_time = stm_ms(stm_laptime(&global_raw_delta_time)) / 1000;
 
-    glm_vec2_lerp(global_camera_position, GLM_VEC2_ZERO, 8 * global_delta_time * loaded_scene->scene_game_speed, global_camera_position);
+    glm_vec2_lerp(global_camera_position, (vec2){16 + loaded_scene->entities[0].position[0] - sapp_width() / 2, 16 + loaded_scene->entities[0].position[1] - sapp_height() / 2}, 8 * global_delta_time * loaded_scene->scene_game_speed, global_camera_position);
 
     sg_begin_pass(&(sg_pass) { .action = state.pass_action, .swapchain = sglue_swapchain() });
     sg_apply_pipeline(state.pip);
@@ -251,6 +251,13 @@ void draw_game()
 
             state.vertex_shader_params.scale[0] = draw_queue[head].resolution[0];
             state.vertex_shader_params.scale[1] = draw_queue[head].resolution[1];
+
+            if(draw_queue[head].flip_x) 
+            {
+                state.vertex_shader_params.flip_x = 1;
+                state.vertex_shader_params.position[0] += draw_queue[head].resolution[0];
+            }
+            else state.vertex_shader_params.flip_x = 0;
 
             if(draw_queue[head].ui == true)
             {
