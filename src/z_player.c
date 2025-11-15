@@ -68,6 +68,10 @@ void player_loop()
 
     if(global_input.keys_released[SAPP_KEYCODE_R]) glm_vec3_copy((vec2){ (sapp_width() / 2) - 32, 0.0f }, ply->position);
 
+    // debug
+
+    if(global_input.keys_released[SAPP_KEYCODE_F]) play_override_animation(&ply->animator_component, ANIM_PLAYER_DAMAGE);
+
     // basic movement
 
     if(global_input.keys_pressed[SAPP_KEYCODE_D]) ply->velocity[0] = PLAYER_MAX_SPEED;

@@ -18,6 +18,8 @@ typedef struct input_reader_t {
     bool keys_released[512];
     float mouse_x;
     float mouse_y;
+    bool mouse_l;
+    bool mouse_r;
 } input_reader;
 
 extern input_reader global_input;
