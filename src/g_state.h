@@ -13,7 +13,9 @@
 // big array which contains all keys currently pressed
 
 typedef struct input_reader_t {
-    bool keysPressed[512];
+    bool keys_pressed[512];
+    bool key_tracker[512];
+    bool keys_released[512];
     float mouse_x;
     float mouse_y;
 } input_reader;

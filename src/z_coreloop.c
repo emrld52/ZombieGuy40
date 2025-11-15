@@ -14,6 +14,7 @@
 #include "../deps/sokol_app.h"
 #include "../deps/sokol_gfx.h"
 #include <string.h>
+#include <math.h>
 
 // init global camera
 
@@ -21,6 +22,9 @@ vec2 global_camera_position;
 
 scene loaded_scenes[MAX_LOADED_SCENES];
 scene *loaded_scene;
+
+vec2 heart_positions[3];
+float time;
 
 void gameloop_init()
 {
@@ -44,7 +48,7 @@ void gameloop_init()
 
     player_init();
 
-    // fill tilemap with basic floor for now
+    // fill tilemap with basic floor for now, hardcode a level
 
     for(int y = 0; y < LEVELS_HEIGHT; y++)
     {
@@ -55,13 +59,25 @@ void gameloop_init()
         }
     }
 
-    loaded_scene->tilemap[8][4].is_filled = true;
-    loaded_scene->tilemap[8][5].is_filled = true;
-    loaded_scene->tilemap[8][6].is_filled = true;
+    loaded_scene->tilemap[10][6].is_filled = true;
+    loaded_scene->tilemap[10][7].is_filled = true;
+    loaded_scene->tilemap[10][8].is_filled = true;
 
-    for(int y = 11; y < 16; y++)
+    for(int y = 12; y < 16; y++)
     {
-        for(int x = 5; x < 9; x++)
+        for(int x = 0; x < 4; x++)
+        {
+            loaded_scene->tilemap[y][x].is_filled = true;
+        }
+    }
+
+    loaded_scene->tilemap[10][19 - 6].is_filled = true;
+    loaded_scene->tilemap[10][19 - 7].is_filled = true;
+    loaded_scene->tilemap[10][19 - 8].is_filled = true;
+
+    for(int y = 12; y < 16; y++)
+    {
+        for(int x = 16; x < 20; x++)
         {
             loaded_scene->tilemap[y][x].is_filled = true;
         }
@@ -110,11 +126,41 @@ void run_gameloop()
 
         draw_call((sprite)
         {
+            .resolution[0] = 130, .resolution[1] = 32,
+            .sprite_coord[0] = 17, .sprite_coord[1] = 2,
+            .pos[0] = 4, .pos[1] = 4,
+            .ui = true
+        });
+
+        // debug bouncy hearts UI
+
+        time += global_delta_time * 5;
+
+        for(int i = 0; i < 3; i++)
+        {
+            heart_positions[i][1] = sin(time + i * 0.5f) * 2.5f;
+
+            draw_call((sprite)
+            {
+                .resolution[0] = 32, .resolution[1] = 32,
+                .sprite_coord[0] = 20, .sprite_coord[1] = 1,
+                .pos[0] = 8 + (32 * i) + (8 * i), .pos[1] = 4 + heart_positions[i][1],
+                .ui = true
+            });
+        }
+
+        draw_call((sprite)
+        {
             .resolution[0] = 32, .resolution[1] = 32,
             .sprite_coord[0] = 19, .sprite_coord[1] = 1,
             .pos[0] = global_input.mouse_x - 16, .pos[1] = global_input.mouse_y - 16,
             .ui = true
         });
+
+        for(int i = 0; i < 512; i++)
+        {
+            global_input.keys_released[i] = false;
+        }
 
     break;
     }
@@ -139,13 +185,18 @@ void program_event(const sapp_event* ev) {
     switch (ev->type) {
         case SAPP_EVENTTYPE_KEY_DOWN:
             if (ev->key_code < 512) {
-                global_input.keysPressed[ev->key_code] = true;
+                global_input.keys_pressed[ev->key_code] = true;
+                global_input.key_tracker[ev->key_code] = false;
             }
             break;
 
         case SAPP_EVENTTYPE_KEY_UP:
             if (ev->key_code < 512) {
-                global_input.keysPressed[ev->key_code] = false;
+                global_input.keys_pressed[ev->key_code] = false;
+                if(!global_input.key_tracker[ev->key_code]) {
+                    global_input.keys_released[ev->key_code] = true;
+                    global_input.key_tracker[ev->key_code] = true;
+                }
             }
             break;
 
