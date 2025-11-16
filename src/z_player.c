@@ -43,10 +43,31 @@ void player_init()
 
     animator_init(&ply->animator_component);
     play_animation(&ply->animator_component, &ANIM_PLAYER_IDLE);
+
+    ply->team = 1;
 }
 
 void player_loop()
 {
+    // invincibility frames on damage
+    ply->entity_timer -= global_delta_time * loaded_scene->scene_game_speed;
+
+    if(ply->entity_timer <= 0) ply->collision_enabled = true;
+
+    for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
+    {
+        // test
+        if(ply->colliding_entities[i] != NULL && ply->entity_timer <= 0) 
+        {
+            play_override_animation(&ply->animator_component, ANIM_PLAYER_DAMAGE);
+            ply->entity_timer = 0.35f;
+            ply->velocity[0] = ply->colliding_entities[i]->position[0] >= ply->position[0] ? -100.0f : 100.0f;
+            ply->velocity[1] = -200.0f;
+            ply->collision_enabled = false;
+            camera_shake(15.0f);
+        }
+    }
+
     // animation states and jump logic
 
     if(ply->is_grounded) 
@@ -100,9 +121,13 @@ void player_loop()
 
     // basic movement
 
-    if(global_input.keys_pressed[SAPP_KEYCODE_D]) ply->velocity[0] = PLAYER_MAX_SPEED;
-    else if(global_input.keys_pressed[SAPP_KEYCODE_A]) ply->velocity[0] = -PLAYER_MAX_SPEED;
-    else ply->velocity[0] = 0;
+    if(ply->entity_timer <= 0.0f) {
+
+        if(global_input.keys_pressed[SAPP_KEYCODE_D]) ply->velocity[0] = PLAYER_MAX_SPEED;
+        else if(global_input.keys_pressed[SAPP_KEYCODE_A]) ply->velocity[0] = -PLAYER_MAX_SPEED;
+        else ply->velocity[0] = 0;
+
+    }
 
     // look right or left dependent on where the mouse is of the player center
 

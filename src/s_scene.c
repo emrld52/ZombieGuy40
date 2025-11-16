@@ -18,6 +18,7 @@ entity* make_entity_in_scene(scene *scn)
             // mark as now in use
 
             scn->entities[i].enabled = true;
+            scn->entities[i].collision_enabled = true;
             
             return &scn->entities[i];
         }

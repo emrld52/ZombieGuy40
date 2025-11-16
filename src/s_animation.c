@@ -68,7 +68,7 @@ void animation_load_animations()
     ANIM_PLAYER_DAMAGE = (animation) {
         .id = 4,
         .length_in_frames = 8,
-        .dist_between_frames = 0.05f,
+        .dist_between_frames = 0.025f,
         .frames = {
             {1, 4},
             {2, 4},

@@ -84,6 +84,50 @@ void entity_run_physics(entity* ent)
         ent->velocity[1] = 0;
     }
 
+    // check collisions with other entities, dont collide with entities on the same team
+
+    for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
+    {
+        ent->colliding_entities[i] = NULL;
+    }
+
+    for(int i = 0; i < MAX_ENTITIES; i++)
+    {
+        if(loaded_scene->entities[i].enabled && loaded_scene->entities[i].team != ent->team && loaded_scene->entities[i].collision_enabled)
+        {
+            vec2 to_check_bounds[2];
+
+            to_check_bounds[0][0] = loaded_scene->entities[i].position[0] + loaded_scene->entities[i].hit_box_offset[0];
+            to_check_bounds[0][1] = loaded_scene->entities[i].position[1] + loaded_scene->entities[i].hit_box_offset[1];
+            to_check_bounds[1][0] = loaded_scene->entities[i].position[0] + loaded_scene->entities[i].hit_box[0] + loaded_scene->entities[i].hit_box_offset[0];
+            to_check_bounds[1][1] = loaded_scene->entities[i].position[1] + loaded_scene->entities[i].hit_box[1] + loaded_scene->entities[i].hit_box_offset[1];
+
+            if(glm_aabb2d_aabb(ent_box_x_check, to_check_bounds))
+            {
+                int first_free_slot = -1;
+                bool is_already_colliding = false;
+
+                for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
+                {
+                    if(ent->colliding_entities[z] == NULL) first_free_slot = z;
+                    else 
+                    {
+                        if(ent->colliding_entities[z]->id == loaded_scene->entities[i].id) 
+                        {
+                            is_already_colliding = true;
+                            return;
+                        }
+                    }
+                }
+
+                if(!is_already_colliding) 
+                {
+                    if(first_free_slot != -1) ent->colliding_entities[first_free_slot] = &loaded_scene->entities[i];
+                }
+            }
+        }
+    }
+
     glm_vec2_copy(ent->position, ent->sprite_data.pos);
 }
 

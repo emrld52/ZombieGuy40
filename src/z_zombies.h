@@ -25,6 +25,9 @@ typedef struct zombie_t {
     float speed;
     float time_til_next_jump_impulse;
     float jump_height;
+
+    vec2 last_used_tile_index;
+
     bool enabled;
 } zombie;
 

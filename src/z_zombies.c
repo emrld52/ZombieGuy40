@@ -42,8 +42,8 @@ void spawn_zombie(int tier, int hit_points, float speed, float jump_height)
 
             // spawn in sky at any horizontal position in game-space. will fall down
 
-            zombie_pool[i].zmb->position[0] = 64;
-            zombie_pool[i].zmb->position[1] = 64;
+            zombie_pool[i].zmb->position[0] = global_input.mouse_x;
+            zombie_pool[i].zmb->position[1] = global_input.mouse_y;
 
             zombie_pool[i].zmb->gravity = ZOMBIE_GRAV;
 
