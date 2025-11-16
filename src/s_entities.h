@@ -9,7 +9,7 @@
 #include "r_renderfuncs.h"
 #include "s_animation.h"
 
-#define MAX_COLLIDING_ENTITIES 8
+#define MAX_COLLIDING_ENTITIES 24
 
 typedef struct entity_t {
     vec2 position;
@@ -30,6 +30,12 @@ typedef struct entity_t {
     int team;
 
     int id;
+
+    bool handle_x_for_me;
+
+    // with level geometry
+
+    bool is_colliding;
 
     struct entity_t *colliding_entities[MAX_COLLIDING_ENTITIES];
 

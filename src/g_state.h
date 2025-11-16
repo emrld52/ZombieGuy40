@@ -20,6 +20,10 @@ typedef struct input_reader_t {
     float mouse_y;
     bool mouse_l;
     bool mouse_r;
+    bool mouse_l_up;
+    bool mouse_r_up;
+    bool mouse_l_tracker;
+    bool mouse_r_tracker;
 } input_reader;
 
 extern input_reader global_input;

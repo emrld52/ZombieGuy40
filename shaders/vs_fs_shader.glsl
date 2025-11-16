@@ -43,18 +43,26 @@ layout(binding=2) uniform quad_fs_params {
     vec2 sprite_coord;
     vec2 sprite_count;
     vec2 texture_atlas_dimensions;
+    vec2 texture_offset;
 };
 
 void main() {
     vec2 offset = ((vec2(1, 1) / sprite_count) * vec2(sprite_coord.x - 1, sprite_coord.y - 1));
 
-    frag_color = texture(sampler2D(tex, samp), 
-        vec2(
-            // stretch uv space to take up only the dimensions of each sprite
-            offset.x + (v_uv.x * (1 / sprite_count.x)) * (resolution.x / (texture_atlas_dimensions.x / sprite_count.x)), 
-            offset.y + (v_uv.y * (1 / sprite_count.y)) * (resolution.y / (texture_atlas_dimensions.y / sprite_count.y))
-        )
+    vec2 sprite_uv_size = vec2(
+        resolution.x / texture_atlas_dimensions.x,
+        resolution.y / texture_atlas_dimensions.y
     );
+
+    vec2 sprite_start = ((vec2(sprite_coord.x - 1, sprite_coord.y - 1)) 
+                        * vec2(1.0) / sprite_count);
+
+    vec2 wrapped_uv = mod(v_uv * sprite_uv_size + texture_offset, sprite_uv_size);
+
+    vec2 final_uv = sprite_start + wrapped_uv;
+
+    frag_color = texture(sampler2D(tex, samp), final_uv);
+
 }
 @end
 

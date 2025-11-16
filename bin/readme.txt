@@ -12,10 +12,10 @@ alpha blending - YES
 basic platformer controls with psuedo collision - YES
 WIP ai with psuedo collision - YES
 UI basics - YES
-art - MOSTLY
+art - 80%
 animation system - YES
 tilemap and real collision system - YES
-projectiles - NO
+projectiles - MOSTLY
 upgrades that fall from sky - NO
 multiple enemy ai types - SORTA
 scaling enemies overtime/actual game loop - NO
@@ -34,3 +34,7 @@ screen shake
 debug :
 
 press 1 and 2 to destroy blocks
+
+z to spawn zombie
+
+f to test animation

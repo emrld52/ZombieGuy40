@@ -1,3 +1,5 @@
+#pragma once
+
 #include "s_animation.h"
 #include "s_entities.h"
 #include "g_state.h"
@@ -30,7 +32,8 @@ typedef struct weapon_t {
 
 typedef struct bullet_t {
     bullet_type *type;
-    entity *entity;
+    entity* entity;
+    bool enabled;
 } bullet;
 
 extern bullet_type REGULAR_BULLETS;
@@ -38,4 +41,5 @@ extern bullet_type REGULAR_BULLETS;
 extern bullet bullet_object_pool[MAX_BULLETS];
 
 void init_weapon_system();
-bullet *make_bullet();
+void bullets_update();
+bullet *make_bullet(bullet_type *typ, vec2 pos, int dir, int team);

@@ -48,25 +48,6 @@ void player_init()
     play_animation(&ply->animator_component, &ANIM_PLAYER_IDLE);
 
     ply->team = 1;
-
-    b.entity = make_entity_in_scene(loaded_scene);
-    b.type = &REGULAR_BULLETS;
-    b.entity->sprite_data = (sprite)
-    {
-        .resolution = {32, 32},
-        .sprite_coord = {1, 1}
-    };
-    b.entity->damage = b.type->damage;
-    b.entity->gravity = b.type->gravity;
-    b.entity->position[0] = 50;
-    b.entity->position[1] = 50;
-    b.entity->velocity[0] = b.type->speed;
-    b.entity->hit_box[0] = b.type->hit_box[0]; b.entity->hit_box[1] = b.type->hit_box[1];
-    b.entity->hit_box_offset[0] = b.type->hit_box_offset[0]; b.entity->hit_box_offset[1] = b.type->hit_box_offset[1];
-    b.entity->team = 1;
-
-    play_animation(&b.entity->animator_component, &ANIM_BULLET_DEAFULT_ZOOM);
-    play_override_animation(&b.entity->animator_component, ANIM_BULLET_DEAFULT_FLASH);
 }
 
 void player_loop()
@@ -79,7 +60,8 @@ void player_loop()
     for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
     {
         // test
-        if(ply->colliding_entities[i] != NULL && ply->entity_timer <= 0) 
+        if(ply->colliding_entities[i] != NULL && ply->entity_timer <= 0 
+            && ply->colliding_entities[i]->collision_enabled && ply->colliding_entities[i]->team != ply->team) 
         {
             play_override_animation(&ply->animator_component, ANIM_PLAYER_DAMAGE);
             ply->entity_timer = 0.35f;
@@ -116,10 +98,10 @@ void player_loop()
 
     if(global_input.keys_released[SAPP_KEYCODE_R]) glm_vec3_copy((vec2){ (sapp_width() / 2) - 32, 0.0f }, ply->position);
 
-    if(global_input.keys_released[SAPP_KEYCODE_RIGHT]) 
+    if(global_input.mouse_l_up) 
     {
-        play_override_animation(&b.entity->animator_component, ANIM_BULLET_DEAFULT_FLASH);
-        b.entity->position[0] = ply->position[0]; b.entity->position[1] = ply->position[1];
+        b = *make_bullet(&REGULAR_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
+        if(&b != NULL) camera_shake(5.0f);
     }
 
     // debug

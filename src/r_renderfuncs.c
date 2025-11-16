@@ -135,8 +135,8 @@ void init_rendering()
 
     // set texture atlas dimensions in uniform
 
-    state.fragment_shader_params.texture_atlas_dimensions[0] = 640;
-    state.fragment_shader_params.texture_atlas_dimensions[1] = 640;
+    state.fragment_shader_params.texture_atlas_dimensions[0] = 1280;
+    state.fragment_shader_params.texture_atlas_dimensions[1] = 1280;
 
     // how many rows and columns
 
@@ -206,15 +206,15 @@ void draw_call(sprite s)
     }
 }
 
-void end_call()
+void first_priority_draw_call(sprite s)
 {
-    if(len > 0)
-    {
-        memset(&draw_queue[head], 0, sizeof(sprite));
+    if (len == MAX_DRAW_CALLS)
+        return;
 
-        head = (head + 1) % MAX_DRAW_CALLS;
-        len -= 1;
-    }
+    head = (head - 1 + MAX_DRAW_CALLS) % MAX_DRAW_CALLS;
+
+    draw_queue[head] = s;
+    len += 1;
 }
 
 void draw_game()
@@ -223,7 +223,7 @@ void draw_game()
 
     global_delta_time = stm_ms(stm_laptime(&global_raw_delta_time)) / 1000;
 
-    //printf("\n%f", 1 / global_delta_time);
+    printf("\n%f", 1 / global_delta_time);
 
     //glm_vec2_lerp(global_camera_position, (vec2){16 + loaded_scene->entities[0].position[0] - sapp_width() / 2, 16 + loaded_scene->entities[0].position[1] - sapp_height() / 2}, 8 * global_delta_time * loaded_scene->scene_game_speed, global_camera_position);
     glm_vec2_lerp(global_camera_position, GLM_VEC2_ZERO, 8 * global_delta_time * loaded_scene->scene_game_speed, global_camera_position);
@@ -246,26 +246,31 @@ void draw_game()
     if(len > 0) {
         // go through all draw calls
 
-        for (int i = 0; i <= len; i++)
+        for (int i = 0; i < len; i++)
         {
-            memcpy(state.vertex_shader_params.position, draw_queue[head].pos, sizeof(vec3) * 1);
+            int index = (head + i) % MAX_DRAW_CALLS;
 
-            state.fragment_shader_params.sprite_coord[0] = draw_queue[head].sprite_coord[0];
-            state.fragment_shader_params.sprite_coord[1] = draw_queue[head].sprite_coord[1];
+            memcpy(state.vertex_shader_params.position, draw_queue[index].pos, sizeof(vec3) * 1);
+
+            state.fragment_shader_params.sprite_coord[0] = draw_queue[index].sprite_coord[0];
+            state.fragment_shader_params.sprite_coord[1] = draw_queue[index].sprite_coord[1];
+
+            state.fragment_shader_params.texture_offset[0] = draw_queue[index].sprite_offset[0];
+            state.fragment_shader_params.texture_offset[1] = draw_queue[index].sprite_offset[1];
 
             // pass in sprite resolution
 
-            state.vertex_shader_params.scale[0] = draw_queue[head].resolution[0];
-            state.vertex_shader_params.scale[1] = draw_queue[head].resolution[1];
+            state.vertex_shader_params.scale[0] = draw_queue[index].resolution[0];
+            state.vertex_shader_params.scale[1] = draw_queue[index].resolution[1];
 
-            if(draw_queue[head].flip_x) 
+            if(draw_queue[index].flip_x) 
             {
                 state.vertex_shader_params.flip_x = 1;
-                state.vertex_shader_params.position[0] += draw_queue[head].resolution[0];
+                state.vertex_shader_params.position[0] += draw_queue[index].resolution[0];
             }
             else state.vertex_shader_params.flip_x = 0;
 
-            if(draw_queue[head].ui == true)
+            if(draw_queue[index].ui == true)
             {
                 state.vertex_shader_params.cam_position[0] = 0;
                 state.vertex_shader_params.cam_position[1] = 0;
@@ -281,10 +286,16 @@ void draw_game()
 
             sg_draw(0, 6, 1);
 
-            // confirm draw call complete
+            // end call
 
-            end_call();
+            draw_queue[index] = (sprite){0};
         }
+
+        // reset queue
+
+        head = 0;
+        tail = 0;
+        len  = 0;
     }
     
     sg_end_pass();

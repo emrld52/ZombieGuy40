@@ -11,14 +11,18 @@
 
 // how many sprites horizontally and vertically (rows and columns)
 
-#define TEXTURE_ATLAS_SPRITE_X_COUNT 20
-#define TEXTURE_ATLAS_SPRITE_Y_COUNT 20
+#define TEXTURE_ATLAS_SPRITE_X_COUNT 40
+#define TEXTURE_ATLAS_SPRITE_Y_COUNT 40
 
 // see texture atlas file for textures available
 
 typedef struct sprite_t {
     vec3 pos;
     vec2 sprite_coord;
+
+    // mainly used for parallax background
+
+    vec2 sprite_offset;
 
     // ui sprites ignore camera position and draw exclusively in screen pixels
 
@@ -38,6 +42,8 @@ sprite make_sprite(vec2 pos, vec2 sprite_coord, bool ui, vec2 resolution);
 // function where you pass in sprite data, will be added to drawcall queue in main
 
 void draw_call(sprite s);
+
+void first_priority_draw_call(sprite s);
 
 // call each frame
 
