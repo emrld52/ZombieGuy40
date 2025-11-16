@@ -57,6 +57,8 @@ void spawn_zombie(int tier, int hit_points, float speed, float jump_height)
             zombie_pool[i].speed = speed;
             zombie_pool[i].jump_height = jump_height;
 
+            zombie_pool[i].zmb->health_points = hit_points;
+
             zombie_pool[i].time_til_next_jump_impulse = 0;
 
             zombie_pool[i].enabled = true;
@@ -78,119 +80,151 @@ void pathfinding_ai(zombie *zomb, entity *plyr)
     if(zomb->enabled) 
     {
         zomb->logic_frame_time += global_delta_time * loaded_scene->scene_game_speed;
+        zomb->zmb->entity_timer -= global_delta_time * loaded_scene->scene_game_speed;
 
-        if(zomb->zmb->is_grounded) play_animation(&zomb->zmb->animator_component, &ANIM_MINION_RUN);
-        else play_animation(&zomb->zmb->animator_component, &ANIM_MINION_JUMP);
+        if(zomb->zmb->entity_timer <= 0) zomb->zmb->collision_enabled = true;
 
-        if(zomb->logic_frame_time >= 0.2f) 
+        for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
         {
-            zomb->logic_frame_time = 0.0f;
-
-            // if player is on level with enemy. add some accounting for potential collision stuff by adding a little to the y value. use tile coordinates to be more exact.
-            if((int)((plyr->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION) == (int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION))
+            // test
+            if(zomb->zmb->colliding_entities[i] != NULL && zomb->zmb->entity_timer <= 0 && zomb->zmb->colliding_entities[i]->damage >= 1) 
             {
-                // follow player
-
-                if(plyr->position[0] > zomb->zmb->position[0]) zomb->zmb->velocity[0] = zomb->speed;
-                else if(plyr->position[0] < zomb->zmb->position[0]) zomb->zmb->velocity[0] = -zomb->speed;
-                else zomb->zmb->velocity[0] = 0;
-
-                for(int i = 0; i < LEVELS_WIDTH; i++)
-                {
-                    //printf("\n%d", (int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION));
-                    if(loaded_scene->tilemap[(int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION)][i].direction_for_pathing == 2)
-                    {
-                        printf("%d", (int)((zomb->zmb->position[0] + 0.1f) / LEVELS_TILE_RESOLUTION));
-                    }
-                }
-
-                if(loaded_scene->tilemap[(int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION)][(int)((zomb->zmb->position[0] + 0.1f) / LEVELS_TILE_RESOLUTION)].direction_for_pathing == 2
-                    && zomb->zmb->is_grounded)
-                {
-                    entity_override_velocity(zomb->zmb, (vec2){zomb->zmb->velocity[0] * 1.4f, -zomb->jump_height});
-                }
+                play_override_animation(&zomb->zmb->animator_component, ANIM_ZOMBIE_DAMAGE);
+                zomb->zmb->entity_timer = 0.35f;
+                zomb->zmb->velocity[0] = zomb->zmb->colliding_entities[i]->position[0] >= zomb->zmb->position[0] ? -100.0f : 100.0f;
+                zomb->zmb->velocity[1] = -200.0f;
+                zomb->zmb->collision_enabled = false;
+                camera_shake(2.0f);
+                zomb->zmb->health_points -= 1;
             }
-            else if((int)((plyr->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION) < (int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION))
-            {
-                int jump_tiles_near_me[2] = {-1, -1};
-                bool has_found_tile = false;
+        }
 
-                // jump_tiles_near_me stores jumping tile coordinates in the row this zombie is in
+        if(zomb->zmb->health_points >= 1) {
+            if(zomb->zmb->entity_timer <= 0) {
+                if(zomb->zmb->is_grounded) play_animation(&zomb->zmb->animator_component, &ANIM_MINION_RUN);
+                else play_animation(&zomb->zmb->animator_component, &ANIM_MINION_JUMP);
 
-                for(int i = 0; i < LEVELS_WIDTH; i++)
+                if(zomb->zmb->velocity[0] >= 0) zomb->zmb->sprite_data.flip_x = false;
+                else zomb->zmb->sprite_data.flip_x = true;
+
+                if(zomb->logic_frame_time >= 0.2f) 
                 {
-                    //printf("\n%d", (int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION));
-                    if(loaded_scene->tilemap[(int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION)][i].direction_for_pathing >= 2)
+                    zomb->logic_frame_time = 0.0f;
+
+                    // if player is on level with enemy. add some accounting for potential collision stuff by adding a little to the y value. use tile coordinates to be more exact.
+                    if((int)((plyr->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION) == (int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION))
                     {
-                        if(jump_tiles_near_me[0] == -1) 
+                        // follow player
+
+                        if(plyr->position[0] > zomb->zmb->position[0]) zomb->zmb->velocity[0] = zomb->speed;
+                        else if(plyr->position[0] < zomb->zmb->position[0]) zomb->zmb->velocity[0] = -zomb->speed;
+                        else zomb->zmb->velocity[0] = 0;
+
+                        for(int i = 0; i < LEVELS_WIDTH; i++)
                         {
-                            jump_tiles_near_me[0] = i;
-                            has_found_tile = true;
+                            //printf("\n%d", (int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION));
+                            if(loaded_scene->tilemap[(int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION)][i].direction_for_pathing == 2)
+                            {
+                                printf("%d", (int)((zomb->zmb->position[0] + 0.1f) / LEVELS_TILE_RESOLUTION));
+                            }
                         }
-                        else jump_tiles_near_me[1] = i;
-                    }
-                }
 
-                if(has_found_tile) {
-                    printf("\ni found up tiles! x %d and x %d", jump_tiles_near_me[0], jump_tiles_near_me[1]);
-                    // decide which is closer to begin moving to
-
-                    int dist_from_tile_1 = glm_vec2_distance2((vec2){jump_tiles_near_me[0] * LEVELS_TILE_RESOLUTION, zomb->zmb->position[1]}, zomb->zmb->position);
-                    int dist_from_tile_2 = glm_vec2_distance2((vec2){jump_tiles_near_me[1] * LEVELS_TILE_RESOLUTION, zomb->zmb->position[1]}, zomb->zmb->position);
-
-                    if(dist_from_tile_1 >= dist_from_tile_2) zomb->zmb->velocity[0] = zomb->speed;
-                    else zomb->zmb->velocity[0] = -zomb->speed;
-                }
-
-                if(loaded_scene->tilemap[(int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION)][(int)((zomb->zmb->position[0] + 0.1f) / LEVELS_TILE_RESOLUTION)].direction_for_pathing == 2
-                    && zomb->zmb->is_grounded)
-                {
-                    entity_override_velocity(zomb->zmb, (vec2){zomb->zmb->velocity[0] * 1.4f, -zomb->jump_height});
-                }
-                else if(loaded_scene->tilemap[(int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION)][(int)((zomb->zmb->position[0] + 0.1f) / LEVELS_TILE_RESOLUTION)].direction_for_pathing == 3
-                    && zomb->zmb->is_grounded)
-                {
-                    entity_override_velocity(zomb->zmb, (vec2){zomb->speed*2, -zomb->jump_height*1.25f});
-                }
-                else if (loaded_scene->tilemap[(int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION)][(int)((zomb->zmb->position[0] + 0.1f) / LEVELS_TILE_RESOLUTION)].direction_for_pathing == 4
-                    && zomb->zmb->is_grounded)
-                {
-                    entity_override_velocity(zomb->zmb, (vec2){-zomb->speed*2, -zomb->jump_height*1.25f});
-                }
-                
-            }
-            else
-            {
-                int drop_tiles_near_me[2] = {-1, -1};
-                bool has_found_tile = false;
-
-                // jump_tiles_near_me stores jumping tile coordinates in the row this zombie is in
-
-                for(int i = 0; i < LEVELS_WIDTH; i++)
-                {
-                    //printf("\n%d", (int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION));
-                    if(loaded_scene->tilemap[(int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION)][i].direction_for_pathing == 1)
-                    {
-                        if(drop_tiles_near_me[0] == -1) 
+                        if(loaded_scene->tilemap[(int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION)][(int)((zomb->zmb->position[0] + 0.1f) / LEVELS_TILE_RESOLUTION)].direction_for_pathing == 2
+                            && zomb->zmb->is_grounded)
                         {
-                            drop_tiles_near_me[0] = i;
-                            has_found_tile = true;
+                            entity_override_velocity(zomb->zmb, (vec2){zomb->zmb->velocity[0] * 1.4f, -zomb->jump_height});
                         }
-                        else drop_tiles_near_me[1] = i;
+                    }
+                    else if((int)((plyr->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION) < (int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION))
+                    {
+                        int jump_tiles_near_me[2] = {-1, -1};
+                        bool has_found_tile = false;
+
+                        // jump_tiles_near_me stores jumping tile coordinates in the row this zombie is in
+
+                        for(int i = 0; i < LEVELS_WIDTH; i++)
+                        {
+                            //printf("\n%d", (int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION));
+                            if(loaded_scene->tilemap[(int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION)][i].direction_for_pathing >= 2)
+                            {
+                                if(jump_tiles_near_me[0] == -1) 
+                                {
+                                    jump_tiles_near_me[0] = i;
+                                    has_found_tile = true;
+                                }
+                                else jump_tiles_near_me[1] = i;
+                            }
+                        }
+
+                        if(has_found_tile) {
+                            printf("\ni found up tiles! x %d and x %d", jump_tiles_near_me[0], jump_tiles_near_me[1]);
+                            // decide which is closer to begin moving to
+
+                            int dist_from_tile_1 = glm_vec2_distance2((vec2){jump_tiles_near_me[0] * LEVELS_TILE_RESOLUTION, zomb->zmb->position[1]}, zomb->zmb->position);
+                            int dist_from_tile_2 = glm_vec2_distance2((vec2){jump_tiles_near_me[1] * LEVELS_TILE_RESOLUTION, zomb->zmb->position[1]}, zomb->zmb->position);
+
+                            if(dist_from_tile_1 >= dist_from_tile_2) zomb->zmb->velocity[0] = zomb->speed;
+                            else zomb->zmb->velocity[0] = -zomb->speed;
+                        }
+
+                        if(loaded_scene->tilemap[(int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION)][(int)((zomb->zmb->position[0] + 0.1f) / LEVELS_TILE_RESOLUTION)].direction_for_pathing == 2
+                            && zomb->zmb->is_grounded)
+                        {
+                            entity_override_velocity(zomb->zmb, (vec2){zomb->zmb->velocity[0] * 1.4f, -zomb->jump_height});
+                        }
+                        else if(loaded_scene->tilemap[(int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION)][(int)((zomb->zmb->position[0] + 0.1f) / LEVELS_TILE_RESOLUTION)].direction_for_pathing == 3
+                            && zomb->zmb->is_grounded)
+                        {
+                            entity_override_velocity(zomb->zmb, (vec2){zomb->speed*2, -zomb->jump_height*1.25f});
+                        }
+                        else if (loaded_scene->tilemap[(int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION)][(int)((zomb->zmb->position[0] + 0.1f) / LEVELS_TILE_RESOLUTION)].direction_for_pathing == 4
+                            && zomb->zmb->is_grounded)
+                        {
+                            entity_override_velocity(zomb->zmb, (vec2){-zomb->speed*2, -zomb->jump_height*1.25f});
+                        }
+                        
+                    }
+                    else
+                    {
+                        int drop_tiles_near_me[2] = {-1, -1};
+                        bool has_found_tile = false;
+
+                        // jump_tiles_near_me stores jumping tile coordinates in the row this zombie is in
+
+                        for(int i = 0; i < LEVELS_WIDTH; i++)
+                        {
+                            //printf("\n%d", (int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION));
+                            if(loaded_scene->tilemap[(int)((zomb->zmb->position[1] + 0.1f) / LEVELS_TILE_RESOLUTION)][i].direction_for_pathing == 1)
+                            {
+                                if(drop_tiles_near_me[0] == -1) 
+                                {
+                                    drop_tiles_near_me[0] = i;
+                                    has_found_tile = true;
+                                }
+                                else drop_tiles_near_me[1] = i;
+                            }
+                        }
+
+                        if(has_found_tile) {
+                            printf("\ni found down tiles! x %d and x %d", drop_tiles_near_me[0], drop_tiles_near_me[1]);
+                            // decide which is closer to begin moving to
+
+                            int dist_from_tile_1 = glm_vec2_distance2((vec2){drop_tiles_near_me[0] * LEVELS_TILE_RESOLUTION, zomb->zmb->position[1]}, zomb->zmb->position);
+                            int dist_from_tile_2 = glm_vec2_distance2((vec2){drop_tiles_near_me[1] * LEVELS_TILE_RESOLUTION, zomb->zmb->position[1]}, zomb->zmb->position);
+
+                            if(dist_from_tile_1 >= dist_from_tile_2) zomb->zmb->velocity[0] = -zomb->speed;
+                            else zomb->zmb->velocity[0] = zomb->speed;
+                        }
                     }
                 }
-
-                if(has_found_tile) {
-                    printf("\ni found down tiles! x %d and x %d", drop_tiles_near_me[0], drop_tiles_near_me[1]);
-                    // decide which is closer to begin moving to
-
-                    int dist_from_tile_1 = glm_vec2_distance2((vec2){drop_tiles_near_me[0] * LEVELS_TILE_RESOLUTION, zomb->zmb->position[1]}, zomb->zmb->position);
-                    int dist_from_tile_2 = glm_vec2_distance2((vec2){drop_tiles_near_me[1] * LEVELS_TILE_RESOLUTION, zomb->zmb->position[1]}, zomb->zmb->position);
-
-                    if(dist_from_tile_1 >= dist_from_tile_2) zomb->zmb->velocity[0] = -zomb->speed;
-                    else zomb->zmb->velocity[0] = zomb->speed;
-                }
             }
+        }
+        else
+        {
+            play_animation(&zomb->zmb->animator_component, &ANIM_ZOMBIE_DEAD1);
+            zomb->zmb->collision_enabled = false;
+
+            if(zomb->zmb->entity_timer <= 0) zomb->zmb->velocity[0] = 0;
         }
     }
 }

@@ -22,6 +22,12 @@ animation ANIM_KING_JUMP;
 
 animation ANIM_ZOMBIE_DAMAGE;
 
+animation ANIM_ZOMBIE_DEAD1;
+animation ANIM_ZOMBIE_DEAD2;
+
+animation ANIM_BULLET_DEAFULT_FLASH;
+animation ANIM_BULLET_DEAFULT_ZOOM;
+
 // unsure of how to store all animations to be referenced throughout the program. this isnt the cleane
 
 void animation_load_animations()
@@ -201,7 +207,7 @@ void animation_load_animations()
     ANIM_ZOMBIE_DAMAGE = (animation) {
         .id = 14,
         .length_in_frames = 8,
-        .dist_between_frames = 0.05f,
+        .dist_between_frames = 0.025f,
         .frames = {
             {1, 14},
             {2, 14},
@@ -211,6 +217,48 @@ void animation_load_animations()
             {6, 14},
             {7, 14},
             {8, 14},
+        }
+    };
+
+    ANIM_ZOMBIE_DEAD1 = (animation) {
+        .id = 15,
+        .length_in_frames = 1,
+        .dist_between_frames = 1.0f,
+        .frames = {
+            {1, 19}
+        }
+    };
+
+    ANIM_ZOMBIE_DEAD2 = (animation) {
+        .id = 15,
+        .length_in_frames = 1,
+        .dist_between_frames = 1.0f,
+        .frames = {
+            {2, 19}
+        }
+    };
+
+    ANIM_BULLET_DEAFULT_FLASH = (animation) {
+        .id = 16,
+        .length_in_frames = 3,
+        .dist_between_frames = 0.05f,
+        .frames = {
+            {16, 19},
+            {17, 19},
+            {18, 19}
+        }
+    };
+
+    ANIM_BULLET_DEAFULT_ZOOM = (animation) {
+        .id = 17,
+        .length_in_frames = 5,
+        .dist_between_frames = 0.05f,
+        .frames = {
+            {16, 20},
+            {17, 20},
+            {18, 20},
+            {19, 20},
+            {20, 20}
         }
     };
 }

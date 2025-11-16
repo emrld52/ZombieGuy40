@@ -120,10 +120,27 @@ void entity_run_physics(entity* ent)
                     }
                 }
 
-                if(!is_already_colliding) 
+                if(!is_already_colliding && first_free_slot != -1) ent->colliding_entities[first_free_slot] = &loaded_scene->entities[i];
+
+                // add to colliding entities collisions too
+
+                first_free_slot = -1;
+                is_already_colliding = false;
+
+                for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
                 {
-                    if(first_free_slot != -1) ent->colliding_entities[first_free_slot] = &loaded_scene->entities[i];
+                    if(loaded_scene->entities[i].colliding_entities[z] == NULL) first_free_slot = z;
+                    else 
+                    {
+                        if(loaded_scene->entities[i].colliding_entities[z]->id == ent->id) 
+                        {
+                            is_already_colliding = true;
+                            return;
+                        }
+                    }
                 }
+
+                if(!is_already_colliding && first_free_slot != -1) loaded_scene->entities[i].colliding_entities[first_free_slot] = ent;
             }
         }
     }

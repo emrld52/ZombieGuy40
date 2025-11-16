@@ -7,6 +7,7 @@
 #include "s_scene.h"
 #include "s_entities.h"
 #include "s_animation.h"
+#include "s_weapons.h"
 
 // libs
 
@@ -45,6 +46,8 @@ void gameloop_init()
     global_camera_position[1] = 0;
 
     animation_load_animations();
+    
+    init_weapon_system();
 
     player_init();
 

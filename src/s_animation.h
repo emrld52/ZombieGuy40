@@ -59,6 +59,12 @@ extern animation ANIM_KING_JUMP;
 
 extern animation ANIM_ZOMBIE_DAMAGE;
 
+extern animation ANIM_ZOMBIE_DEAD1;
+extern animation ANIM_ZOMBIE_DEAD2;
+
+extern animation ANIM_BULLET_DEAFULT_FLASH;
+extern animation ANIM_BULLET_DEAFULT_ZOOM;
+
 void animation_load_animations();
 
 void animator_init(animator *amtr);

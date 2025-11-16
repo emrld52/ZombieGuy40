@@ -38,6 +38,10 @@ typedef struct entity_t {
     float entity_timer;
 
     bool enabled;
+
+    // used for stuff like dead bodies, we dont mind if they get overwritten but we do want them to be enabled so the bodies linger for a bit
+
+    bool marked_for_garbage_collection;
 } entity;
 
 void entity_run_physics(entity* ent);
