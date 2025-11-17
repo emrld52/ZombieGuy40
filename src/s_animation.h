@@ -65,6 +65,17 @@ extern animation ANIM_ZOMBIE_DEAD2;
 extern animation ANIM_BULLET_DEAFULT_FLASH;
 extern animation ANIM_BULLET_DEAFULT_ZOOM;
 
+extern animation ANIM_BULLET_ENEMY_FLASH;
+extern animation ANIM_BULLET_ENEMY_ZOOM;
+
+extern animation ANIM_HEART_TOOK_DAMAGE;
+extern animation ANIM_HEART;
+extern animation ANIM_HEART_BROKEN;
+
+extern animation ANIM_CRATE_FALLING;
+extern animation ANIM_CRATE_LANDED;
+extern animation ANIM_CRATE_FLASH;
+
 void animation_load_animations();
 
 void animator_init(animator *amtr);

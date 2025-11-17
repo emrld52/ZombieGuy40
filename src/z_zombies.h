@@ -8,11 +8,7 @@
 #include "r_renderfuncs.h"
 #include "s_entities.h"
 
-#define TIME_KINGS_SPAWN 240
-#define TIME_RANGERS_SPAWN 120
-#define TIME_RANGERS_SPAWN 60
-
-#define MAX_ZOMBIES 256
+#define MAX_ZOMBIES 12
 
 // THE THREE ZOMBIE TYPES ARE MINION, RANGER AND KING
 
@@ -23,7 +19,7 @@
 // only spawn rangers and kings after set amount of time
 
 #define TIME_TIL_RANGER 60
-#define TIME_TIL_KING 180
+#define TIME_TIL_KING 120
 
 #define STARTING_ZOMBIE_SPAWN_TIME 3
 #define SPAWN_TIME_MULT_RATE 1.016f
@@ -41,6 +37,12 @@ typedef struct zombie_t {
     float jump_height;
 
     vec2 last_used_tile_index;
+
+    int last_target_tile_x;
+
+    float horizontal_goal_x;
+    bool has_horizontal_goal;
+
 
     bool enabled;
 } zombie;

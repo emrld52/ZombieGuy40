@@ -13,3 +13,7 @@ void program_event();
 void program_init();
 
 #define MAX_LOADED_SCENES 4
+
+void damage();
+
+void fix_hp();

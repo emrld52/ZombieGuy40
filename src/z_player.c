@@ -8,6 +8,7 @@
 #include "s_scene.h"
 #include "s_animation.h"
 #include "s_weapons.h"
+#include "z_upgradecrate.h"
 
 // libraries
 
@@ -30,6 +31,12 @@ entity* get_player()
 
 bullet b;
 
+float time_til_next_can_shoot = 0.25f;
+
+float reload_time = 0.33f;
+bool auto_gun = false;
+bool piercing_rounds = false;
+
 // init player position and velocity
 
 void player_init()
@@ -48,101 +55,172 @@ void player_init()
     play_animation(&ply->animator_component, &ANIM_PLAYER_IDLE);
 
     ply->team = 1;
+
+    ply->health_points = 3;
+    ply->max_health_points = 3;
+
+    reload_time = 0.33f;
+    auto_gun = false;
+    piercing_rounds = false;
 }
 
 void player_loop()
 {
-    // invincibility frames on damage
-    ply->entity_timer -= global_delta_time * loaded_scene->scene_game_speed;
+    if(ply->health_points >= 1) {
+        // invincibility frames on damage
+        ply->entity_timer -= global_delta_time * loaded_scene->scene_game_speed;
+        time_til_next_can_shoot -= global_delta_time * loaded_scene->scene_game_speed;
 
-    if(ply->entity_timer <= 0) ply->collision_enabled = true;
+        if(ply->entity_timer <= 0) ply->collision_enabled = true;
 
-    for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
-    {
-        // test
-        if(ply->colliding_entities[i] != NULL && ply->entity_timer <= 0 
-            && ply->colliding_entities[i]->collision_enabled && ply->colliding_entities[i]->team != ply->team) 
+        for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
+        {
+            // test
+            if(ply->colliding_entities[i] != NULL && ply->entity_timer <= 0 
+                && ply->colliding_entities[i]->collision_enabled && ply->colliding_entities[i]->team != ply->team) 
+            {
+                if(ply->colliding_entities[i]->damage >= 1) {
+                    play_override_animation(&ply->animator_component, ANIM_PLAYER_DAMAGE);
+                    ply->entity_timer = 0.35f;
+                    ply->velocity[0] = ply->colliding_entities[i]->position[0] >= ply->position[0] ? -100.0f : 100.0f;
+                    ply->velocity[1] = -200.0f;
+                    ply->collision_enabled = false;
+                    ply->health_points -= ply->colliding_entities[i]->damage;
+                    camera_shake(15.0f);
+                    damage();
+                }
+                // crate stuff, hardcoded here for now
+                else if(ply->colliding_entities[i]->id == 1000)
+                {
+                    destroy_crate();
+
+                    int upgrade = rand() % 6;
+
+                    switch(upgrade)
+                    {
+                        case 0:
+                            reload_time /= 1.15f;
+                            auto_gun = true;
+                            break;
+
+                        case 1:
+                            reload_time /= 1.15f;
+                            break;
+
+                        case 2:
+                            reload_time /= 1.15f;
+                            break;
+
+                        case 3:
+                            piercing_rounds = true;
+                            break;
+                        case 4:
+                            ply->health_points += 1;
+                            if(ply->health_points >= ply->max_health_points) ply->health_points = ply->max_health_points;
+                            else fix_hp();
+                            break;
+                        case 5:
+                            ply->health_points += 1;
+                            if(ply->health_points >= ply->max_health_points) ply->health_points = ply->max_health_points;
+                            else fix_hp();
+                            break;
+                    }
+                }
+            }
+        }
+
+        // animation states and jump logic
+
+        if(ply->is_grounded) 
+        {
+            if(global_input.keys_pressed[SAPP_KEYCODE_SPACE]) 
+            {
+                entity_override_velocity(ply, (vec2){ply->velocity[0], -PLAYER_JUMP_FORCE});
+                camera_shake(2.0f);
+            }
+
+            if(ply->velocity[0] == 0) play_animation(&ply->animator_component, &ANIM_PLAYER_IDLE);
+            else if(ply->is_grounded) play_animation(&ply->animator_component, &ANIM_PLAYER_RUN);
+        }
+        else 
+        {
+            play_animation(&ply->animator_component, &ANIM_PLAYER_JUMP);
+
+            // variable jump height
+
+            if(global_input.keys_released[SAPP_KEYCODE_SPACE] && ply->velocity[1] < 0) entity_override_velocity(ply, (vec2){ply->velocity[0], ply->velocity[1] / 4});
+        }
+
+        if(!auto_gun) {
+            if(global_input.mouse_l_up && time_til_next_can_shoot <= 0) 
+            {
+                if(!piercing_rounds) b = *make_bullet(&REGULAR_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
+                else *make_bullet(&PIERCING_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
+                if(&b != NULL) camera_shake(5.0f);
+                time_til_next_can_shoot = reload_time;
+            }
+        }
+        else
+        {
+            if(global_input.mouse_l && time_til_next_can_shoot <= 0) 
+            {
+                if(!piercing_rounds) b = *make_bullet(&REGULAR_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
+                else *make_bullet(&PIERCING_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
+                if(&b != NULL) camera_shake(5.0f);
+                time_til_next_can_shoot = reload_time;
+            }
+        }
+
+        // debug
+
+        if(global_input.keys_released[SAPP_KEYCODE_F]) 
         {
             play_override_animation(&ply->animator_component, ANIM_PLAYER_DAMAGE);
-            ply->entity_timer = 0.35f;
-            ply->velocity[0] = ply->colliding_entities[i]->position[0] >= ply->position[0] ? -100.0f : 100.0f;
-            ply->velocity[1] = -200.0f;
-            ply->collision_enabled = false;
-            camera_shake(15.0f);
+            ply->health_points -= 1;
+            damage();
         }
-    }
 
-    // animation states and jump logic
+        // debug tilemap builder
 
-    if(ply->is_grounded) 
-    {
-        if(global_input.keys_pressed[SAPP_KEYCODE_SPACE]) 
+        /*if(global_input.keys_pressed[SAPP_KEYCODE_1] && global_input.mouse_x > 0 && global_input.mouse_y > 0)
         {
-            entity_override_velocity(ply, (vec2){ply->velocity[0], -PLAYER_JUMP_FORCE});
-            camera_shake(2.0f);
+            if(!loaded_scene->tilemap[(int)floor(global_input.mouse_y / LEVELS_TILE_RESOLUTION)][(int)floor(global_input.mouse_x / LEVELS_TILE_RESOLUTION)].is_filled)
+            {
+                loaded_scene->tilemap[(int)floor(global_input.mouse_y / LEVELS_TILE_RESOLUTION)][(int)floor(global_input.mouse_x / LEVELS_TILE_RESOLUTION)].is_filled = true;
+                autotiler_build_tilemap(loaded_scene->tilemap);
+                camera_shake(1.0f);
+            }
         }
-
-        if(ply->velocity[0] == 0) play_animation(&ply->animator_component, &ANIM_PLAYER_IDLE);
-        else if(ply->is_grounded) play_animation(&ply->animator_component, &ANIM_PLAYER_RUN);
-    }
-    else 
-    {
-        play_animation(&ply->animator_component, &ANIM_PLAYER_JUMP);
-
-        // variable jump height
-
-        if(global_input.keys_released[SAPP_KEYCODE_SPACE] && ply->velocity[1] < 0) entity_override_velocity(ply, (vec2){ply->velocity[0], ply->velocity[1] / 4});
-    }
-
-    // debug reset
-
-    if(global_input.keys_released[SAPP_KEYCODE_R]) glm_vec3_copy((vec2){ (sapp_width() / 2) - 32, 0.0f }, ply->position);
-
-    if(global_input.mouse_l_up) 
-    {
-        b = *make_bullet(&REGULAR_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
-        if(&b != NULL) camera_shake(5.0f);
-    }
-
-    // debug
-
-    if(global_input.keys_released[SAPP_KEYCODE_F]) play_override_animation(&ply->animator_component, ANIM_PLAYER_DAMAGE);
-
-    // debug tilemap builder
-
-    if(global_input.keys_pressed[SAPP_KEYCODE_1] && global_input.mouse_x > 0 && global_input.mouse_y > 0)
-    {
-        if(!loaded_scene->tilemap[(int)floor(global_input.mouse_y / LEVELS_TILE_RESOLUTION)][(int)floor(global_input.mouse_x / LEVELS_TILE_RESOLUTION)].is_filled)
+        if(global_input.keys_pressed[SAPP_KEYCODE_2] && global_input.mouse_x > 0 && global_input.mouse_y > 0)
         {
-            loaded_scene->tilemap[(int)floor(global_input.mouse_y / LEVELS_TILE_RESOLUTION)][(int)floor(global_input.mouse_x / LEVELS_TILE_RESOLUTION)].is_filled = true;
-            autotiler_build_tilemap(loaded_scene->tilemap);
-            camera_shake(1.0f);
+            if(loaded_scene->tilemap[(int)floor(global_input.mouse_y / LEVELS_TILE_RESOLUTION)][(int)floor(global_input.mouse_x / LEVELS_TILE_RESOLUTION)].is_filled)
+            {
+                loaded_scene->tilemap[(int)floor(global_input.mouse_y / LEVELS_TILE_RESOLUTION)][(int)floor(global_input.mouse_x / LEVELS_TILE_RESOLUTION)].is_filled = false;
+                autotiler_build_tilemap(loaded_scene->tilemap);
+                camera_shake(1.0f);
+            }
+        }*/
+
+        // basic movement
+
+        if(ply->entity_timer <= 0.0f) {
+
+            if(global_input.keys_pressed[SAPP_KEYCODE_D]) ply->velocity[0] = PLAYER_MAX_SPEED;
+            else if(global_input.keys_pressed[SAPP_KEYCODE_A]) ply->velocity[0] = -PLAYER_MAX_SPEED;
+            else ply->velocity[0] = 0;
+
         }
+
+        // look right or left dependent on where the mouse is of the player center
+
+        if(global_input.mouse_x >= ply->position[0] + (ply->hit_box[0] / 2) + ply->hit_box_offset[0]) ply->sprite_data.flip_x = false;
+        else ply->sprite_data.flip_x = true;
     }
-    if(global_input.keys_pressed[SAPP_KEYCODE_2] && global_input.mouse_x > 0 && global_input.mouse_y > 0)
+    else
     {
-        if(loaded_scene->tilemap[(int)floor(global_input.mouse_y / LEVELS_TILE_RESOLUTION)][(int)floor(global_input.mouse_x / LEVELS_TILE_RESOLUTION)].is_filled)
-        {
-            loaded_scene->tilemap[(int)floor(global_input.mouse_y / LEVELS_TILE_RESOLUTION)][(int)floor(global_input.mouse_x / LEVELS_TILE_RESOLUTION)].is_filled = false;
-            autotiler_build_tilemap(loaded_scene->tilemap);
-            camera_shake(1.0f);
-        }
+        ply->handle_x_for_me = true;
+        play_animation(&ply->animator_component, &ANIM_ZOMBIE_DEAD1);
     }
-
-    // basic movement
-
-    if(ply->entity_timer <= 0.0f) {
-
-        if(global_input.keys_pressed[SAPP_KEYCODE_D]) ply->velocity[0] = PLAYER_MAX_SPEED;
-        else if(global_input.keys_pressed[SAPP_KEYCODE_A]) ply->velocity[0] = -PLAYER_MAX_SPEED;
-        else ply->velocity[0] = 0;
-
-    }
-
-    // look right or left dependent on where the mouse is of the player center
-
-    if(global_input.mouse_x >= ply->position[0] + (ply->hit_box[0] / 2) + ply->hit_box_offset[0]) ply->sprite_data.flip_x = false;
-    else ply->sprite_data.flip_x = true;
 }
 
 void player_reset()

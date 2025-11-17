@@ -25,6 +25,7 @@ void reset_entity(entity* ent)
     ent->handle_x_for_me = false;
     ent->is_grounded = false;
     ent->is_colliding = false;
+    ent->is_projectile = false;
     ent->entity_timer = 0.0f;
     ent->marked_for_garbage_collection = false;
 

@@ -8,6 +8,7 @@
 #include "s_entities.h"
 #include "s_animation.h"
 #include "s_weapons.h"
+#include "z_upgradecrate.h"
 
 // libs
 
@@ -24,7 +25,6 @@ vec2 global_camera_position;
 scene loaded_scenes[MAX_LOADED_SCENES];
 scene *loaded_scene;
 
-vec2 heart_positions[3];
 float time;
 
 sprite parallax_bg;
@@ -33,6 +33,11 @@ sprite parallax_bg3;
 sprite bg;
 sprite bg2;
 sprite tornado;
+
+animator heart[3];
+sprite heart_sprite[3];
+
+sprite pause_icon;
 
 void gameloop_init()
 {
@@ -163,10 +168,88 @@ void gameloop_init()
         .resolution[1] = 352,
         .ui = true
     };
+
+    animator_init(&heart[0]);
+    animator_init(&heart[1]);
+    animator_init(&heart[2]);
+
+    heart_sprite[0] = (sprite)
+    {
+        .sprite_coord[0] = 21,
+        .sprite_coord[1] = 21,
+        .resolution[0] = 32,
+        .resolution[1] = 32,
+        .pos[0] = 10,
+        .pos[1] = 4,
+        .ui = true
+    };
+
+    heart_sprite[1] = (sprite)
+    {
+        .sprite_coord[0] = 21,
+        .sprite_coord[1] = 21,
+        .resolution[0] = 32,
+        .resolution[1] = 32,
+        .pos[0] = 8 + 36 + 4,
+        .pos[1] = 4,
+        .ui = true
+    };
+    heart_sprite[2] = (sprite)
+    {
+        .sprite_coord[0] = 21,
+        .sprite_coord[1] = 21,
+        .resolution[0] = 32,
+        .resolution[1] = 32,
+        .pos[0] = 12 + 64 + 4 + 8,
+        .pos[1] = 4,
+        .ui = true
+    };
+
+    for(int i = 0; i < 3; i++) play_animation(&heart[i], &ANIM_HEART);
+
+    init_supply_crate();
+    destroy_crate();
+
+    pause_icon = (sprite)
+    {
+        .sprite_coord[0] = 15,
+        .sprite_coord[1] = 1,
+        .resolution[0] = 64,
+        .resolution[1] = 64,
+        .pos[0] = 640 - 64,
+        .ui = true
+    };
 }
+
+void damage()
+{
+    for(int i = 2; i > get_player()->health_points - 1; i--) 
+    {
+        if(i >= 0) {
+            if(heart[i].passive_animation.id != ANIM_HEART_BROKEN.id) play_override_animation(&heart[i], ANIM_HEART_TOOK_DAMAGE);
+            play_animation(&heart[i], &ANIM_HEART_BROKEN);
+        }
+    }
+}
+
+void fix_hp()
+{
+    for(int i = 0; i < get_player()->health_points; i++) play_animation(&heart[i], &ANIM_HEART);
+}
+
+bool is_paused;
 
 void run_gameloop()
 {
+    if(global_input.keys_released[SAPP_KEYCODE_ESCAPE]) is_paused = !is_paused;
+
+    if(is_paused) 
+    {
+        loaded_scene->scene_game_speed = 0;
+        draw_call(pause_icon);
+    }
+    else loaded_scene->scene_game_speed = 1;
+
     switch(loaded_scene->type)
     {
     // scene is a menu, no menu yet so this is whatever
@@ -176,6 +259,18 @@ void run_gameloop()
 
     // scene is a level
     case 1:
+        time += global_delta_time * 5;
+
+        for(int i = 0; i < 3; i++) 
+        {
+            animator_update(&heart[i]);
+
+            heart_sprite[i].pos[1] = (sin(time + i) * 2.5f) + 4;
+
+            animator_get_frame(&heart[i], &heart_sprite[i]);
+            draw_call(heart_sprite[i]);
+        }
+
         player_loop();
         simulate_zombies(get_player());
 
@@ -184,12 +279,16 @@ void run_gameloop()
             if(loaded_scene->entities[i].enabled)
             {
                 entity_run_physics(&loaded_scene->entities[i]);
-                animator_update(&loaded_scene->entities[i].animator_component);
-                animator_get_frame(&loaded_scene->entities[i].animator_component, &loaded_scene->entities[i].sprite_data);
+                if(&loaded_scene->entities[i].animator_component != NULL) 
+                {
+                    animator_update(&loaded_scene->entities[i].animator_component);
+                    animator_get_frame(&loaded_scene->entities[i].animator_component, &loaded_scene->entities[i].sprite_data);
+                }
                 draw_call(loaded_scene->entities[i].sprite_data);
             }
         }
 
+        update_supply_crate();
         bullets_update();
 
         // render tiles
@@ -207,13 +306,13 @@ void run_gameloop()
 
         // debug spawn zom
 
-        if(global_input.keys_released[SAPP_KEYCODE_Z]) spawn_zombie(1, 1, 72.0f, 512.0f * 0.75f);
+        //if(global_input.keys_released[SAPP_KEYCODE_Z]) spawn_zombie(3, 1, 72.0f, 512.0f * 0.75f);
 
         // debug bouncy hearts UI
 
-        time += global_delta_time * 5;
+        //time += global_delta_time * 5;
 
-        for(int i = 0; i < 3; i++)
+        /*for(int i = 0; i < 3; i++)
         {
             heart_positions[i][1] = sin(time + i * 0.5f) * 2.5f;
 
@@ -224,7 +323,7 @@ void run_gameloop()
                 .pos[0] = 8 + (32 * i) + (8 * i), .pos[1] = 4 + heart_positions[i][1],
                 .ui = true
             });
-        }
+        }*/
 
         draw_call((sprite)
         {

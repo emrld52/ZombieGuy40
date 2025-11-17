@@ -18,6 +18,8 @@ typedef struct bullet_type_t {
 
     animation muzzle_flash_animation;
     animation bullet_zoom_animation;
+
+    int pierce_count;
 } bullet_type;
 
 typedef struct weapon_t {
@@ -34,9 +36,12 @@ typedef struct bullet_t {
     bullet_type *type;
     entity* entity;
     bool enabled;
+    int pierces_left;
 } bullet;
 
 extern bullet_type REGULAR_BULLETS;
+extern bullet_type PIERCING_BULLETS;
+extern bullet_type ENEMY_BULLETS;
 
 extern bullet bullet_object_pool[MAX_BULLETS];
 

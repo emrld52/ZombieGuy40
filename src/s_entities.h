@@ -26,6 +26,7 @@ typedef struct entity_t {
     animator animator_component;
 
     int health_points;
+    int max_health_points;
     int damage;
     int team;
 
@@ -36,6 +37,8 @@ typedef struct entity_t {
     // with level geometry
 
     bool is_colliding;
+
+    bool is_projectile;
 
     struct entity_t *colliding_entities[MAX_COLLIDING_ENTITIES];
 

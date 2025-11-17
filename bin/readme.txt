@@ -1,4 +1,4 @@
-major build 9 :
+major build 10 :
 
 features :
 
@@ -15,10 +15,10 @@ UI basics - YES
 art - 80%
 animation system - YES
 tilemap and real collision system - YES
-projectiles - MOSTLY
-upgrades that fall from sky - NO
-multiple enemy ai types - SORTA
-scaling enemies overtime/actual game loop - NO
+projectiles - YES
+upgrades that fall from sky - YES
+multiple enemy ai types - YES, NEEDS CLEANING THOUGH
+scaling enemies overtime/actual game loop - YES
 main menu - NO
 sound - NO
 
@@ -31,10 +31,4 @@ minor features complete :
 
 screen shake
 
-debug :
-
-press 1 and 2 to destroy blocks
-
-z to spawn zombie
-
-f to test animation
+pause button (esc)

@@ -28,6 +28,17 @@ animation ANIM_ZOMBIE_DEAD2;
 animation ANIM_BULLET_DEAFULT_FLASH;
 animation ANIM_BULLET_DEAFULT_ZOOM;
 
+animation ANIM_BULLET_ENEMY_FLASH;
+animation ANIM_BULLET_ENEMY_ZOOM;
+
+animation ANIM_HEART_TOOK_DAMAGE;
+animation ANIM_HEART;
+animation ANIM_HEART_BROKEN;
+
+animation ANIM_CRATE_FALLING;
+animation ANIM_CRATE_LANDED;
+animation ANIM_CRATE_FLASH;
+
 // unsure of how to store all animations to be referenced throughout the program. this isnt the cleane
 
 void animation_load_animations()
@@ -259,6 +270,96 @@ void animation_load_animations()
             {18, 20},
             {19, 20},
             {20, 20}
+        }
+    };
+
+    ANIM_BULLET_ENEMY_FLASH = (animation) {
+        .id = 18,
+        .length_in_frames = 3,
+        .dist_between_frames = 0.05f,
+        .frames = {
+            {16, 17},
+            {17, 17},
+            {18, 17}
+        }
+    };
+
+    ANIM_BULLET_ENEMY_ZOOM = (animation) {
+        .id = 19,
+        .length_in_frames = 5,
+        .dist_between_frames = 0.05f,
+        .frames = {
+            {16, 18},
+            {17, 18},
+            {18, 18},
+            {19, 18},
+            {20, 18}
+        }
+    };
+
+    ANIM_HEART = (animation) {
+        .id = 20,
+        .length_in_frames = 1,
+        .dist_between_frames = 0.05f,
+        .frames = {
+            {20, 1}
+        }
+    };
+
+    ANIM_HEART_TOOK_DAMAGE = (animation) {
+        .id = 21,
+        .length_in_frames = 6,
+        .dist_between_frames = 0.05f,
+        .frames = {
+            {15, 3},
+            {16, 3},
+            {17, 3},
+            {18, 3},
+            {19, 3},
+            {20, 3}
+        }
+    };
+
+    ANIM_HEART_BROKEN = (animation) {
+        .id = 22,
+        .length_in_frames = 1,
+        .dist_between_frames = 0.05f,
+        .frames = {
+            {20, 4},
+        }
+    };
+
+    ANIM_CRATE_FALLING = (animation) {
+        .id = 23,
+        .length_in_frames = 1,
+        .dist_between_frames = 0.05f,
+        .frames = {
+            {14, 17},
+        }
+    };
+
+    ANIM_CRATE_LANDED = (animation) {
+        .id = 24,
+        .length_in_frames = 1,
+        .dist_between_frames = 0.05f,
+        .frames = {
+            {15, 17},
+        }
+    };
+
+    ANIM_CRATE_FLASH = (animation) {
+        .id = 24,
+        .length_in_frames = 8,
+        .dist_between_frames = 0.1f,
+        .frames = {
+            {15, 17},
+            {13, 17},
+            {15, 17},
+            {13, 17},
+            {15, 17},
+            {13, 17},
+            {15, 17},
+            {13, 17},
         }
     };
 }

@@ -1,6 +1,8 @@
 #include "s_weapons.h"
 
 bullet_type REGULAR_BULLETS;
+bullet_type PIERCING_BULLETS;
+bullet_type ENEMY_BULLETS;
 
 bullet bullet_object_pool[MAX_BULLETS];
 
@@ -14,7 +16,32 @@ void init_weapon_system()
         .hit_box_offset = {2, 12},
         .speed = 1024.0f,
         .muzzle_flash_animation = ANIM_BULLET_DEAFULT_FLASH,
-        .bullet_zoom_animation = ANIM_BULLET_DEAFULT_ZOOM
+        .bullet_zoom_animation = ANIM_BULLET_DEAFULT_ZOOM,
+        .pierce_count = 1
+    };
+
+    PIERCING_BULLETS = (bullet_type)
+    {
+        .damage = 1,
+        .gravity = 0,
+        .hit_box = {28, 8},
+        .hit_box_offset = {2, 12},
+        .speed = 1024.0f,
+        .muzzle_flash_animation = ANIM_BULLET_DEAFULT_FLASH,
+        .bullet_zoom_animation = ANIM_BULLET_DEAFULT_ZOOM,
+        .pierce_count = 2
+    };
+
+    ENEMY_BULLETS = (bullet_type)
+    {
+        .damage = 1,
+        .gravity = 0,
+        .hit_box = {28, 8},
+        .hit_box_offset = {2, 12},
+        .speed = 512.0f * 0.75f,
+        .muzzle_flash_animation = ANIM_BULLET_ENEMY_FLASH,
+        .bullet_zoom_animation = ANIM_BULLET_ENEMY_ZOOM,
+        .pierce_count = 1
     };
 }
 
@@ -24,7 +51,7 @@ void bullets_update()
     {
         if(bullet_object_pool[i].enabled && &bullet_object_pool[i].entity != NULL)
         {
-            bool destroy_ent = false;
+            int pierces_tracked = 0;
 
             for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
             {
@@ -33,7 +60,7 @@ void bullets_update()
                 {
                     bullet_object_pool[i].enabled = false;
                     destroy_entity_in_scene(bullet_object_pool[i].entity);
-                    destroy_ent = true;
+                    bullet_object_pool[i].pierces_left -= 1;
                 }
             }
 
@@ -43,10 +70,10 @@ void bullets_update()
             {
                 bullet_object_pool[i].enabled = false;
                 destroy_entity_in_scene(bullet_object_pool[i].entity);
-                destroy_ent = true;
+                bullet_object_pool[i].pierces_left -= 1;
             }
             
-            if(destroy_ent) bullet_object_pool[i].entity = NULL;
+            if(bullet_object_pool[i].pierces_left <= 0) bullet_object_pool[i].entity = NULL;
         }
     }
 }
@@ -60,6 +87,7 @@ bullet *make_bullet(bullet_type *typ, vec2 pos, int dir, int team)
         if(!bullet_object_pool[i].enabled)
         {
             bullet_object_pool[i].entity = make_entity_in_scene(loaded_scene);
+            bullet_object_pool[i].entity->is_projectile = true;
             bullet_object_pool[i].enabled = true;
             bullet_object_pool[i].entity->collision_enabled = true;
 
@@ -77,6 +105,8 @@ bullet *make_bullet(bullet_type *typ, vec2 pos, int dir, int team)
             bullet_object_pool[i].entity->hit_box_offset[0] = typ->hit_box_offset[0]; bullet_object_pool[i].entity->hit_box_offset[1] = typ->hit_box_offset[1];
 
             bullet_object_pool[i].entity->team = team;
+
+            bullet_object_pool[i].pierces_left = typ->pierce_count;
 
             // muzzle flash
             play_override_animation(&bullet_object_pool[i].entity->animator_component, typ->muzzle_flash_animation);
