@@ -216,7 +216,8 @@ void gameloop_init()
         .sprite_coord[1] = 1,
         .resolution[0] = 64,
         .resolution[1] = 64,
-        .pos[0] = 640 - 64,
+        .pos[0] = 640 - 72,
+        .pos[1] = 8,
         .ui = true
     };
 }
