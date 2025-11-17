@@ -173,12 +173,12 @@ void player_loop()
 
         // debug
 
-        if(global_input.keys_released[SAPP_KEYCODE_F]) 
+        /*if(global_input.keys_released[SAPP_KEYCODE_F]) 
         {
             play_override_animation(&ply->animator_component, ANIM_PLAYER_DAMAGE);
             ply->health_points -= 1;
             damage();
-        }
+        }*/
 
         // debug tilemap builder
 

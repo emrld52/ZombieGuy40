@@ -35,7 +35,24 @@ void reset_entity(entity* ent)
     ent->hit_box_offset[0] = ent->hit_box_offset[1] = 0.0f;
 
     for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
+    {
         ent->colliding_entities[i] = NULL;
+
+        // remove from ignore collision lists
+
+        if(i < MAX_COLLIDING_ENTITIES / 2 && ent->i_am_in_ignore_lists[i] != NULL)
+        {
+            ent->ignore_collision_with[i] = NULL;
+
+            for(int z = 0; z < MAX_COLLIDING_ENTITIES / 2; z++)
+            {
+                if(ent->i_am_in_ignore_lists[i]->ignore_collision_with[z] == ent) 
+                    ent->i_am_in_ignore_lists[i]->ignore_collision_with[z] = NULL;
+            }
+
+            ent->i_am_in_ignore_lists[i] = NULL;
+        }
+    }
 
     ent->sprite_data = (sprite){0};
     ent->animator_component = (animator){0};

@@ -58,22 +58,21 @@ void bullets_update()
                 if(bullet_object_pool[i].entity->colliding_entities[z] != NULL 
                     && bullet_object_pool[i].entity->colliding_entities[z]->collision_enabled)
                 {
-                    bullet_object_pool[i].enabled = false;
-                    destroy_entity_in_scene(bullet_object_pool[i].entity);
                     bullet_object_pool[i].pierces_left -= 1;
+                    add_to_entities_collision_ignore_list(bullet_object_pool[i].entity->colliding_entities[z], bullet_object_pool[i].entity);
                 }
             }
 
             // or if just colliding with level geometry
 
-            if(bullet_object_pool[i].entity->is_colliding)
+            if(bullet_object_pool[i].entity->is_colliding) bullet_object_pool[i].pierces_left = 0;
+            
+            if(bullet_object_pool[i].pierces_left <= 0) 
             {
                 bullet_object_pool[i].enabled = false;
                 destroy_entity_in_scene(bullet_object_pool[i].entity);
-                bullet_object_pool[i].pierces_left -= 1;
+                bullet_object_pool[i].entity = NULL;
             }
-            
-            if(bullet_object_pool[i].pierces_left <= 0) bullet_object_pool[i].entity = NULL;
         }
     }
 }

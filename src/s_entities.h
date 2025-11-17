@@ -42,6 +42,9 @@ typedef struct entity_t {
 
     struct entity_t *colliding_entities[MAX_COLLIDING_ENTITIES];
 
+    struct entity_t *ignore_collision_with[MAX_COLLIDING_ENTITIES / 2];
+    struct entity_t *i_am_in_ignore_lists[MAX_COLLIDING_ENTITIES / 2];
+
     // use for whatever timed purpose
 
     float entity_timer;
@@ -55,3 +58,4 @@ typedef struct entity_t {
 
 void entity_run_physics(entity* ent);
 void entity_override_velocity(entity* ent, vec2 vel);
+void add_to_entities_collision_ignore_list(entity* to_add_to, entity* adding);

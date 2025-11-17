@@ -5,6 +5,26 @@
 #include "g_state.h"
 #include "r_renderfuncs.h"
 
+// mainly used for bullets to achieve bullet piercing
+
+void add_to_entities_collision_ignore_list(entity* to_add_to, entity* adding)
+{
+    // collision ignore lists are half that of the max colliding entities
+    for(int i = 0; i < MAX_COLLIDING_ENTITIES / 2; i++)
+    {
+        if(to_add_to->ignore_collision_with[i] == NULL)
+        {
+            to_add_to->ignore_collision_with[i] = adding;
+
+            // let entity were adding to the list know that its in that list to remove itself when its time for garbage collection
+            for(int z = 0; z < MAX_COLLIDING_ENTITIES / 2; z++)
+            {
+                adding->i_am_in_ignore_lists[i] = to_add_to;
+            }
+        }
+    }
+}
+
 void entity_run_physics(entity* ent)
 {
     ent->is_grounded = false;
@@ -114,8 +134,16 @@ void entity_run_physics(entity* ent)
     for(int i = 0; i < MAX_ENTITIES; i++)
     {
         if(loaded_scene->entities[i].enabled && loaded_scene->entities[i].team != ent->team && loaded_scene->entities[i].collision_enabled)
-        {
-            if(!(ent->is_projectile && loaded_scene->entities[i].is_projectile)) 
+        {   
+            // check this entity isnt in our ignore list
+            bool should_ignore = false;
+
+            for(int z = 0; z < MAX_COLLIDING_ENTITIES / 2; z++)
+            {
+                if(&loaded_scene->entities[i] == ent->ignore_collision_with[z]) should_ignore = true;
+            }
+
+            if(!(ent->is_projectile && loaded_scene->entities[i].is_projectile) && !should_ignore) 
             {
                 vec2 to_check_bounds[2];
 
