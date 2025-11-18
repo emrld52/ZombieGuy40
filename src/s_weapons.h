@@ -7,6 +7,7 @@
 #include "../deps/cglm/cglm.h"
 
 #define MAX_BULLETS 96
+#define COLLISION_HISTORY_LIMIT 8
 
 typedef struct bullet_type_t {
     int damage;
@@ -38,7 +39,8 @@ typedef struct bullet_t {
     bool enabled;
     int pierces_left;
     // fixes frametime issues
-    bool destroy_me;
+    // bool destroy_me;
+    entity* collision_history[COLLISION_HISTORY_LIMIT];
 } bullet;
 
 extern bullet_type REGULAR_BULLETS;

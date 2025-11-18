@@ -22,6 +22,7 @@
 // handles program life cycle
 
 #include "z_coreloop.h"
+#include "s_input_handling.h"
 
 // program entry point called by sokol app header. all callback functions found in coreloop file
             

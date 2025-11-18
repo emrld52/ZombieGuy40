@@ -113,104 +113,125 @@ void entity_run_physics(entity* ent)
 
     for(int i = 0; i < MAX_ENTITIES; i++)
     {
-        if(loaded_scene->entities[i].enabled && loaded_scene->entities[i].team != ent->team && loaded_scene->entities[i].collision_enabled)
-        {   
-            if(!(ent->is_projectile && loaded_scene->entities[i].is_projectile)) 
+        entity* other = &loaded_scene->entities[i];
+
+        // skip self
+        if(other == ent) 
+            continue;
+
+        if(!other->enabled || !other->collision_enabled || other->team == ent->team || other->marked_for_garbage_collection)
+        {
+            // remove stale symmetric collision entry
+            for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
             {
-                vec2 to_check_bounds[2];
+                if(other->colliding_entities[z] == ent)
+                    other->colliding_entities[z] = NULL;
 
-                to_check_bounds[0][0] = loaded_scene->entities[i].position[0] + loaded_scene->entities[i].hit_box_offset[0] + (loaded_scene->entities[i].velocity[0] * global_delta_time * loaded_scene->scene_game_speed);
-                to_check_bounds[0][1] = loaded_scene->entities[i].position[1] + loaded_scene->entities[i].hit_box_offset[1] + (loaded_scene->entities[i].velocity[1] * global_delta_time * loaded_scene->scene_game_speed);
-                to_check_bounds[1][0] = loaded_scene->entities[i].position[0] + loaded_scene->entities[i].hit_box[0] + loaded_scene->entities[i].hit_box_offset[0] + (loaded_scene->entities[i].velocity[0] * global_delta_time * loaded_scene->scene_game_speed);
-                to_check_bounds[1][1] = loaded_scene->entities[i].position[1] + loaded_scene->entities[i].hit_box[1] + loaded_scene->entities[i].hit_box_offset[1] + (loaded_scene->entities[i].velocity[1] * global_delta_time * loaded_scene->scene_game_speed);
-
-                vec2 ent_full_bounds[2] = {
-                    { ent->position[0] + ent->hit_box_offset[0] + (ent->velocity[0] * global_delta_time * loaded_scene->scene_game_speed),
-                    ent->position[1] + ent->hit_box_offset[1]  + (ent->velocity[1] * global_delta_time * loaded_scene->scene_game_speed) },
-                    { ent->position[0] + ent->hit_box_offset[0] + ent->hit_box[0] + (ent->velocity[0] * global_delta_time * loaded_scene->scene_game_speed),
-                    ent->position[1] + ent->hit_box_offset[1] + ent->hit_box[1] + (ent->velocity[1] * global_delta_time * loaded_scene->scene_game_speed) }
-                };
-
-                if(glm_aabb2d_aabb(ent_full_bounds, to_check_bounds))
-                {
-                    int first_free_slot = -1;
-                    bool is_already_colliding = false;
-
-                    for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
-                    {
-                        if(ent->colliding_entities[z] == NULL) 
-                        {
-                            first_free_slot = z;
-                            break;
-                        }
-                        if(ent->colliding_entities[z]->id == loaded_scene->entities[i].id) 
-                        {
-                            is_already_colliding = true;
-                            break;
-                        }
-                    }
-
-                    if(!is_already_colliding && first_free_slot != -1) 
-                    {
-                        ent->colliding_entities[first_free_slot] = &loaded_scene->entities[i];
-
-                        // add to colliding entities collisions too
-
-                        first_free_slot = -1;
-                        is_already_colliding = false;
-
-                        for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
-                        {
-                            if(loaded_scene->entities[i].colliding_entities[z] == NULL) 
-                            {
-                                first_free_slot = z;
-                                break;
-                            }
-                            if(loaded_scene->entities[i].colliding_entities[z]->id == ent->id) 
-                            {
-                                is_already_colliding = true;
-                                break;
-                            }
-                        }
-
-                        if(!is_already_colliding && first_free_slot != -1) loaded_scene->entities[i].colliding_entities[first_free_slot] = ent;
-                    }
-                }
-                else
-                {
-                    for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
-                    {
-                        if(loaded_scene->entities[i].colliding_entities[z] == ent)
-                        {
-                            loaded_scene->entities[i].colliding_entities[z] = NULL;
-                        }
-                    }
-                }
+                if(ent->colliding_entities[z] == other)
+                    ent->colliding_entities[z] = NULL;
             }
-            else
+
+            continue;
+        }
+
+        if(ent->is_projectile && other->is_projectile)
+        {
+            // symmetric cleanup
+            for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
             {
-                for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
-                {
-                    if(loaded_scene->entities[i].colliding_entities[z] == ent)
-                    {
-                        loaded_scene->entities[i].colliding_entities[z] = NULL;
-                    }
-                }
+                if(other->colliding_entities[z] == ent)
+                    other->colliding_entities[z] = NULL;
+
+                if(ent->colliding_entities[z] == other)
+                    ent->colliding_entities[z] = NULL;
             }
+
+            continue;
+        }
+
+        vec2 other_bb[2];
+        other_bb[0][0] = other->position[0] + other->hit_box_offset[0] +
+                        other->velocity[0] * global_delta_time * loaded_scene->scene_game_speed;
+        other_bb[0][1] = other->position[1] + other->hit_box_offset[1] +
+                        other->velocity[1] * global_delta_time * loaded_scene->scene_game_speed;
+
+        other_bb[1][0] = other->position[0] + other->hit_box_offset[0] + other->hit_box[0] +
+                        other->velocity[0] * global_delta_time * loaded_scene->scene_game_speed;
+        other_bb[1][1] = other->position[1] + other->hit_box_offset[1] + other->hit_box[1] +
+                        other->velocity[1] * global_delta_time * loaded_scene->scene_game_speed;
+
+        vec2 ent_bb[2] = {
+            {
+                ent->position[0] + ent->hit_box_offset[0] +
+                ent->velocity[0] * global_delta_time * loaded_scene->scene_game_speed,
+
+                ent->position[1] + ent->hit_box_offset[1] +
+                ent->velocity[1] * global_delta_time * loaded_scene->scene_game_speed
+            },
+            {
+                ent->position[0] + ent->hit_box_offset[0] + ent->hit_box[0] +
+                ent->velocity[0] * global_delta_time * loaded_scene->scene_game_speed,
+
+                ent->position[1] + ent->hit_box_offset[1] + ent->hit_box[1] +
+                ent->velocity[1] * global_delta_time * loaded_scene->scene_game_speed
+            }
+        };
+
+        if(glm_aabb2d_aabb(ent_bb, other_bb))
+        {
+            int ent_slot = -1;
+            int oth_slot = -1;
+
+            bool already_ent = false;
+            bool already_other = false;
+
+            // ---- find free slot for ent ----
+            for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
+            {
+                if(ent->colliding_entities[z] == other)
+                {
+                    already_ent = true;
+                    break;
+                }
+                if(ent->colliding_entities[z] == NULL && ent_slot == -1)
+                    ent_slot = z;
+            }
+
+            // find free slot for other
+            for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
+            {
+                if(other->colliding_entities[z] == ent)
+                {
+                    already_other = true;
+                    break;
+                }
+                if(other->colliding_entities[z] == NULL && oth_slot == -1)
+                    oth_slot = z;
+            }
+
+            // add symmetric collision entries
+            if(!already_ent && ent_slot != -1)
+                ent->colliding_entities[ent_slot] = other;
+
+            if(!already_other && oth_slot != -1)
+                other->colliding_entities[oth_slot] = ent;
         }
         else
         {
+            // symmetric removal when NOT colliding
             for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
             {
-                if(loaded_scene->entities[i].colliding_entities[z] == ent)
-                {
-                    loaded_scene->entities[i].colliding_entities[z] = NULL;
-                }
+                if(ent->colliding_entities[z] == other)
+                    ent->colliding_entities[z] = NULL;
+
+                if(other->colliding_entities[z] == ent)
+                    other->colliding_entities[z] = NULL;
             }
         }
     }
 
     glm_vec2_copy(ent->position, ent->sprite_data.pos);
+
 }
 
 void entity_override_velocity(entity* ent, vec2 vel)

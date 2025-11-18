@@ -101,6 +101,20 @@ void spawn_zombie(int tier, int hit_points, float speed, float jump_height)
 
 void kill_zombie(zombie *zomb)
 {
+    // clear collision references with dead body
+
+    for(int i = 0; i < MAX_ENTITIES; i++)
+    {
+        entity* other = &loaded_scene->entities[i];
+        if (!other->enabled) continue;
+
+        for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
+        {
+            if(other->colliding_entities[z] == zomb->zmb)
+                other->colliding_entities[z] = NULL;
+        }
+    }
+
     zomb->enabled = false;
 
     zomb->zmb->marked_for_garbage_collection = true;
@@ -565,7 +579,7 @@ int king_hp = 4;
 void simulate_zombies(entity *player)
 {
     time_til_next_zombie += global_delta_time * loaded_scene->scene_game_speed;
-    power_timer = TIME_TIL_RANGER + 20;
+    power_timer += global_delta_time * loaded_scene->scene_game_speed;
 
     minion_hp = 2 + (floor(power_timer / MINION_HP_GAIN_TIME));
     ranger_hp = 1 + (floor(power_timer / RANGER_HP_GAIN_TIME));
@@ -604,7 +618,7 @@ void simulate_zombies(entity *player)
         switch (zombie_pool[i].tier)
         {
             case 1:
-                ranger_ai(&zombie_pool[i], player);
+                minion_ai(&zombie_pool[i], player);
                 break;
             
             case 2:

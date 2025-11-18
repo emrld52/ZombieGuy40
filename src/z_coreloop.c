@@ -10,6 +10,8 @@
 #include "s_weapons.h"
 #include "z_upgradecrate.h"
 #include "s_playerUI.h"
+#include "r_backgroundfx.h"
+#include "s_input_handling.h"
 
 // libs
 
@@ -26,18 +28,9 @@ vec2 global_camera_position;
 scene loaded_scenes[MAX_LOADED_SCENES];
 scene *loaded_scene;
 
-sprite parallax_bg;
-sprite parallax_bg2;
-sprite parallax_bg3;
-sprite bg;
-sprite bg2;
-sprite tornado;
-
 sprite pause_icon;
 
 bool is_paused = false;
-
-float anim_time = 0.0f;
 
 void gameloop_init()
 {
@@ -122,54 +115,7 @@ void gameloop_init()
     init_tilemap(loaded_scene->tilemap);
     autotiler_build_tilemap(loaded_scene->tilemap);
 
-    parallax_bg = (sprite)
-    {
-        .sprite_coord[0] = 21,
-        .sprite_coord[1] = 30,
-        .resolution[0] = 640,
-        .resolution[1] = 352,
-        .pos[1] = 100,
-        .ui = true
-    };
-
-    parallax_bg2 = (sprite)
-    {
-        .sprite_coord[0] = 21,
-        .sprite_coord[1] = 10,
-        .resolution[0] = 640,
-        .resolution[1] = 352,
-        .pos[1] = 200,
-        .ui = true
-    };
-
-    bg = (sprite)
-    {
-        .sprite_coord[0] = 1,
-        .sprite_coord[1] = 30,
-        .resolution[0] = 640,
-        .resolution[1] = 352,
-        .ui = true
-    };
-
-    tornado = (sprite)
-    {
-        .sprite_coord[0] = 1,
-        .sprite_coord[1] = 20,
-        .resolution[0] = 32*8,
-        .resolution[1] = 32*9,
-        .pos[0] = 0,
-        .pos[1] = 16,
-        .ui = true
-    };
-
-    bg2 = (sprite)
-    {
-        .sprite_coord[0] = 21,
-        .sprite_coord[1] = 21,
-        .resolution[0] = 640,
-        .resolution[1] = 352,
-        .ui = true
-    };
+    init_background_fx();
 
     init_supply_crate();
     destroy_crate();
@@ -206,6 +152,8 @@ void run_gameloop()
 
     // scene is a level
     case 1:
+        draw_background_fx();
+
         for(int i = 0; i < MAX_ENTITIES; i++)
         {
             if(loaded_scene->entities[i].enabled)
@@ -228,66 +176,11 @@ void run_gameloop()
 
         // render tiles
 
-        for(int y = 0; y < LEVELS_HEIGHT; y++)
-        {
-            for(int x = 0; x < LEVELS_WIDTH; x++)
-            {
-                if(loaded_scene->tilemap[y][x].is_filled == true)
-                {
-                    draw_call(loaded_scene->tilemap[y][x].tile_sprite);
-                }
-            }
-        }
+        render_tilemap(loaded_scene->tilemap);
 
-        // debug spawn zom
-
-        //if(global_input.keys_released[SAPP_KEYCODE_Z]) spawn_zombie(3, 1, 72.0f, 512.0f * 0.75f);
-
-        // debug bouncy hearts UI
-
-        anim_time += global_delta_time * 5;
-
-        /*for(int i = 0; i < 3; i++)
-        {
-            heart_positions[i][1] = sin(time + i * 0.5f) * 2.5f;
-
-            draw_call((sprite)
-            {
-                .resolution[0] = 32, .resolution[1] = 32,
-                .sprite_coord[0] = 20, .sprite_coord[1] = 1,
-                .pos[0] = 8 + (32 * i) + (8 * i), .pos[1] = 4 + heart_positions[i][1],
-                .ui = true
-            });
-        }*/
-
-        for(int i = 0; i < 512; i++)
-        {
-            global_input.keys_released[i] = false;
-        }
-
-        global_input.mouse_l_up = false;
-        global_input.mouse_r_up = false;
-
-        parallax_bg.sprite_offset[0] += 0.07f * global_delta_time * loaded_scene->scene_game_speed;
-        parallax_bg2.sprite_offset[0] += 0.1f * global_delta_time * loaded_scene->scene_game_speed;
-        bg2.sprite_offset[0] += 0.035f * global_delta_time * loaded_scene->scene_game_speed;
-
-        tornado.pos[0] = sin(anim_time * 0.5f) * 2.5f;
+        free_released_keys();
 
         draw_hp_ui(get_player());
-
-        first_priority_draw_call((sprite)
-        {
-            .resolution[0] = 130, .resolution[1] = 32,
-            .sprite_coord[0] = 17, .sprite_coord[1] = 2,
-            .pos[0] = 4, .pos[1] = 4,
-            .ui = true
-        });
-        first_priority_draw_call(parallax_bg2);
-        first_priority_draw_call(parallax_bg);
-        first_priority_draw_call(tornado);
-        first_priority_draw_call(bg2);
-        first_priority_draw_call(bg);
 
     break;
     }
@@ -306,73 +199,6 @@ void program_init(void)
 
     gameloop_init();
     init_rendering();
-}
-
-// pass input into a globally accessible input state, used as event callback by sokol
-
-void program_event(const sapp_event* ev) {
-    switch (ev->type) {
-        case SAPP_EVENTTYPE_KEY_DOWN:
-            if (ev->key_code < 512) {
-                global_input.keys_pressed[ev->key_code] = true;
-                global_input.key_tracker[ev->key_code] = false;
-            }
-            break;
-
-        case SAPP_EVENTTYPE_KEY_UP:
-            if (ev->key_code < 512) {
-                global_input.keys_pressed[ev->key_code] = false;
-                if(!global_input.key_tracker[ev->key_code]) {
-                    global_input.keys_released[ev->key_code] = true;
-                    global_input.key_tracker[ev->key_code] = true;
-                }
-            }
-            break;
-        
-        case SAPP_EVENTTYPE_MOUSE_DOWN:
-            if (ev->mouse_button == SAPP_MOUSEBUTTON_LEFT) {
-                global_input.mouse_l = true;
-                global_input.mouse_l_tracker = false;
-            }
-            else if (ev->mouse_button == SAPP_MOUSEBUTTON_RIGHT) {
-                global_input.mouse_r = true;
-                global_input.mouse_r_tracker = false;
-            }
-            break;
-
-        case SAPP_EVENTTYPE_MOUSE_UP:
-            if (ev->mouse_button == SAPP_MOUSEBUTTON_LEFT) {
-                global_input.mouse_l = false;
-                global_input.mouse_r = false;
-                if(!global_input.mouse_l_up) {
-                    global_input.mouse_l_up = true;
-                    global_input.mouse_l_tracker = true;
-                }
-            }
-            else if (ev->mouse_button == SAPP_MOUSEBUTTON_RIGHT) {
-                global_input.mouse_r = false;
-                if(!global_input.mouse_r_up) {
-                    global_input.mouse_r_up = true;
-                    global_input.mouse_r_tracker = true;
-                }
-            }
-            break;
-
-        case SAPP_EVENTTYPE_MOUSE_ENTER:
-            sapp_show_mouse(false);
-            break;
-
-        case SAPP_EVENTTYPE_MOUSE_LEAVE:
-            sapp_show_mouse(true);
-            break;
-
-        default:
-            
-            break;
-    }
-
-    global_input.mouse_x = (ev->mouse_x / sapp_width()) * VIRTUAL_WIDTH;
-    global_input.mouse_y = (ev->mouse_y / sapp_height()) * VIRTUAL_HEIGHT;
 }
 
 void program_loop()

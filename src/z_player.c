@@ -64,7 +64,7 @@ void player_init()
     reload_time = 0.33f;
     auto_gun = false;
     piercing_rounds = false;
-    double_piercing_rounds = true;
+    double_piercing_rounds = false;
 }
 
 void player_loop()
@@ -86,11 +86,11 @@ void player_loop()
             {
                 if(ply->colliding_entities[i]->damage >= 1) {
                     play_override_animation(&ply->animator_component, ANIM_PLAYER_DAMAGE);
-                    //ply->entity_timer = PLAYER_INVINCIBILITY_TIME_AFTER_HIT;
+                    ply->entity_timer = PLAYER_INVINCIBILITY_TIME_AFTER_HIT;
                     ply->velocity[0] = ply->colliding_entities[i]->position[0] >= ply->position[0] ? -100.0f : 100.0f;
                     ply->velocity[1] = -200.0f;
                     ply->collision_enabled = false;
-                    //ply->health_points -= ply->colliding_entities[i]->damage;
+                    ply->health_points -= ply->colliding_entities[i]->damage;
                     camera_shake(15.0f);
                     damage_ui_hp(ply);
                 }

@@ -118,3 +118,17 @@ void autotiler_build_tilemap(tile arr[LEVELS_HEIGHT][LEVELS_WIDTH])
         }
     }
 }
+
+void render_tilemap(tile arr[LEVELS_HEIGHT][LEVELS_WIDTH])
+{
+    for(int y = 0; y < LEVELS_HEIGHT; y++)
+    {
+        for(int x = 0; x < LEVELS_WIDTH; x++)
+        {
+            if(arr[y][x].is_filled == true)
+            {
+                draw_call(arr[y][x].tile_sprite);
+            }
+        }
+    }
+}  

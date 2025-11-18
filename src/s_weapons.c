@@ -64,15 +64,28 @@ void bullets_update()
     {
         if(bullet_object_pool[i].enabled && bullet_object_pool[i].entity != NULL)
         {
-            int pierces_tracked = 0;
-
             for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
             {
-                if(bullet_object_pool[i].entity->colliding_entities[z] != NULL 
-                    && bullet_object_pool[i].entity->colliding_entities[z]->collision_enabled)
+                if(bullet_object_pool[i].entity->colliding_entities[z] != NULL && bullet_object_pool[i].entity->colliding_entities[z]->enabled
+                && bullet_object_pool[i].entity->colliding_entities[z]->team != bullet_object_pool[i].entity->team
+                && !bullet_object_pool[i].entity->colliding_entities[z]->marked_for_garbage_collection)
                 {
-                    bullet_object_pool[i].pierces_left -= 1;
-                    printf("\ncolliding with %d", bullet_object_pool[i].entity->colliding_entities[z]->id);
+                    bool skip_iteration = false;
+
+                    for(int x = 0; x < COLLISION_HISTORY_LIMIT; x++)
+                    {
+                        if(bullet_object_pool[i].collision_history[x] == NULL)
+                        {
+                            bullet_object_pool[i].collision_history[x] = bullet_object_pool[i].entity->colliding_entities[z];
+                            break;
+                        }
+                        else if(bullet_object_pool[i].collision_history[x] == bullet_object_pool[i].entity->colliding_entities[z]) skip_iteration = true;
+                    }
+
+                    if(!skip_iteration) {
+                        bullet_object_pool[i].pierces_left -= 1;
+                        printf("\ncolliding with %d\nenabled %d\ncollision enabled \n%d", bullet_object_pool[i].entity->colliding_entities[z]->id, bullet_object_pool[i].entity->colliding_entities[z]->enabled, bullet_object_pool[i].entity->colliding_entities[z]->collision_enabled);
+                    }
                 }
             }
 
@@ -98,6 +111,8 @@ bullet *make_bullet(bullet_type *typ, vec2 pos, int dir, int team)
     {
         if(!bullet_object_pool[i].enabled)
         {
+            for(int z = 0; z < COLLISION_HISTORY_LIMIT; z++) bullet_object_pool[i].collision_history[z] = NULL;
+
             bullet_object_pool[i].entity = make_entity_in_scene(loaded_scene);
             bullet_object_pool[i].entity->is_projectile = true;
             bullet_object_pool[i].enabled = true;

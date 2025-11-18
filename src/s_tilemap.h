@@ -32,3 +32,5 @@ void init_tilemap(tile arr[LEVELS_HEIGHT][LEVELS_WIDTH]);
 // function called after loading level that visually stitches tiles together
 
 void autotiler_build_tilemap(tile arr[LEVELS_HEIGHT][LEVELS_WIDTH]);
+
+void render_tilemap(tile arr[LEVELS_HEIGHT][LEVELS_WIDTH]);
