@@ -564,9 +564,9 @@ int king_hp = 4;
 void simulate_zombies(entity *player)
 {
     time_til_next_zombie += global_delta_time * loaded_scene->scene_game_speed;
-    power_timer += global_delta_time * loaded_scene->scene_game_speed;
+    power_timer = TIME_TIL_RANGER + 20;
 
-    minion_hp = 1 + (floor(power_timer / MINION_HP_GAIN_TIME));
+    minion_hp = 2 + (floor(power_timer / MINION_HP_GAIN_TIME));
     ranger_hp = 1 + (floor(power_timer / RANGER_HP_GAIN_TIME));
     king_hp = 1 + (floor(power_timer / KING_HP_GAIN_TIME));
 
@@ -603,7 +603,7 @@ void simulate_zombies(entity *player)
         switch (zombie_pool[i].tier)
         {
             case 1:
-                minion_ai(&zombie_pool[i], player);
+                ranger_ai(&zombie_pool[i], player);
                 break;
             
             case 2:

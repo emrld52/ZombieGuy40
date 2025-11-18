@@ -37,6 +37,8 @@ typedef struct bullet_t {
     entity* entity;
     bool enabled;
     int pierces_left;
+    // fixes frametime issues
+    bool destroy_me;
 } bullet;
 
 extern bullet_type REGULAR_BULLETS;
@@ -48,5 +50,4 @@ extern bullet bullet_object_pool[MAX_BULLETS];
 
 void init_weapon_system();
 void bullets_update();
-void bullet_garbage_collection();
 bullet *make_bullet(bullet_type *typ, vec2 pos, int dir, int team);

@@ -64,7 +64,7 @@ void player_init()
     reload_time = 0.33f;
     auto_gun = false;
     piercing_rounds = false;
-    double_piercing_rounds = false;
+    double_piercing_rounds = true;
 }
 
 void player_loop()
@@ -76,60 +76,74 @@ void player_loop()
 
         if(ply->entity_timer <= 0) ply->collision_enabled = true;
 
-        printf("%d", &ply->position[1]);
+        //printf("%d", &ply->position[1]);
 
         for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
         {
             // test
-            if(ply->colliding_entities[i] != NULL && ply->entity_timer <= 0 
-                && ply->colliding_entities[i]->collision_enabled && ply->colliding_entities[i]->team != ply->team) 
+            if(ply->colliding_entities[i] != NULL && ply->entity_timer <= 0 && ply->colliding_entities[i]->team != ply->team) 
             {
-                if(ply->colliding_entities[i]->damage >= 1) {
+                // projectiles disable too early and behave weirdly, this fixes it
+                if(ply->colliding_entities[i]->is_projectile)
+                {
                     play_override_animation(&ply->animator_component, ANIM_PLAYER_DAMAGE);
-                    ply->entity_timer = PLAYER_INVINCIBILITY_TIME_AFTER_HIT;
+                    //ply->entity_timer = PLAYER_INVINCIBILITY_TIME_AFTER_HIT;
                     ply->velocity[0] = ply->colliding_entities[i]->position[0] >= ply->position[0] ? -100.0f : 100.0f;
                     ply->velocity[1] = -200.0f;
                     ply->collision_enabled = false;
-                    ply->health_points -= ply->colliding_entities[i]->damage;
+                    //ply->health_points -= ply->colliding_entities[i]->damage;
                     camera_shake(15.0f);
                     damage_ui_hp(ply);
                 }
-                // crate stuff, hardcoded here for now
-                else if(ply->colliding_entities[i]->id == 1000)
-                {
-                    destroy_crate();
-
-                    int upgrade = rand() % 6;
-
-                    switch(upgrade)
+                else if(ply->colliding_entities[i]->collision_enabled) {
+                    if(ply->colliding_entities[i]->damage >= 1) {
+                        play_override_animation(&ply->animator_component, ANIM_PLAYER_DAMAGE);
+                        //ply->entity_timer = PLAYER_INVINCIBILITY_TIME_AFTER_HIT;
+                        ply->velocity[0] = ply->colliding_entities[i]->position[0] >= ply->position[0] ? -100.0f : 100.0f;
+                        ply->velocity[1] = -200.0f;
+                        ply->collision_enabled = false;
+                        //ply->health_points -= ply->colliding_entities[i]->damage;
+                        camera_shake(15.0f);
+                        damage_ui_hp(ply);
+                    }
+                    // crate stuff, hardcoded here for now
+                    else if(ply->colliding_entities[i]->id == 1000)
                     {
-                        case 0:
-                            reload_time /= 1.15f;
-                            auto_gun = true;
-                            break;
+                        destroy_crate();
 
-                        case 1:
-                            reload_time /= 1.15f;
-                            break;
+                        int upgrade = rand() % 6;
 
-                        case 2:
-                            reload_time /= 1.15f;
-                            break;
+                        switch(upgrade)
+                        {
+                            case 0:
+                                reload_time /= 1.15f;
+                                auto_gun = true;
+                                break;
 
-                        case 3:
-                            if(piercing_rounds) double_piercing_rounds = true;
-                            piercing_rounds = true;
-                            break;
-                        case 4:
-                            ply->health_points += 1;
-                            if(ply->health_points >= ply->max_health_points) ply->health_points = ply->max_health_points;
-                            else heal_ui_hp(ply);
-                            break;
-                        case 5:
-                            ply->health_points += 1;
-                            if(ply->health_points >= ply->max_health_points) ply->health_points = ply->max_health_points;
-                            else heal_ui_hp(ply);
-                            break;
+                            case 1:
+                                reload_time /= 1.15f;
+                                break;
+
+                            case 2:
+                                if(piercing_rounds) double_piercing_rounds = true;
+                                piercing_rounds = true;
+                                break;
+                            case 3:
+                                ply->health_points += 1;
+                                if(ply->health_points >= ply->max_health_points) ply->health_points = ply->max_health_points;
+                                else heal_ui_hp(ply);
+                                break;
+                            case 4:
+                                ply->health_points += 1;
+                                if(ply->health_points >= ply->max_health_points) ply->health_points = ply->max_health_points;
+                                else heal_ui_hp(ply);
+                                break;
+                            case 5:
+                                ply->max_health_points += 1;
+                                ply->health_points += 1;
+                                init_hp_ui(ply);
+                                break;
+                        }
                     }
                 }
             }
@@ -181,12 +195,37 @@ void player_loop()
 
         // debug
 
-        if(global_input.keys_released[SAPP_KEYCODE_F]) 
+        /*if(global_input.keys_released[SAPP_KEYCODE_F]) 
         {
             ply->max_health_points += 1;
-            //ply->health_points = ply->max_health_points;
+            ply->health_points = ply->max_health_points;
             init_hp_ui(ply);
+        }*/
+
+        // debug
+
+        int count = 0;
+
+        for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
+        {
+            if(ply->i_am_in_ignore_lists[i] != NULL) count += 1;
         }
+
+        int count2 = 0;
+
+        for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
+        {
+            if(ply->colliding_entities[i] != NULL) count2 += 1;
+        }
+
+        int count3 = 0;
+
+        for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
+        {
+            if(ply->ignore_collision_with[i] != NULL) count3 += 1;
+        }
+
+        printf("\nbeing ignored by : %d colliding with : %d ignoring : %d", count, count2, count3);
 
         // debug tilemap builder
 

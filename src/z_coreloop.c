@@ -206,9 +206,6 @@ void run_gameloop()
 
     // scene is a level
     case 1:
-        player_loop();
-        simulate_zombies(get_player());
-
         for(int i = 0; i < MAX_ENTITIES; i++)
         {
             if(loaded_scene->entities[i].enabled)
@@ -223,8 +220,13 @@ void run_gameloop()
             }
         }
 
-        update_supply_crate();
         bullets_update();
+        player_loop();
+        simulate_zombies(get_player());
+
+        update_supply_crate();
+
+        cleanup_stale_ignore_lists();
 
         // render tiles
 

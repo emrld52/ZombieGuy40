@@ -14,21 +14,20 @@ void reset_entity(entity* ent)
 {
     if(!ent) return;
 
+    // Clean up OTHER entities' references to this entity
     for(int i = 0; i < MAX_ENTITIES; i++)
     {
         entity* e = &loaded_scene->entities[i];
+        if(!e->enabled) continue;
 
-        // skip itself or disabled entities
-        if(e == ent || !e->enabled) continue;
-
-        // remove from colliding list
+        // Remove from colliding list
         for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
         {
             if(e->colliding_entities[z] == ent)
                 e->colliding_entities[z] = NULL;
         }
 
-        // remove from ignore list
+        // Remove from ignore list
         for(int z = 0; z < MAX_COLLIDING_ENTITIES/2; z++)
         {
             if(e->ignore_collision_with[z] == ent)
@@ -36,14 +35,44 @@ void reset_entity(entity* ent)
         }
     }
 
-    for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
-        ent->colliding_entities[i] = NULL;
+    // Clean up THIS entity's references to others (CRITICAL FIX)
+    for(int i = 0; i < MAX_COLLIDING_ENTITIES/2; i++)
+    {
+        // Remove this entity from the "i_am_in_ignore_lists" of entities it was ignoring
+        if(ent->ignore_collision_with[i] != NULL)
+        {
+            entity* ignored = ent->ignore_collision_with[i];
+            for(int z = 0; z < MAX_COLLIDING_ENTITIES/2; z++)
+            {
+                if(ignored->i_am_in_ignore_lists[z] == ent)
+                {
+                    ignored->i_am_in_ignore_lists[z] = NULL;
+                    break;
+                }
+            }
+            ent->ignore_collision_with[i] = NULL;
+        }
 
-    for(int i = 0; i < MAX_COLLIDING_ENTITIES/2; i++)
-        ent->ignore_collision_with[i] = NULL;
-    
-    for(int i = 0; i < MAX_COLLIDING_ENTITIES/2; i++)
-        ent->i_am_in_ignore_lists[i] = NULL;
+        // Clean entities that had this entity in their ignore lists
+        if(ent->i_am_in_ignore_lists[i] != NULL)
+        {
+            entity* has_me_ignored = ent->i_am_in_ignore_lists[i];
+            for(int z = 0; z < MAX_COLLIDING_ENTITIES/2; z++)
+            {
+                if(has_me_ignored->ignore_collision_with[z] == ent)
+                {
+                    has_me_ignored->ignore_collision_with[z] = NULL;
+                    break;
+                }
+            }
+            ent->i_am_in_ignore_lists[i] = NULL;
+        }
+    }
+
+    // Reset the arrays
+    memset(ent->colliding_entities, 0, sizeof(ent->colliding_entities));
+    memset(ent->ignore_collision_with, 0, sizeof(ent->ignore_collision_with));
+    memset(ent->i_am_in_ignore_lists, 0, sizeof(ent->i_am_in_ignore_lists));
 
     *ent = (entity){0};
 
@@ -115,6 +144,7 @@ entity* make_entity_in_scene(scene *scn)
 
 void destroy_entity_in_scene(entity *ent)
 {
+    ent->collision_enabled = false;
     ent->enabled = false;
 }
 

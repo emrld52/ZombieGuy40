@@ -9,7 +9,7 @@
 #include "r_renderfuncs.h"
 #include "s_animation.h"
 
-#define MAX_COLLIDING_ENTITIES 24
+#define MAX_COLLIDING_ENTITIES 96
 
 typedef struct entity_t {
     vec2 position;
@@ -24,6 +24,8 @@ typedef struct entity_t {
 
     sprite sprite_data;
     animator animator_component;
+
+    animation damage_animation;
 
     int health_points;
     int max_health_points;
@@ -59,4 +61,6 @@ typedef struct entity_t {
 void entity_run_physics(entity* ent);
 void entity_override_velocity(entity* ent, vec2 vel);
 void add_to_entities_collision_ignore_list(entity* to_add_to, entity* adding);
+void cleanup_stale_ignore_lists();
+void damage_entity(entity* ent);
 void clear_collisions();

@@ -155,16 +155,16 @@ void entity_run_physics(entity* ent)
             {
                 vec2 to_check_bounds[2];
 
-                to_check_bounds[0][0] = loaded_scene->entities[i].position[0] + loaded_scene->entities[i].hit_box_offset[0];
-                to_check_bounds[0][1] = loaded_scene->entities[i].position[1] + loaded_scene->entities[i].hit_box_offset[1];
-                to_check_bounds[1][0] = loaded_scene->entities[i].position[0] + loaded_scene->entities[i].hit_box[0] + loaded_scene->entities[i].hit_box_offset[0];
-                to_check_bounds[1][1] = loaded_scene->entities[i].position[1] + loaded_scene->entities[i].hit_box[1] + loaded_scene->entities[i].hit_box_offset[1];
+                to_check_bounds[0][0] = loaded_scene->entities[i].position[0] + loaded_scene->entities[i].hit_box_offset[0] + (loaded_scene->entities[i].velocity[0] * global_delta_time * loaded_scene->scene_game_speed);
+                to_check_bounds[0][1] = loaded_scene->entities[i].position[1] + loaded_scene->entities[i].hit_box_offset[1] + (loaded_scene->entities[i].velocity[1] * global_delta_time * loaded_scene->scene_game_speed);
+                to_check_bounds[1][0] = loaded_scene->entities[i].position[0] + loaded_scene->entities[i].hit_box[0] + loaded_scene->entities[i].hit_box_offset[0] + (loaded_scene->entities[i].velocity[0] * global_delta_time * loaded_scene->scene_game_speed);
+                to_check_bounds[1][1] = loaded_scene->entities[i].position[1] + loaded_scene->entities[i].hit_box[1] + loaded_scene->entities[i].hit_box_offset[1] + (loaded_scene->entities[i].velocity[1] * global_delta_time * loaded_scene->scene_game_speed);
 
                 vec2 ent_full_bounds[2] = {
-                    { ent->position[0] + ent->hit_box_offset[0],
-                    ent->position[1] + ent->hit_box_offset[1] },
-                    { ent->position[0] + ent->hit_box_offset[0] + ent->hit_box[0],
-                    ent->position[1] + ent->hit_box_offset[1] + ent->hit_box[1] }
+                    { ent->position[0] + ent->hit_box_offset[0] + (ent->velocity[0] * global_delta_time * loaded_scene->scene_game_speed),
+                    ent->position[1] + ent->hit_box_offset[1]  + (ent->velocity[1] * global_delta_time * loaded_scene->scene_game_speed) },
+                    { ent->position[0] + ent->hit_box_offset[0] + ent->hit_box[0] + (ent->velocity[0] * global_delta_time * loaded_scene->scene_game_speed),
+                    ent->position[1] + ent->hit_box_offset[1] + ent->hit_box[1] + (ent->velocity[1] * global_delta_time * loaded_scene->scene_game_speed) }
                 };
 
                 if(glm_aabb2d_aabb(ent_full_bounds, to_check_bounds))
@@ -253,3 +253,50 @@ void entity_override_velocity(entity* ent, vec2 vel)
 {
     glm_vec2_copy(vel, ent->velocity);
 }
+
+void cleanup_stale_ignore_lists()
+{
+    for(int i = 0; i < MAX_ENTITIES; i++)
+    {
+        entity* ent = &loaded_scene->entities[i];
+        if(!ent->enabled) continue;
+
+        // Clean up ignore_collision_with list
+        for(int z = 0; z < MAX_COLLIDING_ENTITIES/2; z++)
+        {
+            if(ent->ignore_collision_with[z] != NULL && 
+               (!ent->ignore_collision_with[z]->enabled || 
+                ent->ignore_collision_with[z]->marked_for_garbage_collection))
+            {
+                // Remove stale reference
+                ent->ignore_collision_with[z] = NULL;
+            }
+        }
+
+        // Clean up i_am_in_ignore_lists
+        for(int z = 0; z < MAX_COLLIDING_ENTITIES/2; z++)
+        {
+            if(ent->i_am_in_ignore_lists[z] != NULL && 
+               (!ent->i_am_in_ignore_lists[z]->enabled || 
+                ent->i_am_in_ignore_lists[z]->marked_for_garbage_collection))
+            {
+                // Remove stale reference
+                ent->i_am_in_ignore_lists[z] = NULL;
+            }
+        }
+    }
+}
+
+
+//WIP thisll be weird
+/*void damage_entity(entity* ent, entity* attacker)
+{
+    play_override_animation(&ent->animator_component, ANIM_PLAYER_DAMAGE);
+    //ply->entity_timer = PLAYER_INVINCIBILITY_TIME_AFTER_HIT;
+    ent->velocity[0] = attacker->position[0] >= ent->position[0] ? -100.0f : 100.0f;
+    ent->velocity[1] = -200.0f;
+    ent->collision_enabled = false;
+    //ply->health_points -= ply->colliding_entities[i]->damage;
+    camera_shake(15.0f);
+    damage_ui_hp(ply);
+}*/
