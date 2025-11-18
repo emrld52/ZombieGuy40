@@ -180,36 +180,6 @@ void player_loop()
             }
         }
 
-        // debug
-
-        /*if(global_input.keys_released[SAPP_KEYCODE_F]) 
-        {
-            ply->max_health_points += 1;
-            ply->health_points = ply->max_health_points;
-            init_hp_ui(ply);
-        }*/
-
-        // debug tilemap builder
-
-        /*if(global_input.keys_pressed[SAPP_KEYCODE_1] && global_input.mouse_x > 0 && global_input.mouse_y > 0)
-        {
-            if(!loaded_scene->tilemap[(int)floor(global_input.mouse_y / LEVELS_TILE_RESOLUTION)][(int)floor(global_input.mouse_x / LEVELS_TILE_RESOLUTION)].is_filled)
-            {
-                loaded_scene->tilemap[(int)floor(global_input.mouse_y / LEVELS_TILE_RESOLUTION)][(int)floor(global_input.mouse_x / LEVELS_TILE_RESOLUTION)].is_filled = true;
-                autotiler_build_tilemap(loaded_scene->tilemap);
-                camera_shake(1.0f);
-            }
-        }
-        if(global_input.keys_pressed[SAPP_KEYCODE_2] && global_input.mouse_x > 0 && global_input.mouse_y > 0)
-        {
-            if(loaded_scene->tilemap[(int)floor(global_input.mouse_y / LEVELS_TILE_RESOLUTION)][(int)floor(global_input.mouse_x / LEVELS_TILE_RESOLUTION)].is_filled)
-            {
-                loaded_scene->tilemap[(int)floor(global_input.mouse_y / LEVELS_TILE_RESOLUTION)][(int)floor(global_input.mouse_x / LEVELS_TILE_RESOLUTION)].is_filled = false;
-                autotiler_build_tilemap(loaded_scene->tilemap);
-                camera_shake(1.0f);
-            }
-        }*/
-
         // basic movement
 
         if(ply->entity_timer <= 0.4f) {

@@ -135,15 +135,6 @@ void gameloop_init()
 
 void run_gameloop()
 {
-    if(global_input.keys_released[SAPP_KEYCODE_ESCAPE]) is_paused = !is_paused;
-
-    if(is_paused) 
-    {
-        loaded_scene->scene_game_speed = 0;
-        draw_call(pause_icon);
-    }
-    else loaded_scene->scene_game_speed = 1;
-
     switch(loaded_scene->type)
     {
     // scene is a menu, no menu yet so this is whatever
@@ -153,6 +144,17 @@ void run_gameloop()
 
     // scene is a level
     case SCENE_TYPE_LEVEL:
+        // pause logic
+        
+        if(global_input.keys_released[SAPP_KEYCODE_ESCAPE]) is_paused = !is_paused;
+
+        if(is_paused) 
+        {
+            loaded_scene->scene_game_speed = 0;
+            draw_call(pause_icon);
+        }
+        else loaded_scene->scene_game_speed = 1;
+
         draw_background_fx();
 
         for(int i = 0; i < MAX_ENTITIES; i++)

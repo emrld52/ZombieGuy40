@@ -76,14 +76,7 @@ void draw_background_fx()
     bg2.sprite_offset[0] += 0.035f * global_delta_time * loaded_scene->scene_game_speed;
 
     tornado.pos[0] = sin(anim_time * 0.5f) * 2.5f;
-
-    first_priority_draw_call((sprite)
-    {
-        .resolution[0] = 130, .resolution[1] = 32,
-        .sprite_coord[0] = 17, .sprite_coord[1] = 2,
-        .pos[0] = 4, .pos[1] = 4,
-        .ui = true
-    });
+    
     first_priority_draw_call(parallax_bg2);
     first_priority_draw_call(parallax_bg);
     first_priority_draw_call(tornado);

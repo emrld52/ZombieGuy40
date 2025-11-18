@@ -53,10 +53,45 @@ void heal_ui_hp(entity *plyr)
 
 void draw_hp_ui()
 {
+    draw_call((sprite)
+    {
+        .resolution[0] = 6, .resolution[1] = 32,
+        .sprite_coord[0] = 17, .sprite_coord[1] = 2,
+        .pos[0] = 4, .pos[1] = 4,
+        .ui = true
+    });
+
     time += 5 * global_delta_time * loaded_scene->scene_game_speed;
 
     for(int i = 0; i < heart_count; i++) 
     {
+        if(i != heart_count - 1) {
+            draw_call((sprite)
+            {
+                .resolution[0] = 38, .resolution[1] = 32,
+                .sprite_coord[0] = 18, .sprite_coord[1] = 2,
+                .pos[0] = 10 + (38 * i), .pos[1] = 4,
+                .ui = true
+            });
+        }
+        else
+        {
+            draw_call((sprite)
+            {
+                .resolution[0] = 5, .resolution[1] = 32,
+                .sprite_coord[0] = 18, .sprite_coord[1] = 2,
+                .pos[0] = 10 + (38 * i), .pos[1] = 4,
+                .ui = true
+            });
+            draw_call((sprite)
+            {
+                .resolution[0] = 32, .resolution[1] = 32,
+                .sprite_coord[0] = 20, .sprite_coord[1] = 2,
+                .pos[0] = 9 + (38 * i) + 6, .pos[1] = 4,
+                .ui = true
+            });
+        }
+
         animator_update(&heart[i]);
 
         heart_sprite[i].pos[1] = (sin(time + i) * 2.5f) + 4;
