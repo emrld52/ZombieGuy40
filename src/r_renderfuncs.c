@@ -238,7 +238,7 @@ void draw_game()
     state.vertex_shader_params.cam_position[1] = global_camera_position[1];
 
     // each frame rebuild matrix in the event that window has been stretched, might remove when i implement fixed aspect ratio
-    glm_ortho(0.0f, sapp_width(), sapp_height(), 0.0f, -1.0f, 1.0f, proj);
+    glm_ortho(0.0f, 640, 480, 0.0f, -1.0f, 1.0f, proj);
     memcpy(state.vertex_shader_params.projection, proj, sizeof(float) * 16);
 
     // if no draw calls just render nothing

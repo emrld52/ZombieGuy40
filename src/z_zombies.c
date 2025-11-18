@@ -12,6 +12,7 @@
 #include "z_coreloop.h"
 #include "z_player.h"
 #include "s_weapons.h"
+#include "z_upgradecrate.h"
 
 // rendering
 
@@ -115,6 +116,9 @@ void kill_zombie(zombie *zomb)
     if(zomb->zmb->entity_timer <= 0) zomb->zmb->velocity[0] = 0;
 
     zomb->zmb = NULL;
+
+    zombies_killed_total += 1;
+    zombies_killed += 1;
 }
 
 void damage_zombie(zombie *zomb, entity *attacker)
@@ -128,7 +132,11 @@ void damage_zombie(zombie *zomb, entity *attacker)
     zomb->zmb->health_points -= attacker->damage;
     zomb->zmb->gravity = ZOMBIE_GRAV;
 
-    if(zomb->zmb->health_points <= 0) kill_zombie(zomb);
+    if(zomb->zmb->health_points <= 0) 
+    {
+        kill_zombie(zomb);
+        return;
+    }
 }
 
 // this pathfinding is VERY primitive and relies on the level being mostly symmetrical with only a tiny bit of verticality. however it does work well enough for what were trying
@@ -266,9 +274,8 @@ void minion_ai(zombie *zomb, entity *plyr)
         for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
         {
             // test
-            if(zomb->zmb->colliding_entities[i] != NULL && zomb->zmb->entity_timer <= 0 
-                && zomb->zmb->colliding_entities[i]->damage >= 1 && zomb->zmb->colliding_entities[i]->team != zomb->zmb->team
-                && zomb->zmb->health_points >= 1) 
+            if(zomb->zmb != NULL && zomb->zmb->colliding_entities[i] != NULL && zomb->zmb->colliding_entities[i]->damage >= 1 
+                && zomb->zmb->colliding_entities[i]->team != zomb->zmb->team && zomb->zmb->health_points >= 1) 
             {
                 damage_zombie(zomb, zomb->zmb->colliding_entities[i]);
             }
@@ -395,9 +402,8 @@ void ranger_ai(zombie *zomb, entity *plyr)
         for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
         {
             // test
-            if(zomb->zmb->colliding_entities[i] != NULL && zomb->zmb->entity_timer <= 0 
-                && zomb->zmb->colliding_entities[i]->damage >= 1 && zomb->zmb->colliding_entities[i]->team != zomb->zmb->team
-                && zomb->zmb->health_points >= 1) 
+            if(zomb->zmb != NULL && zomb->zmb->colliding_entities[i] != NULL && zomb->zmb->colliding_entities[i]->damage >= 1 
+                && zomb->zmb->colliding_entities[i]->team != zomb->zmb->team && zomb->zmb->health_points >= 1) 
             {
                 damage_zombie(zomb, zomb->zmb->colliding_entities[i]);
             }
@@ -542,9 +548,8 @@ void king_ai(zombie *zomb, entity *plyr)
         for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
         {
             // test
-            if(zomb->zmb->colliding_entities[i] != NULL && zomb->zmb->entity_timer <= 0 
-                && zomb->zmb->colliding_entities[i]->damage >= 1 && zomb->zmb->colliding_entities[i]->team != zomb->zmb->team
-                && zomb->zmb->health_points >= 1) 
+            if(zomb->zmb != NULL && zomb->zmb->colliding_entities[i] != NULL && zomb->zmb->colliding_entities[i]->damage >= 1 
+                && zomb->zmb->colliding_entities[i]->team != zomb->zmb->team && zomb->zmb->health_points >= 1) 
             {
                 damage_zombie(zomb, zomb->zmb->colliding_entities[i]);
             }
@@ -565,7 +570,7 @@ void simulate_zombies(entity *player)
     ranger_hp = 1 + (floor(power_timer / RANGER_HP_GAIN_TIME));
     king_hp = 1 + (floor(power_timer / KING_HP_GAIN_TIME));
 
-    printf("%f", time_til_next_zombie);
+    //printf("%f", time_til_next_zombie);
 
     if(time_til_next_zombie >= time_between_each_zombie)
     {

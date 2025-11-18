@@ -7,9 +7,11 @@ entity *crate;
 sprite crate_sprite;
 
 float time_til_despawn;
-float time_til_spawn;
 
 bool has_played_flash = false;
+
+int zombies_killed_total = 0;
+int zombies_killed = 0;
 
 void init_supply_crate()
 {
@@ -51,7 +53,6 @@ void destroy_crate()
 {
     destroy_entity_in_scene(crate);
     crate = NULL;
-    time_til_spawn = MIN_TIME_TIL_SPAWN + rand() % (MAx_TIME_TIL_SPAWN - MIN_TIME_TIL_SPAWN + 1);
 }
 
 void update_supply_crate()
@@ -71,8 +72,14 @@ void update_supply_crate()
     }
     else if(crate == NULL)
     {
-        time_til_spawn -= global_delta_time * loaded_scene->scene_game_speed;
+        if(zombies_killed >= REQUIREMENT_FOR_CRATE) 
+        {
+            init_supply_crate();
 
-        if(time_til_spawn <= 0) init_supply_crate();
+            // if player killed more whilst crate was still around
+
+            zombies_killed -= REQUIREMENT_FOR_CRATE;
+            if(zombies_killed < 0) zombies_killed = 0;
+        }
     }
 }

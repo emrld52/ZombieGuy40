@@ -9,6 +9,7 @@
 #include "s_animation.h"
 #include "s_weapons.h"
 #include "z_upgradecrate.h"
+#include "s_playerUI.h"
 
 // libraries
 
@@ -36,6 +37,7 @@ float time_til_next_can_shoot = 0.25f;
 float reload_time = 0.33f;
 bool auto_gun = false;
 bool piercing_rounds = false;
+bool double_piercing_rounds = false;
 
 // init player position and velocity
 
@@ -43,7 +45,7 @@ void player_init()
 {
     ply = make_entity_in_scene(loaded_scene);
 
-    glm_vec3_copy((vec2){ (sapp_width() / 2) - 32, 0.0f }, ply->position);
+    glm_vec3_copy((vec2){ (VIRTUAL_WIDTH/ 2) - 32, 0.0f }, ply->position);
     glm_vec3_copy((vec2){ 0.0f, 0.0f }, ply->velocity);
     glm_vec2_copy((vec2){ 32, 32 }, ply->sprite_data.resolution);
     glm_vec2_copy((vec2){ 1, 1 }, ply->sprite_data.sprite_coord);
@@ -62,6 +64,7 @@ void player_init()
     reload_time = 0.33f;
     auto_gun = false;
     piercing_rounds = false;
+    double_piercing_rounds = false;
 }
 
 void player_loop()
@@ -73,6 +76,8 @@ void player_loop()
 
         if(ply->entity_timer <= 0) ply->collision_enabled = true;
 
+        printf("%d", &ply->position[1]);
+
         for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
         {
             // test
@@ -81,13 +86,13 @@ void player_loop()
             {
                 if(ply->colliding_entities[i]->damage >= 1) {
                     play_override_animation(&ply->animator_component, ANIM_PLAYER_DAMAGE);
-                    ply->entity_timer = 0.35f;
+                    ply->entity_timer = PLAYER_INVINCIBILITY_TIME_AFTER_HIT;
                     ply->velocity[0] = ply->colliding_entities[i]->position[0] >= ply->position[0] ? -100.0f : 100.0f;
                     ply->velocity[1] = -200.0f;
                     ply->collision_enabled = false;
                     ply->health_points -= ply->colliding_entities[i]->damage;
                     camera_shake(15.0f);
-                    damage();
+                    damage_ui_hp(ply);
                 }
                 // crate stuff, hardcoded here for now
                 else if(ply->colliding_entities[i]->id == 1000)
@@ -112,17 +117,18 @@ void player_loop()
                             break;
 
                         case 3:
+                            if(piercing_rounds) double_piercing_rounds = true;
                             piercing_rounds = true;
                             break;
                         case 4:
                             ply->health_points += 1;
                             if(ply->health_points >= ply->max_health_points) ply->health_points = ply->max_health_points;
-                            else fix_hp();
+                            else heal_ui_hp(ply);
                             break;
                         case 5:
                             ply->health_points += 1;
                             if(ply->health_points >= ply->max_health_points) ply->health_points = ply->max_health_points;
-                            else fix_hp();
+                            else heal_ui_hp(ply);
                             break;
                     }
                 }
@@ -154,8 +160,9 @@ void player_loop()
         if(!auto_gun) {
             if(global_input.mouse_l_up && time_til_next_can_shoot <= 0) 
             {
-                if(!piercing_rounds) b = *make_bullet(&REGULAR_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
-                else *make_bullet(&PIERCING_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
+                if(double_piercing_rounds) b = *make_bullet(&DOUBLE_PIERCING_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
+                else if(piercing_rounds) *make_bullet(&PIERCING_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
+                else *make_bullet(&REGULAR_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
                 if(&b != NULL) camera_shake(5.0f);
                 time_til_next_can_shoot = reload_time;
             }
@@ -164,8 +171,9 @@ void player_loop()
         {
             if(global_input.mouse_l && time_til_next_can_shoot <= 0) 
             {
-                if(!piercing_rounds) b = *make_bullet(&REGULAR_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
-                else *make_bullet(&PIERCING_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
+                if(double_piercing_rounds) b = *make_bullet(&DOUBLE_PIERCING_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
+                else if(piercing_rounds) *make_bullet(&PIERCING_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
+                else *make_bullet(&REGULAR_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
                 if(&b != NULL) camera_shake(5.0f);
                 time_til_next_can_shoot = reload_time;
             }
@@ -173,12 +181,12 @@ void player_loop()
 
         // debug
 
-        /*if(global_input.keys_released[SAPP_KEYCODE_F]) 
+        if(global_input.keys_released[SAPP_KEYCODE_F]) 
         {
-            play_override_animation(&ply->animator_component, ANIM_PLAYER_DAMAGE);
-            ply->health_points -= 1;
-            damage();
-        }*/
+            ply->max_health_points += 1;
+            //ply->health_points = ply->max_health_points;
+            init_hp_ui(ply);
+        }
 
         // debug tilemap builder
 
@@ -203,7 +211,7 @@ void player_loop()
 
         // basic movement
 
-        if(ply->entity_timer <= 0.0f) {
+        if(ply->entity_timer <= 0.4f) {
 
             if(global_input.keys_pressed[SAPP_KEYCODE_D]) ply->velocity[0] = PLAYER_MAX_SPEED;
             else if(global_input.keys_pressed[SAPP_KEYCODE_A]) ply->velocity[0] = -PLAYER_MAX_SPEED;

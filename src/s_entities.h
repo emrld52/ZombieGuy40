@@ -59,3 +59,4 @@ typedef struct entity_t {
 void entity_run_physics(entity* ent);
 void entity_override_velocity(entity* ent, vec2 vel);
 void add_to_entities_collision_ignore_list(entity* to_add_to, entity* adding);
+void clear_collisions();

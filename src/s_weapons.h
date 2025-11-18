@@ -42,9 +42,11 @@ typedef struct bullet_t {
 extern bullet_type REGULAR_BULLETS;
 extern bullet_type PIERCING_BULLETS;
 extern bullet_type ENEMY_BULLETS;
+extern bullet_type DOUBLE_PIERCING_BULLETS;
 
 extern bullet bullet_object_pool[MAX_BULLETS];
 
 void init_weapon_system();
 void bullets_update();
+void bullet_garbage_collection();
 bullet *make_bullet(bullet_type *typ, vec2 pos, int dir, int team);

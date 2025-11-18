@@ -2,6 +2,7 @@
 
 bullet_type REGULAR_BULLETS;
 bullet_type PIERCING_BULLETS;
+bullet_type DOUBLE_PIERCING_BULLETS;
 bullet_type ENEMY_BULLETS;
 
 bullet bullet_object_pool[MAX_BULLETS];
@@ -27,9 +28,21 @@ void init_weapon_system()
         .hit_box = {28, 8},
         .hit_box_offset = {2, 12},
         .speed = 1024.0f,
-        .muzzle_flash_animation = ANIM_BULLET_DEAFULT_FLASH,
-        .bullet_zoom_animation = ANIM_BULLET_DEAFULT_ZOOM,
+        .muzzle_flash_animation = ANIM_BULLET_BLUE_FLASH,
+        .bullet_zoom_animation = ANIM_BULLET_BLUE_ZOOM,
         .pierce_count = 2
+    };
+
+    DOUBLE_PIERCING_BULLETS = (bullet_type)
+    {
+        .damage = 2,
+        .gravity = 0,
+        .hit_box = {28, 8},
+        .hit_box_offset = {2, 12},
+        .speed = 1024.0f,
+        .muzzle_flash_animation = ANIM_BULLET_GREEN_FLASH,
+        .bullet_zoom_animation = ANIM_BULLET_GREEN_ZOOM,
+        .pierce_count = 3
     };
 
     ENEMY_BULLETS = (bullet_type)
@@ -49,7 +62,7 @@ void bullets_update()
 {
     for(int i = 0; i < MAX_BULLETS; i++)
     {
-        if(bullet_object_pool[i].enabled && &bullet_object_pool[i].entity != NULL)
+        if(bullet_object_pool[i].enabled && bullet_object_pool[i].entity != NULL)
         {
             int pierces_tracked = 0;
 

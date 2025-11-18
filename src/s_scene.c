@@ -7,11 +7,43 @@
 
 #include "s_scene.h"
 #include "s_entities.h"
+#include "g_state.h"
 
 // ensure you include what you need for animator/sprite reset
 void reset_entity(entity* ent)
 {
     if(!ent) return;
+
+    for(int i = 0; i < MAX_ENTITIES; i++)
+    {
+        entity* e = &loaded_scene->entities[i];
+
+        // skip itself or disabled entities
+        if(e == ent || !e->enabled) continue;
+
+        // remove from colliding list
+        for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
+        {
+            if(e->colliding_entities[z] == ent)
+                e->colliding_entities[z] = NULL;
+        }
+
+        // remove from ignore list
+        for(int z = 0; z < MAX_COLLIDING_ENTITIES/2; z++)
+        {
+            if(e->ignore_collision_with[z] == ent)
+                e->ignore_collision_with[z] = NULL;
+        }
+    }
+
+    for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
+        ent->colliding_entities[i] = NULL;
+
+    for(int i = 0; i < MAX_COLLIDING_ENTITIES/2; i++)
+        ent->ignore_collision_with[i] = NULL;
+    
+    for(int i = 0; i < MAX_COLLIDING_ENTITIES/2; i++)
+        ent->i_am_in_ignore_lists[i] = NULL;
 
     *ent = (entity){0};
 
@@ -33,26 +65,6 @@ void reset_entity(entity* ent)
     ent->velocity[0] = ent->velocity[1] = 0.0f;
     ent->hit_box[0] = ent->hit_box[1] = 0.0f;
     ent->hit_box_offset[0] = ent->hit_box_offset[1] = 0.0f;
-
-    for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
-    {
-        ent->colliding_entities[i] = NULL;
-
-        // remove from ignore collision lists
-
-        if(i < MAX_COLLIDING_ENTITIES / 2 && ent->i_am_in_ignore_lists[i] != NULL)
-        {
-            ent->ignore_collision_with[i] = NULL;
-
-            for(int z = 0; z < MAX_COLLIDING_ENTITIES / 2; z++)
-            {
-                if(ent->i_am_in_ignore_lists[i]->ignore_collision_with[z] == ent) 
-                    ent->i_am_in_ignore_lists[i]->ignore_collision_with[z] = NULL;
-            }
-
-            ent->i_am_in_ignore_lists[i] = NULL;
-        }
-    }
 
     ent->sprite_data = (sprite){0};
     ent->animator_component = (animator){0};

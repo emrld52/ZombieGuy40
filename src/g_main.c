@@ -27,8 +27,8 @@
             
 sapp_desc sokol_main(int argc, char* argv[]) {
     return (sapp_desc) {
-        .width = 640,
-        .height = 480,
+        .width = 1280,
+        .height = 960,
         .init_cb = program_init,
         .frame_cb = program_loop,
         .cleanup_cb = program_cleanup,

@@ -12,6 +12,8 @@ void add_to_entities_collision_ignore_list(entity* to_add_to, entity* adding)
     // collision ignore lists are half that of the max colliding entities
     for(int i = 0; i < MAX_COLLIDING_ENTITIES / 2; i++)
     {
+        if(to_add_to->ignore_collision_with[i] == adding) return;
+
         if(to_add_to->ignore_collision_with[i] == NULL)
         {
             to_add_to->ignore_collision_with[i] = adding;
@@ -19,8 +21,14 @@ void add_to_entities_collision_ignore_list(entity* to_add_to, entity* adding)
             // let entity were adding to the list know that its in that list to remove itself when its time for garbage collection
             for(int z = 0; z < MAX_COLLIDING_ENTITIES / 2; z++)
             {
-                adding->i_am_in_ignore_lists[i] = to_add_to;
+                if(adding->i_am_in_ignore_lists[z] == NULL) 
+                {
+                    adding->i_am_in_ignore_lists[z] = to_add_to;
+                    break;
+                }
             }
+
+            break;
         }
     }
 }
@@ -152,45 +160,87 @@ void entity_run_physics(entity* ent)
                 to_check_bounds[1][0] = loaded_scene->entities[i].position[0] + loaded_scene->entities[i].hit_box[0] + loaded_scene->entities[i].hit_box_offset[0];
                 to_check_bounds[1][1] = loaded_scene->entities[i].position[1] + loaded_scene->entities[i].hit_box[1] + loaded_scene->entities[i].hit_box_offset[1];
 
-                if(glm_aabb2d_aabb(ent_box_x_check, to_check_bounds))
+                vec2 ent_full_bounds[2] = {
+                    { ent->position[0] + ent->hit_box_offset[0],
+                    ent->position[1] + ent->hit_box_offset[1] },
+                    { ent->position[0] + ent->hit_box_offset[0] + ent->hit_box[0],
+                    ent->position[1] + ent->hit_box_offset[1] + ent->hit_box[1] }
+                };
+
+                if(glm_aabb2d_aabb(ent_full_bounds, to_check_bounds))
                 {
                     int first_free_slot = -1;
                     bool is_already_colliding = false;
 
                     for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
                     {
-                        if(ent->colliding_entities[z] == NULL) first_free_slot = z;
-                        else 
+                        if(ent->colliding_entities[z] == NULL) 
                         {
-                            if(ent->colliding_entities[z]->id == loaded_scene->entities[i].id) 
-                            {
-                                is_already_colliding = true;
-                                return;
-                            }
+                            first_free_slot = z;
+                            break;
+                        }
+                        if(ent->colliding_entities[z]->id == loaded_scene->entities[i].id) 
+                        {
+                            is_already_colliding = true;
+                            break;
                         }
                     }
 
-                    if(!is_already_colliding && first_free_slot != -1) ent->colliding_entities[first_free_slot] = &loaded_scene->entities[i];
-
-                    // add to colliding entities collisions too
-
-                    first_free_slot = -1;
-                    is_already_colliding = false;
-
-                    for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
+                    if(!is_already_colliding && first_free_slot != -1) 
                     {
-                        if(loaded_scene->entities[i].colliding_entities[z] == NULL) first_free_slot = z;
-                        else 
+                        ent->colliding_entities[first_free_slot] = &loaded_scene->entities[i];
+
+                        // add to colliding entities collisions too
+
+                        first_free_slot = -1;
+                        is_already_colliding = false;
+
+                        for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
                         {
+                            if(loaded_scene->entities[i].colliding_entities[z] == NULL) 
+                            {
+                                first_free_slot = z;
+                                break;
+                            }
                             if(loaded_scene->entities[i].colliding_entities[z]->id == ent->id) 
                             {
                                 is_already_colliding = true;
-                                return;
+                                break;
                             }
                         }
-                    }
 
-                    if(!is_already_colliding && first_free_slot != -1) loaded_scene->entities[i].colliding_entities[first_free_slot] = ent;
+                        if(!is_already_colliding && first_free_slot != -1) loaded_scene->entities[i].colliding_entities[first_free_slot] = ent;
+                    }
+                }
+                else
+                {
+                    for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
+                    {
+                        if(loaded_scene->entities[i].colliding_entities[z] == ent)
+                        {
+                            loaded_scene->entities[i].colliding_entities[z] = NULL;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
+                {
+                    if(loaded_scene->entities[i].colliding_entities[z] == ent)
+                    {
+                        loaded_scene->entities[i].colliding_entities[z] = NULL;
+                    }
+                }
+            }
+        }
+        else
+        {
+            for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
+            {
+                if(loaded_scene->entities[i].colliding_entities[z] == ent)
+                {
+                    loaded_scene->entities[i].colliding_entities[z] = NULL;
                 }
             }
         }

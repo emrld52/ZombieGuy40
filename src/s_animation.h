@@ -68,6 +68,12 @@ extern animation ANIM_BULLET_DEAFULT_ZOOM;
 extern animation ANIM_BULLET_ENEMY_FLASH;
 extern animation ANIM_BULLET_ENEMY_ZOOM;
 
+extern animation ANIM_BULLET_BLUE_FLASH;
+extern animation ANIM_BULLET_BLUE_ZOOM;
+
+extern animation ANIM_BULLET_GREEN_FLASH;
+extern animation ANIM_BULLET_GREEN_ZOOM;
+
 extern animation ANIM_HEART_TOOK_DAMAGE;
 extern animation ANIM_HEART;
 extern animation ANIM_HEART_BROKEN;

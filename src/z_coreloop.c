@@ -9,6 +9,7 @@
 #include "s_animation.h"
 #include "s_weapons.h"
 #include "z_upgradecrate.h"
+#include "s_playerUI.h"
 
 // libs
 
@@ -25,8 +26,6 @@ vec2 global_camera_position;
 scene loaded_scenes[MAX_LOADED_SCENES];
 scene *loaded_scene;
 
-float time;
-
 sprite parallax_bg;
 sprite parallax_bg2;
 sprite parallax_bg3;
@@ -34,10 +33,11 @@ sprite bg;
 sprite bg2;
 sprite tornado;
 
-animator heart[3];
-sprite heart_sprite[3];
-
 sprite pause_icon;
+
+bool is_paused = false;
+
+float anim_time = 0.0f;
 
 void gameloop_init()
 {
@@ -62,6 +62,8 @@ void gameloop_init()
     init_weapon_system();
 
     player_init();
+
+    init_hp_ui(get_player());
 
     // fill tilemap with basic floor for now, hardcode a level
 
@@ -169,44 +171,6 @@ void gameloop_init()
         .ui = true
     };
 
-    animator_init(&heart[0]);
-    animator_init(&heart[1]);
-    animator_init(&heart[2]);
-
-    heart_sprite[0] = (sprite)
-    {
-        .sprite_coord[0] = 21,
-        .sprite_coord[1] = 21,
-        .resolution[0] = 32,
-        .resolution[1] = 32,
-        .pos[0] = 10,
-        .pos[1] = 4,
-        .ui = true
-    };
-
-    heart_sprite[1] = (sprite)
-    {
-        .sprite_coord[0] = 21,
-        .sprite_coord[1] = 21,
-        .resolution[0] = 32,
-        .resolution[1] = 32,
-        .pos[0] = 8 + 36 + 4,
-        .pos[1] = 4,
-        .ui = true
-    };
-    heart_sprite[2] = (sprite)
-    {
-        .sprite_coord[0] = 21,
-        .sprite_coord[1] = 21,
-        .resolution[0] = 32,
-        .resolution[1] = 32,
-        .pos[0] = 12 + 64 + 4 + 8,
-        .pos[1] = 4,
-        .ui = true
-    };
-
-    for(int i = 0; i < 3; i++) play_animation(&heart[i], &ANIM_HEART);
-
     init_supply_crate();
     destroy_crate();
 
@@ -221,24 +185,6 @@ void gameloop_init()
         .ui = true
     };
 }
-
-void damage()
-{
-    for(int i = 2; i > get_player()->health_points - 1; i--) 
-    {
-        if(i >= 0) {
-            if(heart[i].passive_animation.id != ANIM_HEART_BROKEN.id) play_override_animation(&heart[i], ANIM_HEART_TOOK_DAMAGE);
-            play_animation(&heart[i], &ANIM_HEART_BROKEN);
-        }
-    }
-}
-
-void fix_hp()
-{
-    for(int i = 0; i < get_player()->health_points; i++) play_animation(&heart[i], &ANIM_HEART);
-}
-
-bool is_paused;
 
 void run_gameloop()
 {
@@ -260,18 +206,6 @@ void run_gameloop()
 
     // scene is a level
     case 1:
-        time += global_delta_time * 5;
-
-        for(int i = 0; i < 3; i++) 
-        {
-            animator_update(&heart[i]);
-
-            heart_sprite[i].pos[1] = (sin(time + i) * 2.5f) + 4;
-
-            animator_get_frame(&heart[i], &heart_sprite[i]);
-            draw_call(heart_sprite[i]);
-        }
-
         player_loop();
         simulate_zombies(get_player());
 
@@ -311,7 +245,7 @@ void run_gameloop()
 
         // debug bouncy hearts UI
 
-        //time += global_delta_time * 5;
+        anim_time += global_delta_time * 5;
 
         /*for(int i = 0; i < 3; i++)
         {
@@ -326,14 +260,6 @@ void run_gameloop()
             });
         }*/
 
-        draw_call((sprite)
-        {
-            .resolution[0] = 32, .resolution[1] = 32,
-            .sprite_coord[0] = 19, .sprite_coord[1] = 1,
-            .pos[0] = global_input.mouse_x - 16, .pos[1] = global_input.mouse_y - 16,
-            .ui = true
-        });
-
         for(int i = 0; i < 512; i++)
         {
             global_input.keys_released[i] = false;
@@ -346,7 +272,9 @@ void run_gameloop()
         parallax_bg2.sprite_offset[0] += 0.1f * global_delta_time * loaded_scene->scene_game_speed;
         bg2.sprite_offset[0] += 0.035f * global_delta_time * loaded_scene->scene_game_speed;
 
-        tornado.pos[0] = sin(time * 0.5f) * 2.5f;
+        tornado.pos[0] = sin(anim_time * 0.5f) * 2.5f;
+
+        draw_hp_ui(get_player());
 
         first_priority_draw_call((sprite)
         {
@@ -363,6 +291,8 @@ void run_gameloop()
 
     break;
     }
+
+    draw_cursor();
 }
 
 // init input
@@ -441,8 +371,8 @@ void program_event(const sapp_event* ev) {
             break;
     }
 
-    global_input.mouse_x = ev->mouse_x;
-    global_input.mouse_y = ev->mouse_y;
+    global_input.mouse_x = (ev->mouse_x / sapp_width()) * VIRTUAL_WIDTH;
+    global_input.mouse_y = (ev->mouse_y / sapp_height()) * VIRTUAL_HEIGHT;
 }
 
 void program_loop()

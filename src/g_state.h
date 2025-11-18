@@ -42,3 +42,6 @@ extern vec2 global_camera_position;
 
 // currently loaded scene
 extern scene *loaded_scene;
+
+// pause functionality by setting scene speed to 0
+extern bool is_paused;

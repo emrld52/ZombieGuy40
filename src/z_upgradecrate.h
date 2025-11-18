@@ -5,8 +5,13 @@
 #define CRATE_ID 1000
 #define CRATE_LIFETIME 7.5f
 
-#define MIN_TIME_TIL_SPAWN 10
-#define MAx_TIME_TIL_SPAWN 20
+//#define MIN_TIME_TIL_SPAWN 1
+//#define MAx_TIME_TIL_SPAWN 2
+
+extern int zombies_killed_total;
+extern int zombies_killed;
+
+#define REQUIREMENT_FOR_CRATE 7
 
 void init_supply_crate();
 void update_supply_crate();

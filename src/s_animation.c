@@ -39,6 +39,12 @@ animation ANIM_CRATE_FALLING;
 animation ANIM_CRATE_LANDED;
 animation ANIM_CRATE_FLASH;
 
+animation ANIM_BULLET_BLUE_FLASH;
+animation ANIM_BULLET_BLUE_ZOOM;
+
+animation ANIM_BULLET_GREEN_FLASH;
+animation ANIM_BULLET_GREEN_ZOOM;
+
 // unsure of how to store all animations to be referenced throughout the program. this isnt the cleane
 
 void animation_load_animations()
@@ -348,7 +354,7 @@ void animation_load_animations()
     };
 
     ANIM_CRATE_FLASH = (animation) {
-        .id = 24,
+        .id = 25,
         .length_in_frames = 8,
         .dist_between_frames = 0.1f,
         .frames = {
@@ -360,6 +366,54 @@ void animation_load_animations()
             {13, 17},
             {15, 17},
             {13, 17},
+        }
+    };
+
+    ANIM_BULLET_BLUE_FLASH = (animation) {
+        .id = 26,
+        .length_in_frames = 3,
+        .dist_between_frames = 0.05f,
+        .frames = {
+            {16, 15},
+            {17, 15},
+            {18, 15}
+        }
+    };
+
+    ANIM_BULLET_BLUE_ZOOM = (animation) {
+        .id = 27,
+        .length_in_frames = 5,
+        .dist_between_frames = 0.05f,
+        .frames = {
+            {16, 16},
+            {17, 16},
+            {18, 16},
+            {19, 16},
+            {20, 16}
+        }
+    };
+
+    ANIM_BULLET_GREEN_FLASH = (animation) {
+        .id = 28,
+        .length_in_frames = 3,
+        .dist_between_frames = 0.05f,
+        .frames = {
+            {16, 13},
+            {17, 13},
+            {18, 13}
+        }
+    };
+
+    ANIM_BULLET_GREEN_ZOOM = (animation) {
+        .id = 29,
+        .length_in_frames = 5,
+        .dist_between_frames = 0.05f,
+        .frames = {
+            {16, 14},
+            {17, 14},
+            {18, 14},
+            {19, 14},
+            {20, 14}
         }
     };
 }
