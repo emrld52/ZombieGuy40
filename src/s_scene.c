@@ -26,53 +26,10 @@ void reset_entity(entity* ent)
             if(e->colliding_entities[z] == ent)
                 e->colliding_entities[z] = NULL;
         }
-
-        // Remove from ignore list
-        for(int z = 0; z < MAX_COLLIDING_ENTITIES/2; z++)
-        {
-            if(e->ignore_collision_with[z] == ent)
-                e->ignore_collision_with[z] = NULL;
-        }
-    }
-
-    // Clean up THIS entity's references to others (CRITICAL FIX)
-    for(int i = 0; i < MAX_COLLIDING_ENTITIES/2; i++)
-    {
-        // Remove this entity from the "i_am_in_ignore_lists" of entities it was ignoring
-        if(ent->ignore_collision_with[i] != NULL)
-        {
-            entity* ignored = ent->ignore_collision_with[i];
-            for(int z = 0; z < MAX_COLLIDING_ENTITIES/2; z++)
-            {
-                if(ignored->i_am_in_ignore_lists[z] == ent)
-                {
-                    ignored->i_am_in_ignore_lists[z] = NULL;
-                    break;
-                }
-            }
-            ent->ignore_collision_with[i] = NULL;
-        }
-
-        // Clean entities that had this entity in their ignore lists
-        if(ent->i_am_in_ignore_lists[i] != NULL)
-        {
-            entity* has_me_ignored = ent->i_am_in_ignore_lists[i];
-            for(int z = 0; z < MAX_COLLIDING_ENTITIES/2; z++)
-            {
-                if(has_me_ignored->ignore_collision_with[z] == ent)
-                {
-                    has_me_ignored->ignore_collision_with[z] = NULL;
-                    break;
-                }
-            }
-            ent->i_am_in_ignore_lists[i] = NULL;
-        }
     }
 
     // Reset the arrays
     memset(ent->colliding_entities, 0, sizeof(ent->colliding_entities));
-    memset(ent->ignore_collision_with, 0, sizeof(ent->ignore_collision_with));
-    memset(ent->i_am_in_ignore_lists, 0, sizeof(ent->i_am_in_ignore_lists));
 
     *ent = (entity){0};
 

@@ -5,34 +5,6 @@
 #include "g_state.h"
 #include "r_renderfuncs.h"
 
-// mainly used for bullets to achieve bullet piercing
-
-void add_to_entities_collision_ignore_list(entity* to_add_to, entity* adding)
-{
-    // collision ignore lists are half that of the max colliding entities
-    for(int i = 0; i < MAX_COLLIDING_ENTITIES / 2; i++)
-    {
-        if(to_add_to->ignore_collision_with[i] == adding) return;
-
-        if(to_add_to->ignore_collision_with[i] == NULL)
-        {
-            to_add_to->ignore_collision_with[i] = adding;
-
-            // let entity were adding to the list know that its in that list to remove itself when its time for garbage collection
-            for(int z = 0; z < MAX_COLLIDING_ENTITIES / 2; z++)
-            {
-                if(adding->i_am_in_ignore_lists[z] == NULL) 
-                {
-                    adding->i_am_in_ignore_lists[z] = to_add_to;
-                    break;
-                }
-            }
-
-            break;
-        }
-    }
-}
-
 void entity_run_physics(entity* ent)
 {
     ent->is_grounded = false;
@@ -143,15 +115,7 @@ void entity_run_physics(entity* ent)
     {
         if(loaded_scene->entities[i].enabled && loaded_scene->entities[i].team != ent->team && loaded_scene->entities[i].collision_enabled)
         {   
-            // check this entity isnt in our ignore list
-            bool should_ignore = false;
-
-            for(int z = 0; z < MAX_COLLIDING_ENTITIES / 2; z++)
-            {
-                if(&loaded_scene->entities[i] == ent->ignore_collision_with[z]) should_ignore = true;
-            }
-
-            if(!(ent->is_projectile && loaded_scene->entities[i].is_projectile) && !should_ignore) 
+            if(!(ent->is_projectile && loaded_scene->entities[i].is_projectile)) 
             {
                 vec2 to_check_bounds[2];
 
@@ -252,39 +216,6 @@ void entity_run_physics(entity* ent)
 void entity_override_velocity(entity* ent, vec2 vel)
 {
     glm_vec2_copy(vel, ent->velocity);
-}
-
-void cleanup_stale_ignore_lists()
-{
-    for(int i = 0; i < MAX_ENTITIES; i++)
-    {
-        entity* ent = &loaded_scene->entities[i];
-        if(!ent->enabled) continue;
-
-        // Clean up ignore_collision_with list
-        for(int z = 0; z < MAX_COLLIDING_ENTITIES/2; z++)
-        {
-            if(ent->ignore_collision_with[z] != NULL && 
-               (!ent->ignore_collision_with[z]->enabled || 
-                ent->ignore_collision_with[z]->marked_for_garbage_collection))
-            {
-                // Remove stale reference
-                ent->ignore_collision_with[z] = NULL;
-            }
-        }
-
-        // Clean up i_am_in_ignore_lists
-        for(int z = 0; z < MAX_COLLIDING_ENTITIES/2; z++)
-        {
-            if(ent->i_am_in_ignore_lists[z] != NULL && 
-               (!ent->i_am_in_ignore_lists[z]->enabled || 
-                ent->i_am_in_ignore_lists[z]->marked_for_garbage_collection))
-            {
-                // Remove stale reference
-                ent->i_am_in_ignore_lists[z] = NULL;
-            }
-        }
-    }
 }
 
 

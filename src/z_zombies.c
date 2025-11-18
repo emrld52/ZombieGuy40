@@ -112,6 +112,7 @@ void kill_zombie(zombie *zomb)
 
     zomb->zmb->collision_enabled = false;
     zomb->zmb->handle_x_for_me = true;
+    zomb->zmb->id = 69420;
 
     if(zomb->zmb->entity_timer <= 0) zomb->zmb->velocity[0] = 0;
 

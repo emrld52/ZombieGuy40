@@ -220,13 +220,11 @@ void run_gameloop()
             }
         }
 
-        bullets_update();
         player_loop();
+        bullets_update();
         simulate_zombies(get_player());
 
         update_supply_crate();
-
-        cleanup_stale_ignore_lists();
 
         // render tiles
 

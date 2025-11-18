@@ -72,7 +72,7 @@ void bullets_update()
                     && bullet_object_pool[i].entity->colliding_entities[z]->collision_enabled)
                 {
                     bullet_object_pool[i].pierces_left -= 1;
-                    add_to_entities_collision_ignore_list(bullet_object_pool[i].entity->colliding_entities[z], bullet_object_pool[i].entity);
+                    printf("\ncolliding with %d", bullet_object_pool[i].entity->colliding_entities[z]->id);
                 }
             }
 
