@@ -21,14 +21,12 @@
 #include <string.h>
 #include <math.h>
 
-// init global camera
-
-vec2 global_camera_position;
-
 scene loaded_scenes[MAX_LOADED_SCENES];
 scene *loaded_scene;
 
 sprite pause_icon;
+
+// init is_paused from game state
 
 bool is_paused = false;
 
@@ -45,16 +43,17 @@ void gameloop_init()
 
     loaded_scene = &loaded_scenes[0];
 
-    // init camera pos
-
-    global_camera_position[0] = 0;
-    global_camera_position[1] = 0;
-
     animation_load_animations();
+
+    // initializes bullet types
     
     init_weapon_system();
 
+    // initializes a new player struct
+
     player_init();
+
+    // initialize hearts ui
 
     init_hp_ui(get_player());
 
@@ -115,6 +114,8 @@ void gameloop_init()
     init_tilemap(loaded_scene->tilemap);
     autotiler_build_tilemap(loaded_scene->tilemap);
 
+    // init parallax background
+
     init_background_fx();
 
     init_supply_crate();
@@ -146,12 +147,12 @@ void run_gameloop()
     switch(loaded_scene->type)
     {
     // scene is a menu, no menu yet so this is whatever
-    case 0:
+    case SCENE_TYPE_MENU:
 
     break;
 
     // scene is a level
-    case 1:
+    case SCENE_TYPE_LEVEL:
         draw_background_fx();
 
         for(int i = 0; i < MAX_ENTITIES; i++)

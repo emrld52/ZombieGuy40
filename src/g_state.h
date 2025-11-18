@@ -37,9 +37,6 @@ extern float global_delta_time;
 // game-speed in the event that i want to slow down or speed up time, maybe some kind of power up or death animation, im unsure
 extern float global_game_speed;
 
-// camera pos for screen shake and such
-extern vec2 global_camera_position;
-
 // currently loaded scene
 extern scene *loaded_scene;
 

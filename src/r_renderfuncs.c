@@ -226,7 +226,7 @@ void draw_game()
     //printf("\n%f", 1 / global_delta_time);
 
     //glm_vec2_lerp(global_camera_position, (vec2){16 + loaded_scene->entities[0].position[0] - sapp_width() / 2, 16 + loaded_scene->entities[0].position[1] - sapp_height() / 2}, 8 * global_delta_time * loaded_scene->scene_game_speed, global_camera_position);
-    glm_vec2_lerp(global_camera_position, GLM_VEC2_ZERO, 8 * global_delta_time * loaded_scene->scene_game_speed, global_camera_position);
+    glm_vec2_lerp(loaded_scene->scene_camera_position, GLM_VEC2_ZERO, 8 * global_delta_time * loaded_scene->scene_game_speed, loaded_scene->scene_camera_position);
 
     sg_begin_pass(&(sg_pass) { .action = state.pass_action, .swapchain = sglue_swapchain() });
     sg_apply_pipeline(state.pip);
@@ -234,8 +234,8 @@ void draw_game()
 
     // update camera position in shader
 
-    state.vertex_shader_params.cam_position[0] = global_camera_position[0];
-    state.vertex_shader_params.cam_position[1] = global_camera_position[1];
+    state.vertex_shader_params.cam_position[0] = loaded_scene->scene_camera_position[0];
+    state.vertex_shader_params.cam_position[1] = loaded_scene->scene_camera_position[1];
 
     // each frame rebuild matrix in the event that window has been stretched, might remove when i implement fixed aspect ratio
     glm_ortho(0.0f, 640, 480, 0.0f, -1.0f, 1.0f, proj);
@@ -277,8 +277,8 @@ void draw_game()
 
                 sg_apply_uniforms(UB_quad_vs_params, &SG_RANGE(state.vertex_shader_params));
 
-                state.vertex_shader_params.cam_position[0] = global_camera_position[0];
-                state.vertex_shader_params.cam_position[1] = global_camera_position[1];
+                state.vertex_shader_params.cam_position[0] = loaded_scene->scene_camera_position[0];
+                state.vertex_shader_params.cam_position[1] = loaded_scene->scene_camera_position[1];
             }
             else sg_apply_uniforms(UB_quad_vs_params, &SG_RANGE(state.vertex_shader_params));
 
@@ -310,5 +310,5 @@ void camera_shake(float magnitude)
     dir[0] = cosf(angle) * magnitude;
     dir[1] = sinf(angle) * magnitude;
 
-    glm_vec2_add(global_camera_position, dir, global_camera_position);
+    glm_vec2_add(loaded_scene->scene_camera_position, dir, loaded_scene->scene_camera_position);
 }

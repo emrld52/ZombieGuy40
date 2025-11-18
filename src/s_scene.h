@@ -9,7 +9,7 @@
 #include "s_entities.h"
 #include "s_tilemap.h"
 
-#define MAX_ENTITIES 512
+#define MAX_ENTITIES 256
 
 typedef enum scene_type
 {
