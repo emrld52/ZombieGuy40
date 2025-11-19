@@ -51,6 +51,10 @@ Build instructions coming soon — the project currently depends on Windows-spec
 - PS Vita port through the VitaSDK library.
 - Smart sprite batching to draw everything in a single draw-call.
 
+# How If/Any AI Has Been Used 🤖
+
+All art, code, music and sound is entirely produced by myself and myself only. Nothing has been directly copy-pasted from any AI chatbot, no generated content has been used. The use of AI chatbots for debugging is the only use of AI this project, I have tried to use AI in such a way that it works WITH me when I need it, as opposed to working FOR me.
+
 # Redistribution 🎁
 
 This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License.
