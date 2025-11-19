@@ -24,7 +24,7 @@ And last but not least a fully playable roguelike with build variety, a story an
 
 ZombieGuy40 was my first ever project programmed from the ground up in pure C. I had to learn about various graphics programming concepts such as how to set up vertex and index buffers to pass into the GPU, vertex and fragment shaders, creating a draw queue and more. Sokol is deliberately designed to be unintrusive, providing only a minimal abstraction layer compared to APIs like OpenGL. This forced me to step out of my comfort zone from engines such as Unity and implement a sprite renderer completely from scratch, all under a tight two-week deadline. I also had to adapt to procedural programming concepts and patterns when writing in C, this was very different to the object-oriented nature of languages I had experience in prior such as C#. However I felt I really learned a lot from this project.
 
-# GAMEPLAY GIF HERE WHEN READY
+![Demo](git_images/prototype1.gif)
 
 **For clarity and transparency: although 4 weeks were allocated for this college game jam, the first week was dedicated to planning and the final week to documentation. The actual development phase lasted roughly 2 weeks.**
 
