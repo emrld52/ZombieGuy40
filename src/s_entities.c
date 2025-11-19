@@ -17,6 +17,7 @@ void entity_run_physics(entity* ent)
     // define bounds for collision box, do one for x velocity and y velocity as to keep collisions axis independant to not get sticking when pushing into walls while falling
 
     vec2 ent_box_x_check[2];
+
     glm_vec2_copy((vec2){
         ent->position[0] + ent->hit_box_offset[0] + ent->velocity[0] * global_delta_time * loaded_scene->scene_game_speed,
         ent->position[1] + ent->hit_box_offset[1]
@@ -29,6 +30,7 @@ void entity_run_physics(entity* ent)
 
 
     vec2 ent_box_y_check[2];
+
     glm_vec2_copy((vec2){
         ent->position[0] + ent->hit_box_offset[0],
         ent->position[1] + ent->hit_box_offset[1] + ent->velocity[1] * global_delta_time * loaded_scene->scene_game_speed
@@ -187,7 +189,7 @@ void entity_run_physics(entity* ent)
             bool already_ent = false;
             bool already_other = false;
 
-            // ---- find free slot for ent ----
+            // find free slot for ent
             for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
             {
                 if(ent->colliding_entities[z] == other)

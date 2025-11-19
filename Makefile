@@ -5,7 +5,7 @@ BIN_DIR = bin
 
 TARGET = $(BIN_DIR)/zom.exe
 
-SRC += src/g_main.c src/r_renderfuncs.c src/z_coreloop.c src/z_player.c src/z_zombies.c src/s_tilemap.c src/s_scene.c src/s_entities.c src/s_animation.c src/s_weapons.c src/z_upgradecrate.c src/s_playerUI.c src/r_backgroundfx.c src/s_input_handling.c
+SRC += src/g_main.c src/r_renderfuncs.c src/z_coreloop.c src/z_player.c src/z_zombies.c src/s_tilemap.c src/s_scene.c src/s_entities.c src/s_animation.c src/s_weapons.c src/z_upgradecrate.c src/s_playerUI.c src/r_backgroundfx.c src/s_input_handling.c src/z_player_weapon_types.c
 
 SHADER_FILE_INPUT = shaders/vs_fs_shader.glsl
 SHADER_FILE_OUTPUT = shaders/shaders.glsl.h

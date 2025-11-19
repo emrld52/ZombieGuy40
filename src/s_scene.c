@@ -14,7 +14,6 @@ void reset_entity(entity* ent)
 {
     if(!ent) return;
 
-    // Clean up OTHER entities' references to this entity
     for(int i = 0; i < MAX_ENTITIES; i++)
     {
         entity* e = &loaded_scene->entities[i];
@@ -28,7 +27,7 @@ void reset_entity(entity* ent)
         }
     }
 
-    // Reset the arrays
+    // reset the arrays
     memset(ent->colliding_entities, 0, sizeof(ent->colliding_entities));
 
     *ent = (entity){0};

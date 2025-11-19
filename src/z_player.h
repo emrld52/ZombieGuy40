@@ -34,6 +34,8 @@ extern player_weapon PLY_WEAPON_HANDGUN;
 extern player_weapon PLY_WEAPON_ASSAULT_RIFLE;
 extern player_weapon PLY_WEAPON_SNIPER;
 extern player_weapon PLY_WEAPON_FLAMETHROWER;
+extern player_weapon PLY_WEAPON_THROWING_KNIVES;
+extern player_weapon PLY_WEAPON_LASER_GUN;
 
 void player_init();
 void player_loop();
