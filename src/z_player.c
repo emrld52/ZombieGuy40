@@ -119,12 +119,14 @@ void player_loop()
                         case 3:
                             ply->health_points += 1;
                             if(ply->health_points >= ply->max_health_points) ply->health_points = ply->max_health_points;
-                            else heal_ui_hp(ply);
+                            init_hp_ui(ply);
+                            heal_ui_hp(ply);
                             break;
                         case 4:
                             ply->health_points += 1;
                             if(ply->health_points >= ply->max_health_points) ply->health_points = ply->max_health_points;
-                            else heal_ui_hp(ply);
+                            init_hp_ui(ply);
+                            heal_ui_hp(ply);
                             break;
                         case 5:
                             ply->max_health_points += 1;
@@ -179,6 +181,30 @@ void player_loop()
                 time_til_next_can_shoot = reload_time;
             }
         }
+
+        /*if(global_input.keys_released[SAPP_KEYCODE_0])
+        {
+            ply->health_points += 1;
+            if(ply->health_points >= ply->max_health_points) ply->health_points = ply->max_health_points;
+            init_hp_ui(ply);
+            heal_ui_hp(ply);
+        }
+        else if(global_input.keys_released[SAPP_KEYCODE_9])
+        {
+            ply->max_health_points += 1;
+            ply->health_points += 1;
+            init_hp_ui(ply);
+        }
+        else if(global_input.keys_released[SAPP_KEYCODE_8])
+        {
+            play_override_animation(&ply->animator_component, ANIM_PLAYER_DAMAGE);
+            ply->entity_timer = PLAYER_INVINCIBILITY_TIME_AFTER_HIT;
+            ply->velocity[1] = -200.0f;
+            ply->collision_enabled = false;
+            ply->health_points -= 1;
+            camera_shake(15.0f);
+            damage_ui_hp(ply);
+        }*/
 
         // basic movement
 

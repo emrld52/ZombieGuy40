@@ -65,6 +65,7 @@ void draw_hp_ui()
 
     for(int i = 0; i < heart_count; i++) 
     {
+        // really yucky solution to stretching the strip behind the player hearts, should definitely fix
         if(i != heart_count - 1) {
             draw_call((sprite)
             {

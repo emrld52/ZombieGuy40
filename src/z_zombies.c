@@ -583,7 +583,7 @@ void simulate_zombies(entity *player)
 
     minion_hp = 2 + (floor(power_timer / MINION_HP_GAIN_TIME));
     ranger_hp = 1 + (floor(power_timer / RANGER_HP_GAIN_TIME));
-    king_hp = 1 + (floor(power_timer / KING_HP_GAIN_TIME));
+    king_hp = 2 + (floor(power_timer / KING_HP_GAIN_TIME));
 
     //printf("%f", time_til_next_zombie);
 
