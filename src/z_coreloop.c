@@ -173,7 +173,7 @@ void run_gameloop()
 
         player_loop();
         bullets_update();
-        simulate_zombies(get_player());
+        zombie_coreloop(get_player());
 
         update_supply_crate();
 

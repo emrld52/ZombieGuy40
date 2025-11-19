@@ -82,10 +82,7 @@ void bullets_update()
                         else if(bullet_object_pool[i].collision_history[x] == bullet_object_pool[i].entity->colliding_entities[z]) skip_iteration = true;
                     }
 
-                    if(!skip_iteration) {
-                        bullet_object_pool[i].pierces_left -= 1;
-                        printf("\ncolliding with %d\nenabled %d\ncollision enabled \n%d", bullet_object_pool[i].entity->colliding_entities[z]->id, bullet_object_pool[i].entity->colliding_entities[z]->enabled, bullet_object_pool[i].entity->colliding_entities[z]->collision_enabled);
-                    }
+                    if(!skip_iteration) bullet_object_pool[i].pierces_left -= 1;
                 }
             }
 

@@ -16,6 +16,15 @@
 #define RANGER_HP_GAIN_TIME 70
 #define KING_HP_GAIN_TIME 60
 
+#define MINION_BASE_HP 2
+#define RANGER_BASE_HP 1
+#define KING_BASE_HP 2
+
+// at the moment just use deafult zombie values with no variation, can be easily expanded upon though
+
+#define DEAFULT_ZOMBIE_SPEED 72.0f 
+#define DEAFULT_ZOMBIE_JUMP_HEIGHT 512.0f * 0.75f
+
 // only spawn rangers and kings after set amount of time
 
 #define TIME_TIL_RANGER 60
@@ -24,6 +33,22 @@
 #define STARTING_ZOMBIE_SPAWN_TIME 3
 #define SPAWN_TIME_MULT_RATE 1.01f
 
+#define RANGER_ATTACK_SPEED 1.2f;
+
+typedef enum zombie_position_relative_to_player
+{
+    ON_LEVEL_WITH_PLAYER = 0,
+    ABOVE_PLAYER = 1,
+    BELOW_PLAYER = 2
+} zom_pos;
+
+typedef enum zom_tier
+{
+    MINION_TIER = 1,
+    RANGER_TIER = 2,
+    KING_TIER = 3
+} zombie_tier;
+
 typedef struct zombie_t {
     entity *zmb;
     int tier;
@@ -31,6 +56,10 @@ typedef struct zombie_t {
     // only perform some logic only once every second to save on performance and also to stop zombies jumping right the frame after the player does
 
     float logic_frame_time;
+
+    // interval on which ranged enemies attack
+
+    float attack_time;
 
     float speed;
     float time_til_next_jump_impulse;
@@ -43,6 +72,8 @@ typedef struct zombie_t {
     float horizontal_goal_x;
     bool has_horizontal_goal;
 
+    // refers to all 3 possible states for where the player might be
+    int pos_state_relative_to_player;
 
     bool enabled;
 } zombie;
@@ -50,5 +81,4 @@ typedef struct zombie_t {
 extern zombie zombie_pool[MAX_ZOMBIES];
 
 void spawn_zombie(int tier, int hit_points, float speed, float jump_height);
-void simulate_zombies(entity *player);
-void render_zombies();
+void zombie_coreloop(entity* plyr);
