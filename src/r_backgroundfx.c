@@ -77,9 +77,9 @@ void draw_background_fx()
 
     tornado.pos[0] = sin(anim_time * 0.5f) * 2.5f;
     
-    first_priority_draw_call(parallax_bg2);
-    first_priority_draw_call(parallax_bg);
-    first_priority_draw_call(tornado);
-    first_priority_draw_call(bg2);
-    first_priority_draw_call(bg);
+    draw_call(bg);
+    draw_call(bg2);
+    draw_call(tornado);
+    draw_call(parallax_bg);
+    draw_call(parallax_bg2);
 }

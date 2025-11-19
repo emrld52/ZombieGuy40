@@ -7,8 +7,6 @@
 #define VIRTUAL_WIDTH 640
 #define VIRTUAL_HEIGHT 480
 
-#define MAX_DRAW_CALLS 512
-
 // how many sprites horizontally and vertically (rows and columns)
 
 #define TEXTURE_ATLAS_SPRITE_X_COUNT 40
@@ -41,13 +39,9 @@ sprite make_sprite(vec2 pos, vec2 sprite_coord, bool ui, vec2 resolution);
 
 // function where you pass in sprite data, will be added to drawcall queue in main
 
+void begin_drawing();
 void draw_call(sprite s);
-
-void first_priority_draw_call(sprite s);
-
-// call each frame
-
-void draw_game();
+void end_draw();
 
 // call at start of program
 

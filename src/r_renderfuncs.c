@@ -105,10 +105,6 @@ void init_rendering()
 
     unsigned char* pixels = stbi_load("assets0.zmb", &width, &height, &channels, 0);
     if(pixels == NULL) pixels = stbi_load("bin/assets0.zmb", &width, &height, &channels, 0);
-
-    // debug stuff
-
-    printf("width %d, height %d, channels %d", width, height, channels);
     
     // make image out of data just loaded in ram, send to vram
 
@@ -188,47 +184,20 @@ void init_rendering()
     };
 }
 
-// init draw queue that we will append draw calls to as sprites. circular queue. max draw calls of 128
-
-sprite draw_queue[MAX_DRAW_CALLS];
-
-//start of queue, end of queue, length of queue
-
-int head = 0, tail = 0, len = 0;
-
-void draw_call(sprite s)
-{
-    if(len != MAX_DRAW_CALLS) {
-        draw_queue[tail] = s;
-
-        tail = (tail + 1) % MAX_DRAW_CALLS;
-        len += 1;
-    }
-}
-
-void first_priority_draw_call(sprite s)
-{
-    if (len == MAX_DRAW_CALLS)
-        return;
-
-    head = (head - 1 + MAX_DRAW_CALLS) % MAX_DRAW_CALLS;
-
-    draw_queue[head] = s;
-    len += 1;
-}
-
-void draw_game()
+void begin_drawing()
 {
     // set global delta-time, get time in ticks, convert to miliseconds, divide by 1000 to get the time that is out of one second to multiply movement by
 
     global_delta_time = stm_ms(stm_laptime(&global_raw_delta_time)) / 1000;
 
-    //printf("\n%f", 1 / global_delta_time);
-
     //glm_vec2_lerp(global_camera_position, (vec2){16 + loaded_scene->entities[0].position[0] - sapp_width() / 2, 16 + loaded_scene->entities[0].position[1] - sapp_height() / 2}, 8 * global_delta_time * loaded_scene->scene_game_speed, global_camera_position);
     glm_vec2_lerp(loaded_scene->scene_camera_position, GLM_VEC2_ZERO, 8 * global_delta_time * loaded_scene->scene_game_speed, loaded_scene->scene_camera_position);
 
-    sg_begin_pass(&(sg_pass) { .action = state.pass_action, .swapchain = sglue_swapchain() });
+    sg_begin_pass(&(sg_pass) { 
+        .action = state.pass_action, 
+        .swapchain = sglue_swapchain() 
+    });
+
     sg_apply_pipeline(state.pip);
     sg_apply_bindings(&state.bind);
 
@@ -240,64 +209,49 @@ void draw_game()
     // each frame rebuild matrix in the event that window has been stretched, might remove when i implement fixed aspect ratio
     glm_ortho(0.0f, 640, 480, 0.0f, -1.0f, 1.0f, proj);
     memcpy(state.vertex_shader_params.projection, proj, sizeof(float) * 16);
+}
 
-    // if no draw calls just render nothing
+void draw_call(sprite s)
+{
+    memcpy(state.vertex_shader_params.position, s.pos, sizeof(vec3) * 1);
 
-    if(len > 0) {
-        // go through all draw calls
+    state.fragment_shader_params.sprite_coord[0] = s.sprite_coord[0];
+    state.fragment_shader_params.sprite_coord[1] = s.sprite_coord[1];
 
-        for (int i = 0; i < len; i++)
-        {
-            int index = (head + i) % MAX_DRAW_CALLS;
+    state.fragment_shader_params.texture_offset[0] = s.sprite_offset[0];
+    state.fragment_shader_params.texture_offset[1] = s.sprite_offset[1];
 
-            memcpy(state.vertex_shader_params.position, draw_queue[index].pos, sizeof(vec3) * 1);
+    // pass in sprite resolution
 
-            state.fragment_shader_params.sprite_coord[0] = draw_queue[index].sprite_coord[0];
-            state.fragment_shader_params.sprite_coord[1] = draw_queue[index].sprite_coord[1];
+    state.vertex_shader_params.scale[0] = s.resolution[0];
+    state.vertex_shader_params.scale[1] = s.resolution[1];
 
-            state.fragment_shader_params.texture_offset[0] = draw_queue[index].sprite_offset[0];
-            state.fragment_shader_params.texture_offset[1] = draw_queue[index].sprite_offset[1];
-
-            // pass in sprite resolution
-
-            state.vertex_shader_params.scale[0] = draw_queue[index].resolution[0];
-            state.vertex_shader_params.scale[1] = draw_queue[index].resolution[1];
-
-            if(draw_queue[index].flip_x) 
-            {
-                state.vertex_shader_params.flip_x = 1;
-                state.vertex_shader_params.position[0] += draw_queue[index].resolution[0];
-            }
-            else state.vertex_shader_params.flip_x = 0;
-
-            if(draw_queue[index].ui == true)
-            {
-                state.vertex_shader_params.cam_position[0] = 0;
-                state.vertex_shader_params.cam_position[1] = 0;
-
-                sg_apply_uniforms(UB_quad_vs_params, &SG_RANGE(state.vertex_shader_params));
-
-                state.vertex_shader_params.cam_position[0] = loaded_scene->scene_camera_position[0];
-                state.vertex_shader_params.cam_position[1] = loaded_scene->scene_camera_position[1];
-            }
-            else sg_apply_uniforms(UB_quad_vs_params, &SG_RANGE(state.vertex_shader_params));
-
-            sg_apply_uniforms(UB_quad_fs_params, &SG_RANGE(state.fragment_shader_params));
-
-            sg_draw(0, 6, 1);
-
-            // end call
-
-            draw_queue[index] = (sprite){0};
-        }
-
-        // reset queue
-
-        head = 0;
-        tail = 0;
-        len  = 0;
+    if(s.flip_x) 
+    {
+        state.vertex_shader_params.flip_x = 1;
+        state.vertex_shader_params.position[0] += s.resolution[0];
     }
-    
+    else state.vertex_shader_params.flip_x = 0;
+
+    if(s.ui == true)
+    {
+        state.vertex_shader_params.cam_position[0] = 0;
+        state.vertex_shader_params.cam_position[1] = 0;
+
+        sg_apply_uniforms(UB_quad_vs_params, &SG_RANGE(state.vertex_shader_params));
+
+        state.vertex_shader_params.cam_position[0] = loaded_scene->scene_camera_position[0];
+        state.vertex_shader_params.cam_position[1] = loaded_scene->scene_camera_position[1];
+    }
+    else sg_apply_uniforms(UB_quad_vs_params, &SG_RANGE(state.vertex_shader_params));
+
+    sg_apply_uniforms(UB_quad_fs_params, &SG_RANGE(state.fragment_shader_params));
+
+    sg_draw(0, 6, 1);
+}
+
+void end_draw()
+{
     sg_end_pass();
 
     sg_commit();

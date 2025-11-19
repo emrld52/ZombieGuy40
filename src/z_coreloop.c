@@ -206,8 +206,9 @@ void program_init(void)
 
 void program_loop()
 {
+    begin_drawing();
     run_gameloop();
-    draw_game();
+    end_draw();
 }
 
 void program_cleanup()
