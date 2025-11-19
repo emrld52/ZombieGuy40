@@ -22,7 +22,7 @@
 #define TIME_TIL_KING 120
 
 #define STARTING_ZOMBIE_SPAWN_TIME 3
-#define SPAWN_TIME_MULT_RATE 1.008f
+#define SPAWN_TIME_MULT_RATE 1.01f
 
 typedef struct zombie_t {
     entity *zmb;
