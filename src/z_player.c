@@ -17,11 +17,7 @@
 #include "../deps/sokol_app.h"
 #include <stdbool.h>
 
-// player-movmement variables
-
-#define PLAYER_MAX_SPEED 256.0f * 0.75f
-#define PLAYER_GRAVITY 1024.0f * 1.5f
-#define PLAYER_JUMP_FORCE 512.0f
+// define player entity
 
 entity *ply;
 
@@ -30,20 +26,16 @@ entity* get_player()
     return ply;
 }
 
-bullet b;
+bullet_type player_bullet_type;
+bullet bullet_instance;
 
 float time_til_next_can_shoot = 0.25f;
 
-float reload_time = 0.33f;
-bool auto_gun = false;
-bool piercing_rounds = false;
-bool double_piercing_rounds = false;
+player_weapon p_weapon;
 
-// init player position and velocity
-
-void player_init()
+void reset_player()
 {
-    ply = make_entity_in_scene(loaded_scene);
+    // copy lots of vector data over into player info
 
     glm_vec3_copy((vec2){ (VIRTUAL_WIDTH/ 2) - 32, 0.0f }, ply->position);
     glm_vec3_copy((vec2){ 0.0f, 0.0f }, ply->velocity);
@@ -56,85 +48,71 @@ void player_init()
     animator_init(&ply->animator_component);
     play_animation(&ply->animator_component, &ANIM_PLAYER_IDLE);
 
+    // player team is 1, zombies are on team 0. entities on the same team dont check collision with one another so this is needed
+
     ply->team = 1;
+
+    // init stats and such from here
 
     ply->health_points = 3;
     ply->max_health_points = 3;
 
-    reload_time = 0.33f;
-    auto_gun = false;
-    piercing_rounds = false;
-    double_piercing_rounds = false;
+    init_hp_ui(ply);
+
+    player_bullet_type = REGULAR_BULLETS;
+    p_weapon.fire_rate = 0.33f;
 }
 
-void player_loop()
-{
+// init player position and velocity
+
+void player_init() {
+    ply = make_entity_in_scene(loaded_scene);
+
+    reset_player();
+}
+
+void fire_gun() {
+    bullet* b = make_bullet(&player_bullet_type, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
+
+    // if bullet type was found, dont do anything if theres no available bullets in object pool
+
+    if (b) {
+        bullet_instance = *b;
+        camera_shake(5.0f);
+        time_til_next_can_shoot = p_weapon.fire_rate;
+    }
+}
+
+void damage_player(entity* attacker) {
+    play_override_animation(&ply->animator_component, ANIM_PLAYER_DAMAGE);
+    ply->entity_timer = PLAYER_INVINCIBILITY_TIME_AFTER_HIT;
+    ply->velocity[0] = attacker->position[0] >= ply->position[0] ? -PLAYER_KNOCKBACK_STRENGTH_X : PLAYER_KNOCKBACK_STRENGTH_X;
+    ply->velocity[1] = -PLAYER_KNOCKBACK_STRENGTH_Y;
+    ply->collision_enabled = false;
+    ply->health_points -= attacker->damage;
+    camera_shake(15.0f);
+    damage_ui_hp(ply);
+}
+
+void player_loop() {
     if(ply->health_points >= 1) {
-        // invincibility frames on damage
-        ply->entity_timer -= global_delta_time * loaded_scene->scene_game_speed;
-        time_til_next_can_shoot -= global_delta_time * loaded_scene->scene_game_speed;
+        // basic movement, can only move if not stunned (tracked in entity timer)
 
-        if(ply->entity_timer <= 0) ply->collision_enabled = true;
+        if(ply->entity_timer <= PLAYER_STUN_THRESHOLD) {
 
-        //printf("%d", &ply->position[1]);
+            if(global_input.keys_pressed[SAPP_KEYCODE_D]) ply->velocity[0] = PLAYER_MAX_SPEED;
+            else if(global_input.keys_pressed[SAPP_KEYCODE_A]) ply->velocity[0] = -PLAYER_MAX_SPEED;
+            else ply->velocity[0] = 0;
+        }
+
+        // check if colliding with any damaging entities
 
         for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
         {
-            // test
             if(ply->colliding_entities[i] != NULL && ply->entity_timer <= 0 
                 && ply->colliding_entities[i]->collision_enabled && ply->colliding_entities[i]->team != ply->team) 
             {
-                if(ply->colliding_entities[i]->damage >= 1) {
-                    play_override_animation(&ply->animator_component, ANIM_PLAYER_DAMAGE);
-                    ply->entity_timer = PLAYER_INVINCIBILITY_TIME_AFTER_HIT;
-                    ply->velocity[0] = ply->colliding_entities[i]->position[0] >= ply->position[0] ? -100.0f : 100.0f;
-                    ply->velocity[1] = -200.0f;
-                    ply->collision_enabled = false;
-                    ply->health_points -= ply->colliding_entities[i]->damage;
-                    camera_shake(15.0f);
-                    damage_ui_hp(ply);
-                }
-                // crate stuff, hardcoded here for now
-                else if(ply->colliding_entities[i]->id == 1000)
-                {
-                    destroy_crate();
-
-                    int upgrade = rand() % 6;
-
-                    switch(upgrade)
-                    {
-                        case 0:
-                            reload_time /= 1.15f;
-                            auto_gun = true;
-                            break;
-
-                        case 1:
-                            reload_time /= 1.15f;
-                            break;
-
-                        case 2:
-                            if(piercing_rounds) double_piercing_rounds = true;
-                            piercing_rounds = true;
-                            break;
-                        case 3:
-                            ply->health_points += 1;
-                            if(ply->health_points >= ply->max_health_points) ply->health_points = ply->max_health_points;
-                            init_hp_ui(ply);
-                            heal_ui_hp(ply);
-                            break;
-                        case 4:
-                            ply->health_points += 1;
-                            if(ply->health_points >= ply->max_health_points) ply->health_points = ply->max_health_points;
-                            init_hp_ui(ply);
-                            heal_ui_hp(ply);
-                            break;
-                        case 5:
-                            ply->max_health_points += 1;
-                            ply->health_points += 1;
-                            init_hp_ui(ply);
-                            break;
-                    }
-                }
+                if(ply->colliding_entities[i]->damage >= 1) damage_player(ply->colliding_entities[i]);
             }
         }
 
@@ -157,78 +135,34 @@ void player_loop()
 
             // variable jump height
 
-            if(global_input.keys_released[SAPP_KEYCODE_SPACE] && ply->velocity[1] < 0) entity_override_velocity(ply, (vec2){ply->velocity[0], ply->velocity[1] / 4});
+            if(global_input.keys_released[SAPP_KEYCODE_SPACE] && ply->velocity[1] < 0) entity_override_velocity(ply, (vec2){ply->velocity[0], ply->velocity[1] / PLAYER_JUMP_CANCEL_STRENGTH});
         }
 
-        if(!auto_gun) {
-            if(global_input.mouse_l_up && time_til_next_can_shoot <= 0) 
-            {
-                if(double_piercing_rounds) b = *make_bullet(&DOUBLE_PIERCING_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
-                else if(piercing_rounds) *make_bullet(&PIERCING_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
-                else *make_bullet(&REGULAR_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
-                if(&b != NULL) camera_shake(5.0f);
-                time_til_next_can_shoot = reload_time;
-            }
-        }
-        else
-        {
-            if(global_input.mouse_l && time_til_next_can_shoot <= 0) 
-            {
-                if(double_piercing_rounds) b = *make_bullet(&DOUBLE_PIERCING_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
-                else if(piercing_rounds) *make_bullet(&PIERCING_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
-                else *make_bullet(&REGULAR_BULLETS, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
-                if(&b != NULL) camera_shake(5.0f);
-                time_til_next_can_shoot = reload_time;
-            }
-        }
+        // reload
+        time_til_next_can_shoot -= global_delta_time * loaded_scene->scene_game_speed;
 
-        /*if(global_input.keys_released[SAPP_KEYCODE_0])
-        {
-            ply->health_points += 1;
-            if(ply->health_points >= ply->max_health_points) ply->health_points = ply->max_health_points;
-            init_hp_ui(ply);
-            heal_ui_hp(ply);
-        }
-        else if(global_input.keys_released[SAPP_KEYCODE_9])
-        {
-            ply->max_health_points += 1;
-            ply->health_points += 1;
-            init_hp_ui(ply);
-        }
-        else if(global_input.keys_released[SAPP_KEYCODE_8])
-        {
-            play_override_animation(&ply->animator_component, ANIM_PLAYER_DAMAGE);
-            ply->entity_timer = PLAYER_INVINCIBILITY_TIME_AFTER_HIT;
-            ply->velocity[1] = -200.0f;
-            ply->collision_enabled = false;
-            ply->health_points -= 1;
-            camera_shake(15.0f);
-            damage_ui_hp(ply);
-        }*/
+        // enable player collision upon invinc frames being done
 
-        // basic movement
+        if(ply->entity_timer <= 0) ply->collision_enabled = true;
 
-        if(ply->entity_timer <= 0.4f) {
+        // check for shooting, if auto you can hold to shoot, otherwise its manual click
 
-            if(global_input.keys_pressed[SAPP_KEYCODE_D]) ply->velocity[0] = PLAYER_MAX_SPEED;
-            else if(global_input.keys_pressed[SAPP_KEYCODE_A]) ply->velocity[0] = -PLAYER_MAX_SPEED;
-            else ply->velocity[0] = 0;
-
-        }
+        if(p_weapon.is_auto && global_input.mouse_l && time_til_next_can_shoot <= 0) fire_gun();
+        else if(global_input.mouse_l_up && time_til_next_can_shoot <= 0) fire_gun();
 
         // look right or left dependent on where the mouse is of the player center
 
         if(global_input.mouse_x >= ply->position[0] + (ply->hit_box[0] / 2) + ply->hit_box_offset[0]) ply->sprite_data.flip_x = false;
         else ply->sprite_data.flip_x = true;
     }
+    // if dead
     else
     {
         ply->handle_x_for_me = true;
         play_animation(&ply->animator_component, &ANIM_ZOMBIE_DEAD1);
+
+        // debug
+
+        if(global_input.keys_released[SAPP_KEYCODE_R]) reset_player();
     }
-}
-
-void player_reset()
-{
-
 }

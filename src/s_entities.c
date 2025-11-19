@@ -7,6 +7,8 @@
 
 void entity_run_physics(entity* ent)
 {
+    ent->entity_timer -= global_delta_time * loaded_scene->scene_game_speed;
+
     ent->is_grounded = false;
     ent->velocity[1] += ent->gravity * global_delta_time * loaded_scene->scene_game_speed;
 

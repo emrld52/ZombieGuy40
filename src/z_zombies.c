@@ -181,7 +181,6 @@ void damage_zombie(zombie *zomb, entity *attacker)
 void pathfinding_ai(zombie *zomb, entity *plyr)
 {
     zomb->logic_frame_time += global_delta_time * loaded_scene->scene_game_speed;
-    zomb->zmb->entity_timer -= global_delta_time * loaded_scene->scene_game_speed;
     zomb->attack_time -= global_delta_time * loaded_scene->scene_game_speed;
 
     if(zomb->zmb->health_points >= 1) {

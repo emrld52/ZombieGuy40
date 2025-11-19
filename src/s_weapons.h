@@ -23,16 +23,6 @@ typedef struct bullet_type_t {
     int pierce_count;
 } bullet_type;
 
-typedef struct weapon_t {
-    bullet_type weapon_bullets;
-
-    // in bullets per sec
-
-    float fire_speed;
-
-    float kickback;
-} weapon;
-
 typedef struct bullet_t {
     bullet_type *type;
     entity* entity;
