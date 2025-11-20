@@ -6,11 +6,11 @@ ZombieGuy40 is a game made in 2 weeks for a college game jam in C with only a ha
 
 # Features 🎉
 
-✏ - Working 2D Sprite Renderer (Texture Atlas)!
+✏ - Working custom 2D Sprite Renderer (Texture Atlas usage)!
 
 🏃‍♂️ - Sprite-animation system!
 
-📦 - Axis-Aligned Bounding-Box based collision!
+📦 - Axis-Aligned Bounding-Box based collision with physics!
 
 😱 - Performant zombie-hordes with multiple AI types!
 
@@ -36,6 +36,7 @@ ZombieGuy40 was my first ever project programmed from the ground up in pure C. I
 - Learning basic GLSL to program my vertex & fragment shaders.
 - Using smart workarounds (object-pooling) to runtime memory allocation to avoid error prone malloc() and free() functions.
 - Organization. C is wrote very differently to C# making organization a lot different and more challenging.
+- Pathfinding was especially challenging as I didn't have time to work on a more complex A* system. I had to settle for a custom simpler algorithm, this was one of the bigger problems I overcame this project even if the solution wasn't the most elegant (I'm not particularly happy with the pathfinding in the game, I think I could work on a better implementation now).
  
 # Compilation 👷‍♂️
 
