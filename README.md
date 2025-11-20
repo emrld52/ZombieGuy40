@@ -36,7 +36,7 @@ ZombieGuy40 was my first ever project programmed from the ground up in pure C. I
 - Learning basic GLSL to program my vertex & fragment shaders.
 - Using smart workarounds (object-pooling) to runtime memory allocation to avoid error prone malloc() and free() functions.
 - Organization. C is wrote very differently to C# making organization a lot different and more challenging.
-- Pathfinding was especially challenging as I didn't have time to work on a more complex A* system. I had to settle for a custom simpler algorithm, this was one of the bigger problems I overcame this project even if the solution wasn't the most elegant (I'm not particularly happy with the pathfinding in the game, I think I could work on a better implementation now).
+- Pathfinding was especially challenging as I didn't have time to work on a more complex A* system. I had to devise a custom simpler algorithm, this was one of the bigger problems I overcame this project even if the solution wasn't the most elegant (I'm not particularly happy with the pathfinding in the game, I think I could work on a better implementation now).
  
 # Compilation 👷‍♂️
 
@@ -50,7 +50,7 @@ Build instructions coming soon — the project currently depends on Windows-spec
 # Further Planned Features 🗺
 
 - PS Vita port through the VitaSDK library.
-- Smart sprite batching to draw everything in a single draw-call.
+- A larger content update with more zombie types, a reworked scene/level system to enable larger, more complex levels and more!
 
 # How If/Any AI Has Been Used 🤖
 
