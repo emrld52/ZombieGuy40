@@ -63,6 +63,7 @@ void reset_player()
 
     player_bullet_type = &REGULAR_BULLETS;
     p_weapon.fire_rate = 0.33f;
+    p_weapon.is_auto = false;
 }
 
 // init player position and velocity
