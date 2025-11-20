@@ -19,7 +19,6 @@
 
 typedef struct tile_t {
     bool is_filled;
-    bool is_sniping_position;
     int direction_for_pathing;
 
     // automatically figured out by autotiler

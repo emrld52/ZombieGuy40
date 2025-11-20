@@ -12,6 +12,7 @@
 #include "s_playerUI.h"
 #include "r_backgroundfx.h"
 #include "s_input_handling.h"
+#include "z_levels.h"
 
 // libs
 
@@ -32,8 +33,7 @@ bool is_paused = false;
 
 void gameloop_init()
 {
-    sapp_dpi_scale();
-    // make scene
+    // make scene, DEBUG
 
     loaded_scenes[0] = (scene)
     {
@@ -42,6 +42,8 @@ void gameloop_init()
     };
 
     loaded_scene = &loaded_scenes[0];
+
+    // FOLLOWING NEEDS TO BE IN ORDER
 
     animation_load_animations();
 
@@ -53,63 +55,9 @@ void gameloop_init()
 
     player_init();
 
-    // initialize hearts ui
+    init_level_geometry();
 
-    init_hp_ui(get_player());
-
-    // fill tilemap with basic floor for now, hardcode a level
-
-    for(int y = 0; y < LEVELS_HEIGHT; y++)
-    {
-        for(int x = 0; x < LEVELS_WIDTH; x++)
-        {
-            if(y < 14) loaded_scene->tilemap[y][x].is_filled = false;
-            else loaded_scene->tilemap[y][x].is_filled = true;
-        }
-    }
-
-    loaded_scene->tilemap[12][8].is_sniping_position = true;
-
-    loaded_scene->tilemap[10][6].is_filled = true;
-    loaded_scene->tilemap[10][7].is_filled = true;
-    loaded_scene->tilemap[10][8].is_filled = true;
-    loaded_scene->tilemap[9][8].direction_for_pathing = 2;
-    loaded_scene->tilemap[9][10].direction_for_pathing = 2;
-
-    loaded_scene->tilemap[9][7].is_sniping_position = true;
-
-    for(int y = 12; y < 16; y++)
-    {
-        for(int x = 0; x < 4; x++)
-        {
-            loaded_scene->tilemap[y][x].is_filled = true;
-        }
-    }
-
-    loaded_scene->tilemap[11][2].is_sniping_position = true;
-
-    loaded_scene->tilemap[10][19 - 6].is_filled = true;
-    loaded_scene->tilemap[10][19 - 7].is_filled = true;
-    loaded_scene->tilemap[10][19 - 8].is_filled = true;
-
-    loaded_scene->tilemap[9][19 - 7].is_sniping_position = true;
-
-    for(int y = 12; y < 16; y++)
-    {
-        for(int x = 16; x < 20; x++)
-        {
-            loaded_scene->tilemap[y][x].is_filled = true;
-        }
-    }
-
-    loaded_scene->tilemap[11][18].is_sniping_position = true;
-
-    loaded_scene->tilemap[13][3].direction_for_pathing = 2;
-    loaded_scene->tilemap[11][2].direction_for_pathing = 3;
-    loaded_scene->tilemap[11][3].direction_for_pathing = 1;
-    loaded_scene->tilemap[13][15].direction_for_pathing = 2;
-    loaded_scene->tilemap[11][16].direction_for_pathing = 4;
-    loaded_scene->tilemap[11][15].direction_for_pathing = 1;
+    load_level_into_2d_array(0, loaded_scene->tilemap);
 
     init_tilemap(loaded_scene->tilemap);
     autotiler_build_tilemap(loaded_scene->tilemap);
@@ -180,6 +128,16 @@ void run_gameloop()
         // render tiles
 
         render_tilemap(loaded_scene->tilemap);
+
+        // debug
+
+        if(global_input.keys_released[SAPP_KEYCODE_R]) {
+            reset_player(); 
+            reset_zombie_progress();
+            do_scene_garbage_collection(loaded_scene);
+            init_supply_crate();
+            destroy_crate();
+        }
 
         free_released_keys();
 

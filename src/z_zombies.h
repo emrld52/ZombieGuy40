@@ -9,6 +9,7 @@
 #include "s_entities.h"
 
 #define MAX_ZOMBIES 12
+#define ZOMBIE_LOGIC_TICK_RATE 5
 
 // THE THREE ZOMBIE TYPES ARE MINION, RANGER AND KING
 
@@ -82,3 +83,4 @@ extern zombie zombie_pool[MAX_ZOMBIES];
 
 void spawn_zombie(int tier, int hit_points, float speed, float jump_height);
 void zombie_coreloop(entity* plyr);
+void reset_zombie_progress();

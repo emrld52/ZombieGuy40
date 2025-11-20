@@ -13,6 +13,7 @@
 #include "z_player.h"
 #include "s_weapons.h"
 #include "z_upgradecrate.h"
+#include "s_scene.h"
 
 // rendering
 
@@ -38,6 +39,90 @@ int king_hp = KING_BASE_HP;
 // object pooling
 
 zombie zombie_pool[MAX_ZOMBIES];
+
+void kill_zombie(zombie *zomb)
+{
+    // clear collision references with dead body
+
+    for(int i = 0; i < MAX_ENTITIES; i++)
+    {
+        entity* other = &loaded_scene->entities[i];
+        if (!other->enabled) continue;
+
+        for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
+        {
+            if(other->colliding_entities[z] == zomb->zmb)
+                other->colliding_entities[z] = NULL;
+        }
+    }
+
+    zomb->enabled = false;
+
+    // randomize corpse
+
+    if(rand() % 2 == 1) play_animation(&zomb->zmb->animator_component, &ANIM_ZOMBIE_DEAD1);
+    else play_animation(&zomb->zmb->animator_component, &ANIM_ZOMBIE_DEAD2);
+
+    if(zomb->zmb->entity_timer <= 0) zomb->zmb->velocity[0] = 0;
+
+    zomb->zmb->collision_enabled = false;
+    zomb->zmb->marked_for_garbage_collection = true;
+
+    // physics will lerp x velocity to 0, means bodies wont slide forever as we dont control them anymore
+
+    zomb->zmb->handle_x_for_me = true;
+
+    zomb->zmb->id = 400;
+
+    zomb->zmb = NULL;
+
+    zombies_killed_total += 1;
+    zombies_killed += 1;
+}
+
+void damage_zombie(zombie *zomb, entity *attacker)
+{
+    if(zomb->zmb != NULL && zomb->zmb->entity_timer <= 0) {
+        // damage flash
+
+        play_override_animation(&zomb->zmb->animator_component, ANIM_ZOMBIE_DAMAGE);
+        zomb->zmb->entity_timer = 0.35f;
+
+        // knockback based on attacker position
+
+        zomb->zmb->velocity[0] = attacker->position[0] >= zomb->zmb->position[0] ? -100.0f : 100.0f;
+        zomb->zmb->velocity[1] = -200.0f;
+
+        zomb->zmb->collision_enabled = false;
+        camera_shake(2.0f);
+        zomb->zmb->health_points -= attacker->damage;
+        zomb->zmb->gravity = ZOMBIE_GRAV;
+
+        // if zombie hp reaches 0
+
+        if(zomb->zmb->health_points <= 0) 
+        {
+            kill_zombie(zomb);
+            return;
+        }
+    }
+}
+
+void reset_zombie_progress() {
+    time_between_each_zombie = STARTING_ZOMBIE_SPAWN_TIME;
+    time_til_next_zombie = 0;
+
+    power_timer = 0.0f;
+
+    zombies_killed_total = 0;
+    zombies_killed = 0;
+
+    for(int i = 0; i < MAX_ZOMBIES; i++) {
+        if(zombie_pool[i].enabled) {
+            kill_zombie(&zombie_pool[i]);
+        }
+    }
+}
 
 // spawn zombie function, make new zombie out of object pool with passable info
 
@@ -84,6 +169,8 @@ void spawn_zombie(int tier, int hit_points, float speed, float jump_height)
 
             zombie_pool[i].enabled = true;
 
+            // init zombies logic time a little off just so that all zombies dont behave in unison like clockwork
+
             zombie_pool[i].logic_frame_time = rand() % (1000 - 0 + 1) + 1;
 
             // convert from ms to seconds
@@ -107,75 +194,6 @@ void spawn_zombie(int tier, int hit_points, float speed, float jump_height)
     }
 }
 
-void kill_zombie(zombie *zomb)
-{
-    // clear collision references with dead body
-
-    for(int i = 0; i < MAX_ENTITIES; i++)
-    {
-        entity* other = &loaded_scene->entities[i];
-        if (!other->enabled) continue;
-
-        for(int z = 0; z < MAX_COLLIDING_ENTITIES; z++)
-        {
-            if(other->colliding_entities[z] == zomb->zmb)
-                other->colliding_entities[z] = NULL;
-        }
-    }
-
-    zomb->enabled = false;
-
-    zomb->zmb->marked_for_garbage_collection = true;
-
-    // randomize corpse
-
-    if(rand() % 2 == 1) play_animation(&zomb->zmb->animator_component, &ANIM_ZOMBIE_DEAD1);
-    else play_animation(&zomb->zmb->animator_component, &ANIM_ZOMBIE_DEAD2);
-
-    zomb->zmb->collision_enabled = false;
-
-    // physics will lerp x velocity to 0, means bodies wont slide forever as we dont control them anymore
-
-    zomb->zmb->handle_x_for_me = true;
-
-    zomb->zmb->id = 400;
-
-    if(zomb->zmb->entity_timer <= 0) zomb->zmb->velocity[0] = 0;
-
-    zomb->zmb = NULL;
-
-    zombies_killed_total += 1;
-    zombies_killed += 1;
-}
-
-void damage_zombie(zombie *zomb, entity *attacker)
-{
-    if(zomb->zmb->entity_timer <= 0) {
-        // damage flash
-
-        play_override_animation(&zomb->zmb->animator_component, ANIM_ZOMBIE_DAMAGE);
-        zomb->zmb->entity_timer = 0.35f;
-
-        // knockback based on attacker position
-
-        zomb->zmb->velocity[0] = attacker->position[0] >= zomb->zmb->position[0] ? -100.0f : 100.0f;
-        zomb->zmb->velocity[1] = -200.0f;
-
-        zomb->zmb->collision_enabled = false;
-        camera_shake(2.0f);
-        zomb->zmb->health_points -= attacker->damage;
-        zomb->zmb->gravity = ZOMBIE_GRAV;
-
-        // if zombie hp reaches 0
-
-        if(zomb->zmb->health_points <= 0) 
-        {
-            kill_zombie(zomb);
-            return;
-        }
-    }
-}
-
 // this pathfinding is VERY primitive and relies on the level being mostly symmetrical with only a tiny bit of verticality. however it does work well enough for what were trying
 
 void pathfinding_ai(zombie *zomb, entity *plyr)
@@ -185,7 +203,7 @@ void pathfinding_ai(zombie *zomb, entity *plyr)
 
     if(zomb->zmb->health_points >= 1) {
         if(zomb->zmb->entity_timer <= 0) {
-            if(zomb->logic_frame_time >= 0.2f) 
+            if(zomb->logic_frame_time >= 1.0f / ZOMBIE_LOGIC_TICK_RATE) 
             {
                 zomb->logic_frame_time = 0.0f;
 

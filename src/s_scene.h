@@ -36,4 +36,6 @@ typedef struct scene_t {
 
 entity* make_entity_in_scene(scene *scn);
 void destroy_entity_in_scene(entity *ent);
+void reset_entity(entity* ent);
+void do_scene_garbage_collection(scene *scn);
 void reset_scene(scene *scn);

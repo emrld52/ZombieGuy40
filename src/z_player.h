@@ -3,6 +3,8 @@
 #include "r_renderfuncs.h"
 #include "s_entities.h"
 
+#define PLAYER_ID 4096
+
 // player-movmement variables
 
 #define PLAYER_MAX_SPEED 256.0f * 0.75f
@@ -39,4 +41,6 @@ extern player_weapon PLY_WEAPON_LASER_GUN;
 
 void player_init();
 void player_loop();
+void reset_player();
+void player_accept_upgrade(int upgrd);
 entity* get_player();

@@ -2,6 +2,7 @@
 #include "s_entities.h"
 #include "s_scene.h"
 #include "g_state.h"
+#include "z_player.h"
 
 entity *crate;
 sprite crate_sprite;
@@ -57,29 +58,42 @@ void destroy_crate()
 
 void update_supply_crate()
 {
-    if(crate != NULL && crate->is_grounded) 
+    if(crate != NULL) 
     {
-        play_animation(&crate->animator_component, &ANIM_CRATE_LANDED);
-        crate->handle_x_for_me = true;
-        time_til_despawn -= global_delta_time * loaded_scene->scene_game_speed;
-
-        if(time_til_despawn <= 0) destroy_crate();
-        else if(time_til_despawn <= 1.0f && !has_played_flash)
+        if(crate->is_grounded)
         {
-            has_played_flash = true;
-            play_override_animation(&crate->animator_component, ANIM_CRATE_FLASH);
+            play_animation(&crate->animator_component, &ANIM_CRATE_LANDED);
+            crate->handle_x_for_me = true;
+            time_til_despawn -= global_delta_time * loaded_scene->scene_game_speed;
+
+            if(time_til_despawn <= 0) destroy_crate();
+            else if(time_til_despawn <= 1.0f && !has_played_flash)
+            {
+                has_played_flash = true;
+                play_override_animation(&crate->animator_component, ANIM_CRATE_FLASH);
+            }
+        }
+
+        for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
+        {
+            if(crate->colliding_entities[i] != NULL && crate->colliding_entities[i]->team != crate->team && 
+            !crate->colliding_entities[i]->is_projectile && crate->colliding_entities[i]->id == PLAYER_ID) {
+                int upgrade = rand() % 6;
+
+                player_accept_upgrade(upgrade);
+
+                destroy_crate();
+                return;
+            }
         }
     }
-    else if(crate == NULL)
+    else if(zombies_killed >= REQUIREMENT_FOR_CRATE) 
     {
-        if(zombies_killed >= REQUIREMENT_FOR_CRATE) 
-        {
-            init_supply_crate();
+        init_supply_crate();
 
-            // if player killed more whilst crate was still around
+        // if player killed more whilst crate was still around
 
-            zombies_killed -= REQUIREMENT_FOR_CRATE;
-            if(zombies_killed < 0) zombies_killed = 0;
-        }
+        zombies_killed -= REQUIREMENT_FOR_CRATE;
+        if(zombies_killed < 0) zombies_killed = 0;
     }
 }

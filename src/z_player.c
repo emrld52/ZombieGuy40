@@ -26,10 +26,10 @@ entity* get_player()
     return ply;
 }
 
-bullet_type player_bullet_type;
+bullet_type *player_bullet_type;
 bullet bullet_instance;
 
-float time_til_next_can_shoot = 0.25f;
+float time_til_next_can_shoot;
 
 player_weapon p_weapon;
 
@@ -57,9 +57,11 @@ void reset_player()
     ply->health_points = 3;
     ply->max_health_points = 3;
 
+    ply->id = PLAYER_ID;
+
     init_hp_ui(ply);
 
-    player_bullet_type = REGULAR_BULLETS;
+    player_bullet_type = &REGULAR_BULLETS;
     p_weapon.fire_rate = 0.33f;
 }
 
@@ -72,7 +74,7 @@ void player_init() {
 }
 
 void fire_gun() {
-    bullet* b = make_bullet(&player_bullet_type, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
+    bullet* b = make_bullet(player_bullet_type, ply->position, global_input.mouse_x + 16 >= ply->position[0] ? 1 : -1, ply->team);
 
     // if bullet type was found, dont do anything if theres no available bullets in object pool
 
@@ -92,6 +94,43 @@ void damage_player(entity* attacker) {
     ply->health_points -= attacker->damage;
     camera_shake(15.0f);
     damage_ui_hp(ply);
+}
+
+void player_accept_upgrade(int upgrd)
+{
+    switch(upgrd)
+    {
+        case 0:
+            p_weapon.fire_rate /= 1.15f;
+            p_weapon.is_auto = true;
+            break;
+
+        case 1:
+            p_weapon.fire_rate /= 1.15f;
+            break;
+
+        case 2:
+            if(player_bullet_type == &PIERCING_BULLETS) player_bullet_type = &DOUBLE_PIERCING_BULLETS;
+            else player_bullet_type = &PIERCING_BULLETS;
+            break;
+        case 3:
+            ply->health_points += 1;
+            if(ply->health_points >= ply->max_health_points) ply->health_points = ply->max_health_points;
+            init_hp_ui(ply);
+            heal_ui_hp(ply);
+            break;
+        case 4:
+            ply->health_points += 1;
+            if(ply->health_points >= ply->max_health_points) ply->health_points = ply->max_health_points;
+            init_hp_ui(ply);
+            heal_ui_hp(ply);
+            break;
+        case 5:
+            ply->max_health_points += 1;
+            ply->health_points += 1;
+            init_hp_ui(ply);
+            break;
+    }
 }
 
 void player_loop() {
@@ -120,7 +159,7 @@ void player_loop() {
 
         if(ply->is_grounded) 
         {
-            if(global_input.keys_pressed[SAPP_KEYCODE_SPACE]) 
+            if(global_input.keys_pressed[SAPP_KEYCODE_SPACE] || global_input.keys_pressed[SAPP_KEYCODE_W]) 
             {
                 entity_override_velocity(ply, (vec2){ply->velocity[0], -PLAYER_JUMP_FORCE});
                 camera_shake(2.0f);
@@ -135,7 +174,7 @@ void player_loop() {
 
             // variable jump height
 
-            if(global_input.keys_released[SAPP_KEYCODE_SPACE] && ply->velocity[1] < 0) entity_override_velocity(ply, (vec2){ply->velocity[0], ply->velocity[1] / PLAYER_JUMP_CANCEL_STRENGTH});
+            if((global_input.keys_released[SAPP_KEYCODE_SPACE] || global_input.keys_released[SAPP_KEYCODE_W]) && ply->velocity[1] < 0) entity_override_velocity(ply, (vec2){ply->velocity[0], ply->velocity[1] / PLAYER_JUMP_CANCEL_STRENGTH});
         }
 
         // reload
@@ -160,9 +199,5 @@ void player_loop() {
     {
         ply->handle_x_for_me = true;
         play_animation(&ply->animator_component, &ANIM_ZOMBIE_DEAD1);
-
-        // debug
-
-        if(global_input.keys_released[SAPP_KEYCODE_R]) reset_player();
     }
 }

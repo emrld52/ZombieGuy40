@@ -116,3 +116,15 @@ void reset_scene(scene *scn)
 
     glm_vec2_copy((vec2){0, 0}, scn->scene_camera_position);
 }
+
+void do_scene_garbage_collection(scene *scn)
+{
+    for(int i = 0; i < MAX_ENTITIES; i++)
+    {
+        if(scn->entities[i].marked_for_garbage_collection)
+        {
+            reset_entity(&scn->entities[i]);
+            destroy_entity_in_scene(&scn->entities[i]);
+        }
+    }
+}

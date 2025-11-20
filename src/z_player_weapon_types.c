@@ -8,3 +8,8 @@ player_weapon PLY_WEAPON_SNIPER;
 player_weapon PLY_WEAPON_FLAMETHROWER;
 player_weapon PLY_WEAPON_THROWING_KNIVES;
 player_weapon PLY_WEAPON_LASER_GUN;
+
+void init_player_weapons()
+{
+    
+}

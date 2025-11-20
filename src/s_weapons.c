@@ -100,7 +100,7 @@ void bullets_update()
     }
 }
 
-// WIP
+// WIP (maybe)
 
 bullet *make_bullet(bullet_type *typ, vec2 pos, int dir, int team)
 {
