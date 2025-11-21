@@ -130,6 +130,10 @@ void run_gameloop()
             render_text(tx2, 10, (vec2){ (VIRTUAL_WIDTH / 2) - (how_wide_is_text(10) / 2), 350 + 24});
         }
         else if(global_input.mouse_l_up) sapp_quit();
+
+        char tx3[14] = "version 0 8 5";
+
+        render_text(tx3, 14, (vec2){ 0, VIRTUAL_HEIGHT - 16});
     break;
 
     // scene is a level
