@@ -1,6 +1,7 @@
 #include "s_playerUI.h"
 #include "z_player.h"
 #include "g_state.h"
+#include "s_text_renderer.h"
 
 // current heart count, can increase as player gains more max hp
 
@@ -100,6 +101,16 @@ void draw_hp_ui()
         animator_get_frame(&heart[i], &heart_sprite[i]);
         draw_call(heart_sprite[i]);
     }
+}
+
+void draw_player_stats(int dmg, int attack_speed, bool is_auto, int pierces)
+{
+    char tx[64];
+
+    if(!is_auto) snprintf(tx, sizeof(tx), "dmg %d/natt spd %d/n/npierces %d/n/nsingle fire", dmg, attack_speed, pierces);
+    else snprintf(tx, sizeof(tx), "dmg %d/natt spd %d/n/npierces %d/n/nauto", dmg, attack_speed, pierces);
+
+    render_text(tx, 64, (vec2){8, 64});
 }
 
 void draw_cursor()

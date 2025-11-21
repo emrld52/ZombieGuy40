@@ -112,7 +112,7 @@ void player_accept_upgrade(int upgrd)
 
         case 2:
             if(player_bullet_type == &PIERCING_BULLETS) player_bullet_type = &DOUBLE_PIERCING_BULLETS;
-            else player_bullet_type = &PIERCING_BULLETS;
+            else if(player_bullet_type == &REGULAR_BULLETS) player_bullet_type = &PIERCING_BULLETS;
             break;
         case 3:
             ply->health_points += 1;
@@ -194,6 +194,8 @@ void player_loop() {
 
         if(global_input.mouse_x >= ply->position[0] + (ply->hit_box[0] / 2) + ply->hit_box_offset[0]) ply->sprite_data.flip_x = false;
         else ply->sprite_data.flip_x = true;
+
+        draw_player_stats(player_bullet_type->damage, (int)(1.0f / p_weapon.fire_rate), p_weapon.is_auto, player_bullet_type->pierce_count - 1);
     }
     // if dead
     else

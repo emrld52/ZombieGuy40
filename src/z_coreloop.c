@@ -14,12 +14,17 @@
 #include "s_input_handling.h"
 #include "z_levels.h"
 
+// test
+
+#include "s_text_renderer.h"
+
 // libs
 
 #include "../deps/cglm/cglm.h"
 #include "../deps/sokol_app.h"
 #include "../deps/sokol_gfx.h"
 #include <string.h>
+#include <stdio.h>
 #include <math.h>
 
 scene loaded_scenes[MAX_LOADED_SCENES];
@@ -39,6 +44,12 @@ void gameloop_init()
     {
         .scene_game_speed = 1.0f,
         .type = SCENE_TYPE_LEVEL
+    };
+
+    loaded_scenes[1] = (scene)
+    {
+        .scene_game_speed = 1.0f,
+        .type = SCENE_TYPE_MENU
     };
 
     loaded_scene = &loaded_scenes[0];
@@ -66,6 +77,8 @@ void gameloop_init()
 
     init_background_fx();
 
+    init_text_renderer();
+
     init_supply_crate();
     destroy_crate();
 
@@ -79,6 +92,8 @@ void gameloop_init()
         .pos[1] = 8,
         .ui = true
     };
+
+    loaded_scene = &loaded_scenes[0];
 }
 
 void run_gameloop()
