@@ -82,6 +82,10 @@ extern animation ANIM_CRATE_FALLING;
 extern animation ANIM_CRATE_LANDED;
 extern animation ANIM_CRATE_FLASH;
 
+extern animation ANIM_STRIP;
+extern animation ANIM_STRIP_FLASH;
+extern animation ANIM_STRIP_HIGHLIGHTED;
+
 void animation_load_animations();
 
 void animator_init(animator *amtr);

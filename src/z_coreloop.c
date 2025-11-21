@@ -13,6 +13,7 @@
 #include "r_backgroundfx.h"
 #include "s_input_handling.h"
 #include "z_levels.h"
+#include "s_menu.h"
 
 // test
 
@@ -29,8 +30,6 @@
 
 scene loaded_scenes[MAX_LOADED_SCENES];
 scene *loaded_scene;
-
-sprite pause_icon;
 
 // init is_paused from game state
 
@@ -82,22 +81,15 @@ void gameloop_init()
     init_supply_crate();
     destroy_crate();
 
-    pause_icon = (sprite)
-    {
-        .sprite_coord[0] = 15,
-        .sprite_coord[1] = 1,
-        .resolution[0] = 64,
-        .resolution[1] = 64,
-        .pos[0] = 640 - 72,
-        .pos[1] = 8,
-        .ui = true
-    };
+    init_main_menu();
 
     loaded_scene = &loaded_scenes[1];
 }
 
-float pos;
-float tme = 0;
+void load_scene(int scn)
+{
+    loaded_scene = &loaded_scenes[scn];
+}
 
 void run_gameloop()
 {
@@ -105,27 +97,9 @@ void run_gameloop()
     {
     // loaded scene is a menu
     case SCENE_TYPE_MENU:
-        tme += global_delta_time * loaded_scene->scene_game_speed;
-        pos = sin(tme * 2) * 10;
+        draw_background_fx();
 
-        draw_call((sprite) {
-            .sprite_coord[0] = 21,
-            .sprite_coord[1] = 1,
-            .resolution[0] = 640,
-            .resolution[1] = 280,
-            .pos[0] = 32 * 3.1f,
-            .pos[1] = 55 + pos
-        });
-
-        if(!is_point_within_text((vec2){ (VIRTUAL_WIDTH / 2) - (how_wide_is_text(10) / 2), 350 }, 10, (vec2){global_input.mouse_x, global_input.mouse_y})) {
-            render_text("play game", 10, (vec2){ (VIRTUAL_WIDTH / 2) - (how_wide_is_text(10) / 2), 350});
-        }
-        else if(global_input.mouse_l_up) loaded_scene = &loaded_scenes[0];
-
-        if(!is_point_within_text((vec2){ (VIRTUAL_WIDTH / 2) - (how_wide_is_text(10) / 2), 350 + 24 }, 10, (vec2){global_input.mouse_x, global_input.mouse_y})) {
-            render_text("quit game", 10, (vec2){ (VIRTUAL_WIDTH / 2) - (how_wide_is_text(10) / 2), 350 + 24});
-        }
-        else if(global_input.mouse_l_up) sapp_quit();
+        draw_main_menu();
     break;
 
     // scene is a level
@@ -137,7 +111,6 @@ void run_gameloop()
         if(is_paused) 
         {
             loaded_scene->scene_game_speed = 0;
-            draw_call(pause_icon);
         }
         else loaded_scene->scene_game_speed = 1;
 
@@ -174,9 +147,9 @@ void run_gameloop()
         if(global_input.keys_released[SAPP_KEYCODE_R]) {
             reset_player(); 
             reset_zombie_progress();
-            do_scene_garbage_collection(loaded_scene);
             init_supply_crate();
             destroy_crate();
+            do_scene_garbage_collection(loaded_scene);
         }
 
     break;

@@ -3,12 +3,16 @@
 #include "g_state.h"
 #include "s_text_renderer.h"
 
+#include <string.h>
+
 // current heart count, can increase as player gains more max hp
 
 int heart_count = 3;
 
 animator heart[12];
 sprite heart_sprite[12];
+
+sprite pause_icon;
 
 float time = 0;
 
@@ -34,6 +38,17 @@ void init_hp_ui(entity *plyr)
         if(plyr->health_points > i) play_animation(&heart[i], &ANIM_HEART);
         else play_animation(&heart[i], &ANIM_HEART_BROKEN);
     }
+
+    pause_icon = (sprite)
+    {
+        .sprite_coord[0] = 15,
+        .sprite_coord[1] = 1,
+        .resolution[0] = 64,
+        .resolution[1] = 64,
+        .pos[0] = 640 - 72,
+        .pos[1] = 8,
+        .ui = true
+    };
 }
 
 void damage_ui_hp(entity *plyr)
@@ -101,16 +116,27 @@ void draw_hp_ui()
         animator_get_frame(&heart[i], &heart_sprite[i]);
         draw_call(heart_sprite[i]);
     }
+
+    if(is_paused) draw_call(pause_icon);
 }
 
 void draw_player_stats(int dmg, int attack_speed, bool is_auto, int pierces)
 {
+    int len = 0;
     char tx[64];
 
-    if(!is_auto) snprintf(tx, sizeof(tx), "dmg %d/natt spd %d/n/npierces %d/n/nsingle fire", dmg, attack_speed, pierces);
-    else snprintf(tx, sizeof(tx), "dmg %d/natt spd %d/n/npierces %d/n/nauto", dmg, attack_speed, pierces);
+    if(!is_auto) 
+    {
+        snprintf(tx, sizeof(tx), "dmg %d/natt spd %d/n/npierces %d/n/nsingle fire", dmg, attack_speed, pierces);
+        len = strlen("dmg 1/natt spd 1/n/npierces 1/n/nsingle fire");
+    }
+    else 
+    {
+        snprintf(tx, sizeof(tx), "dmg %d/natt spd %d/n/npierces %d/n/nauto", dmg, attack_speed, pierces);
+        len = strlen("dmg 1/natt spd 1/n/npierces 1/n/nsingle fire");
+    }
 
-    render_text(tx, 64, (vec2){8, 64});
+    render_text(tx, len, (vec2){8, 64});
 }
 
 void draw_cursor()

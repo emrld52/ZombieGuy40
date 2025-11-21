@@ -48,11 +48,15 @@ void init_supply_crate()
     time_til_despawn = CRATE_LIFETIME;
 
     has_played_flash = false;
+
+    zombies_killed_total = 0;
+    zombies_killed = 0;
 }
 
 void destroy_crate()
 {
     destroy_entity_in_scene(crate);
+    crate->marked_for_garbage_collection = true;
     crate = NULL;
 }
 

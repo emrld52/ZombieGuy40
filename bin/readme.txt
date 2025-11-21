@@ -1,4 +1,4 @@
-major build 10 :
+major build 12 :
 
 features :
 
@@ -12,20 +12,15 @@ alpha blending - YES
 basic platformer controls with psuedo collision - YES
 WIP ai with psuedo collision - YES
 UI basics - YES
-art - 80%
+art - 90%
 animation system - YES
 tilemap and real collision system - YES
 projectiles - YES
 upgrades that fall from sky - YES
-multiple enemy ai types - YES, NEEDS CLEANING THOUGH
+multiple enemy ai types - YES
 scaling enemies overtime/actual game loop - YES
-main menu - NO
+main menu - MOSTLY
 sound - NO
-
-maybe features :
-
-simulate virtual resolution at 640x480 and scale up via nearest neighbour for retro style pixel snapping. have cool borders on sides in 16:9
-hard mode in main menu
 
 minor features complete :
 

@@ -11,4 +11,6 @@ void program_init();
 void program_loop();
 void program_cleanup();
 
+void load_scene(int scn);
+
 #define MAX_LOADED_SCENES 4

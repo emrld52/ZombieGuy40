@@ -45,6 +45,10 @@ animation ANIM_BULLET_BLUE_ZOOM;
 animation ANIM_BULLET_GREEN_FLASH;
 animation ANIM_BULLET_GREEN_ZOOM;
 
+animation ANIM_STRIP;
+animation ANIM_STRIP_FLASH;
+animation ANIM_STRIP_HIGHLIGHTED;
+
 // unsure of how to store all animations to be referenced throughout the program. this isnt the cleane
 
 void animation_load_animations()
@@ -414,6 +418,35 @@ void animation_load_animations()
             {18, 14},
             {19, 14},
             {20, 14}
+        }
+    };
+
+    ANIM_STRIP = (animation) {
+        .id = 30,
+        .length_in_frames = 1,
+        .dist_between_frames = 0.01f,
+        .frames = {
+            {10, 1},
+        }
+    };
+
+    ANIM_STRIP_FLASH = (animation) {
+        .id = 31,
+        .length_in_frames = 3,
+        .dist_between_frames = 0.03f,
+        .frames = {
+            {10, 2},
+            {10, 3},
+            {10, 4},
+        }
+    };
+
+    ANIM_STRIP_HIGHLIGHTED = (animation) {
+        .id = 32,
+        .length_in_frames = 1,
+        .dist_between_frames = 0.01f,
+        .frames = {
+            {5, 1},
         }
     };
 }
