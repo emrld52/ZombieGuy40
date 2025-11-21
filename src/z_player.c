@@ -135,72 +135,74 @@ void player_accept_upgrade(int upgrd)
 }
 
 void player_loop() {
-    if(ply->health_points >= 1) {
-        // basic movement, can only move if not stunned (tracked in entity timer)
+    if(!is_paused) {
+        if(ply->health_points >= 1) {
+            // basic movement, can only move if not stunned (tracked in entity timer)
 
-        if(ply->entity_timer <= PLAYER_STUN_THRESHOLD) {
+            if(ply->entity_timer <= PLAYER_STUN_THRESHOLD) {
 
-            if(global_input.keys_pressed[SAPP_KEYCODE_D]) ply->velocity[0] = PLAYER_MAX_SPEED;
-            else if(global_input.keys_pressed[SAPP_KEYCODE_A]) ply->velocity[0] = -PLAYER_MAX_SPEED;
-            else ply->velocity[0] = 0;
-        }
-
-        // check if colliding with any damaging entities
-
-        for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
-        {
-            if(ply->colliding_entities[i] != NULL && ply->entity_timer <= 0 
-                && ply->colliding_entities[i]->collision_enabled && ply->colliding_entities[i]->team != ply->team) 
-            {
-                if(ply->colliding_entities[i]->damage >= 1) damage_player(ply->colliding_entities[i]);
-            }
-        }
-
-        // animation states and jump logic
-
-        if(ply->is_grounded) 
-        {
-            if(global_input.keys_pressed[SAPP_KEYCODE_SPACE] || global_input.keys_pressed[SAPP_KEYCODE_W]) 
-            {
-                entity_override_velocity(ply, (vec2){ply->velocity[0], -PLAYER_JUMP_FORCE});
-                camera_shake(2.0f);
+                if(global_input.keys_pressed[SAPP_KEYCODE_D]) ply->velocity[0] = PLAYER_MAX_SPEED;
+                else if(global_input.keys_pressed[SAPP_KEYCODE_A]) ply->velocity[0] = -PLAYER_MAX_SPEED;
+                else ply->velocity[0] = 0;
             }
 
-            if(ply->velocity[0] == 0) play_animation(&ply->animator_component, &ANIM_PLAYER_IDLE);
-            else if(ply->is_grounded) play_animation(&ply->animator_component, &ANIM_PLAYER_RUN);
+            // check if colliding with any damaging entities
+
+            for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
+            {
+                if(ply->colliding_entities[i] != NULL && ply->entity_timer <= 0 
+                    && ply->colliding_entities[i]->collision_enabled && ply->colliding_entities[i]->team != ply->team) 
+                {
+                    if(ply->colliding_entities[i]->damage >= 1) damage_player(ply->colliding_entities[i]);
+                }
+            }
+
+            // animation states and jump logic
+
+            if(ply->is_grounded) 
+            {
+                if(global_input.keys_pressed[SAPP_KEYCODE_SPACE] || global_input.keys_pressed[SAPP_KEYCODE_W]) 
+                {
+                    entity_override_velocity(ply, (vec2){ply->velocity[0], -PLAYER_JUMP_FORCE});
+                    camera_shake(2.0f);
+                }
+
+                if(ply->velocity[0] == 0) play_animation(&ply->animator_component, &ANIM_PLAYER_IDLE);
+                else if(ply->is_grounded) play_animation(&ply->animator_component, &ANIM_PLAYER_RUN);
+            }
+            else 
+            {
+                play_animation(&ply->animator_component, &ANIM_PLAYER_JUMP);
+
+                // variable jump height
+
+                if((global_input.keys_released[SAPP_KEYCODE_SPACE] || global_input.keys_released[SAPP_KEYCODE_W]) && ply->velocity[1] < 0) entity_override_velocity(ply, (vec2){ply->velocity[0], ply->velocity[1] / PLAYER_JUMP_CANCEL_STRENGTH});
+            }
+
+            // reload
+            time_til_next_can_shoot -= global_delta_time * loaded_scene->scene_game_speed;
+
+            // enable player collision upon invinc frames being done
+
+            if(ply->entity_timer <= 0) ply->collision_enabled = true;
+
+            // check for shooting, if auto you can hold to shoot, otherwise its manual click
+
+            if(p_weapon.is_auto && global_input.mouse_l && time_til_next_can_shoot <= 0) fire_gun();
+            else if(global_input.mouse_l_up && time_til_next_can_shoot <= 0) fire_gun();
+
+            // look right or left dependent on where the mouse is of the player center
+
+            if(global_input.mouse_x >= ply->position[0] + (ply->hit_box[0] / 2) + ply->hit_box_offset[0]) ply->sprite_data.flip_x = false;
+            else ply->sprite_data.flip_x = true;
+
+            draw_player_stats(player_bullet_type->damage, (int)(1.0f / p_weapon.fire_rate), p_weapon.is_auto, player_bullet_type->pierce_count - 1);
         }
-        else 
+        // if dead
+        else
         {
-            play_animation(&ply->animator_component, &ANIM_PLAYER_JUMP);
-
-            // variable jump height
-
-            if((global_input.keys_released[SAPP_KEYCODE_SPACE] || global_input.keys_released[SAPP_KEYCODE_W]) && ply->velocity[1] < 0) entity_override_velocity(ply, (vec2){ply->velocity[0], ply->velocity[1] / PLAYER_JUMP_CANCEL_STRENGTH});
+            ply->handle_x_for_me = true;
+            play_animation(&ply->animator_component, &ANIM_ZOMBIE_DEAD1);
         }
-
-        // reload
-        time_til_next_can_shoot -= global_delta_time * loaded_scene->scene_game_speed;
-
-        // enable player collision upon invinc frames being done
-
-        if(ply->entity_timer <= 0) ply->collision_enabled = true;
-
-        // check for shooting, if auto you can hold to shoot, otherwise its manual click
-
-        if(p_weapon.is_auto && global_input.mouse_l && time_til_next_can_shoot <= 0) fire_gun();
-        else if(global_input.mouse_l_up && time_til_next_can_shoot <= 0) fire_gun();
-
-        // look right or left dependent on where the mouse is of the player center
-
-        if(global_input.mouse_x >= ply->position[0] + (ply->hit_box[0] / 2) + ply->hit_box_offset[0]) ply->sprite_data.flip_x = false;
-        else ply->sprite_data.flip_x = true;
-
-        draw_player_stats(player_bullet_type->damage, (int)(1.0f / p_weapon.fire_rate), p_weapon.is_auto, player_bullet_type->pierce_count - 1);
-    }
-    // if dead
-    else
-    {
-        ply->handle_x_for_me = true;
-        play_animation(&ply->animator_component, &ANIM_ZOMBIE_DEAD1);
     }
 }

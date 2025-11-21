@@ -3,8 +3,9 @@
 #include "r_renderfuncs.h"
 #include "s_animation.h"
 
-void init_main_menu();
+void init_menus();
 void draw_main_menu();
+void draw_pause_menu();
 
 #define MAX_BUTTON_TEXT_LEN 10
 

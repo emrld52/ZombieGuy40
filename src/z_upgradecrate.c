@@ -56,7 +56,6 @@ void init_supply_crate()
 void destroy_crate()
 {
     destroy_entity_in_scene(crate);
-    crate->marked_for_garbage_collection = true;
     crate = NULL;
 }
 
@@ -70,7 +69,11 @@ void update_supply_crate()
             crate->handle_x_for_me = true;
             time_til_despawn -= global_delta_time * loaded_scene->scene_game_speed;
 
-            if(time_til_despawn <= 0) destroy_crate();
+            if(time_til_despawn <= 0) 
+            {
+                destroy_crate();
+                return;
+            }
             else if(time_til_despawn <= 1.0f && !has_played_flash)
             {
                 has_played_flash = true;

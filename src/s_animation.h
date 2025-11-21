@@ -36,6 +36,8 @@ typedef struct animator_t {
     float time_til_next_frame;
 
     bool is_override_done;
+
+    bool not_affected_by_game_speed;
 } animator;
 
 // animation list

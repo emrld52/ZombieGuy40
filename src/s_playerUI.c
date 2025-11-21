@@ -2,6 +2,7 @@
 #include "z_player.h"
 #include "g_state.h"
 #include "s_text_renderer.h"
+#include "s_menu.h"
 
 #include <string.h>
 
@@ -117,7 +118,11 @@ void draw_hp_ui()
         draw_call(heart_sprite[i]);
     }
 
-    if(is_paused) draw_call(pause_icon);
+    if(is_paused) 
+    {
+        draw_call(pause_icon);
+        draw_pause_menu();
+    }
 }
 
 void draw_player_stats(int dmg, int attack_speed, bool is_auto, int pierces)

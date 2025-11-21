@@ -19,7 +19,7 @@ projectiles - YES
 upgrades that fall from sky - YES
 multiple enemy ai types - YES
 scaling enemies overtime/actual game loop - YES
-main menu - MOSTLY
+main menu - YES
 sound - NO
 
 minor features complete :

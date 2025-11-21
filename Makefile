@@ -17,7 +17,7 @@ rungame:
 	$(TARGET)
 
 $(TARGET): $(SRC) $(SHADER_FILE_OUTPUT)
-	$(CC) $(SRC) -o $(TARGET) $(LIBS) -static -lwinpthread
+	$(CC) $(SRC) -o $(TARGET) $(LIBS) -static -lwinpthread -mwindows
 
 $(SHADER_FILE_OUTPUT): $(SHADER_FILE_INPUT)
 	shaders/sokol-shdc --input $(SHADER_FILE_INPUT) --output $(SHADER_FILE_OUTPUT) --slang glsl430:hlsl5:metal_macos

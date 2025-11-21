@@ -461,7 +461,7 @@ void animator_init(animator *amtr)
 
 void animator_update(animator *amtr)
 {
-    amtr->time_til_next_frame -= global_delta_time * loaded_scene->scene_game_speed;
+    amtr->time_til_next_frame -= amtr->not_affected_by_game_speed ? global_delta_time : global_delta_time * loaded_scene->scene_game_speed;
 
     if(amtr->time_til_next_frame <= 0) {
         if(!amtr->is_override_done)

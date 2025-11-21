@@ -81,7 +81,7 @@ void gameloop_init()
     init_supply_crate();
     destroy_crate();
 
-    init_main_menu();
+    init_menus();
 
     loaded_scene = &loaded_scenes[1];
 }
@@ -89,6 +89,15 @@ void gameloop_init()
 void load_scene(int scn)
 {
     loaded_scene = &loaded_scenes[scn];
+}
+
+void reset_game_state()
+{
+    reset_player(); 
+    reset_zombie_progress();
+    init_supply_crate();
+    destroy_crate();
+    do_scene_garbage_collection(loaded_scene);
 }
 
 void run_gameloop()
@@ -144,13 +153,7 @@ void run_gameloop()
 
         // reset button
 
-        if(global_input.keys_released[SAPP_KEYCODE_R]) {
-            reset_player(); 
-            reset_zombie_progress();
-            init_supply_crate();
-            destroy_crate();
-            do_scene_garbage_collection(loaded_scene);
-        }
+        if(global_input.keys_released[SAPP_KEYCODE_R]) reset_game_state();
 
     break;
     }
