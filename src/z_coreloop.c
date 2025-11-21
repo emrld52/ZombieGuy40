@@ -93,16 +93,38 @@ void gameloop_init()
         .ui = true
     };
 
-    loaded_scene = &loaded_scenes[0];
+    loaded_scene = &loaded_scenes[1];
 }
+
+float pos;
+float tme = 0;
 
 void run_gameloop()
 {
     switch(loaded_scene->type)
     {
-    // scene is a menu, no menu yet so this is whatever
+    // loaded scene is a menu
     case SCENE_TYPE_MENU:
+        tme += global_delta_time * loaded_scene->scene_game_speed;
+        pos = sin(tme * 2) * 10;
 
+        draw_call((sprite) {
+            .sprite_coord[0] = 21,
+            .sprite_coord[1] = 1,
+            .resolution[0] = 640,
+            .resolution[1] = 280,
+            .pos[0] = 32 * 3.1f,
+            .pos[1] = 55 + pos
+        });
+
+        char tx[] = "play game/n/nquit game";
+
+        render_text(tx, 64, (vec2){ (640 / 2) - 64, 350});
+
+        if(global_input.mouse_y >= 240 && global_input.mouse_l_up)
+        {
+            loaded_scene = &loaded_scenes[0];
+        }
     break;
 
     // scene is a level
