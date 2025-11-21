@@ -123,6 +123,13 @@ void run_gameloop()
             render_text(tx, 10, (vec2){ (VIRTUAL_WIDTH / 2) - (how_wide_is_text(10) / 2), 350});
         }
         else if(global_input.mouse_l_up) loaded_scene = &loaded_scenes[0];
+
+        char tx2[10] = "quit game";
+
+        if(!is_point_within_text((vec2){ (VIRTUAL_WIDTH / 2) - (how_wide_is_text(10) / 2), 350 + 24 }, 10, (vec2){global_input.mouse_x, global_input.mouse_y})) {
+            render_text(tx2, 10, (vec2){ (VIRTUAL_WIDTH / 2) - (how_wide_is_text(10) / 2), 350 + 24});
+        }
+        else if(global_input.mouse_l_up) sapp_quit();
     break;
 
     // scene is a level
