@@ -1,3 +1,4 @@
+#include "s_menu.h"
 #include "r_renderfuncs.h"
 #include "s_animation.h"
 #include "g_state.h"
@@ -6,20 +7,44 @@
 
 #include "../deps/sokol_app.h"
 
-animator slip1;
-animator slip2;
-sprite slip_sprite1;
-sprite slip_sprite2;
+#include <string.h>
+
+button main_menu_btns[2];
 
 float pos;
 float tme = 0;
 
-bool already_hovered1 = false;
-bool already_hovered2 = false;
+bool is_button_clicked(button btn, vec2 pos)
+{
+    draw_call(btn.button_strip);
+
+    animator_update(&btn.button_animation);
+
+    animator_get_frame(&btn.button_animation, &btn.button_strip);
+
+    render_text(btn.txt, 10, pos);
+
+    if(!is_point_within_text(pos, 10, (vec2){global_input.mouse_x, global_input.mouse_y})) {
+        btn.was_hovered = false;
+        play_animation(&btn.button_animation, &ANIM_STRIP);
+    }
+    else {
+        play_animation(&btn.button_animation, &ANIM_STRIP_HIGHLIGHTED);
+        if(!btn.was_hovered) 
+        {
+            play_override_animation(&btn.button_animation, ANIM_STRIP_FLASH);
+            camera_shake(1.0f);
+        }
+        btn.was_hovered = true;
+        if(global_input.mouse_l_up) return true;
+    }
+
+    return false;
+}
 
 void init_main_menu()
 {
-    slip_sprite1 = (sprite) {
+    main_menu_btns[0].button_strip = (sprite) {
         .sprite_coord[0] = 10,
         .sprite_coord[1] = 1,
         .resolution[0] = 128 + 32,
@@ -28,7 +53,7 @@ void init_main_menu()
         .pos[1] = 350 - 8
     };
 
-    slip_sprite2 = (sprite) {
+    main_menu_btns[1].button_strip = (sprite) {
         .sprite_coord[0] = 10,
         .sprite_coord[1] = 1,
         .resolution[0] = 128 + 32,
@@ -37,17 +62,22 @@ void init_main_menu()
         .pos[1] = 350 - 8 + 24
     };
 
-    animator_init(&slip1);
-    animator_init(&slip2);
+    animator_init(&main_menu_btns[0].button_animation);
+    animator_init(&main_menu_btns[1].button_animation);
 
-    play_animation(&slip1, &ANIM_STRIP);
-    play_animation(&slip2, &ANIM_STRIP);
+    play_animation(&main_menu_btns[0].button_animation, &ANIM_STRIP);
+    play_animation(&main_menu_btns[1].button_animation, &ANIM_STRIP);
+
+    strcpy(main_menu_btns[0].txt, "play game");
+    strcpy(main_menu_btns[1].txt, "quit game");
 }
 
 void draw_main_menu()
 {
     tme += global_delta_time * loaded_scene->scene_game_speed;
     pos = sin(tme * 2) * 10;
+
+    // logo
 
     draw_call((sprite) {
         .sprite_coord[0] = 21,
@@ -58,54 +88,8 @@ void draw_main_menu()
         .pos[1] = 55 + pos
     });
 
-    //play_override_animation(&slip1, ANIM_STRIP_FLASH);
+    printf("%d", main_menu_btns[0].was_hovered);
 
-    draw_call(slip_sprite1);
-    draw_call(slip_sprite2);
-
-    render_text("play game", 10, (vec2){ (VIRTUAL_WIDTH / 2) - (how_wide_is_text(10) / 2), 350});
-
-    play_animation(&slip1, &ANIM_STRIP);
-    play_animation(&slip2, &ANIM_STRIP);
-
-    if(!is_point_within_text((vec2){ (VIRTUAL_WIDTH / 2) - (how_wide_is_text(10) / 2), 350 }, 10, (vec2){global_input.mouse_x, global_input.mouse_y})) {
-        already_hovered1 = false;
-    }
-    else
-    {
-        play_animation(&slip1, &ANIM_STRIP_HIGHLIGHTED);
-        if(!already_hovered1) 
-        {
-            play_override_animation(&slip1, ANIM_STRIP_FLASH);
-            camera_shake(1.0f);
-        }
-        already_hovered1 = true;
-        if(global_input.mouse_l_up) 
-        {
-            load_scene(0);
-            camera_shake(30.0f);
-        }
-    }
-
-    if(!is_point_within_text((vec2){ (VIRTUAL_WIDTH / 2) - (how_wide_is_text(10) / 2), 350 + 24 }, 10, (vec2){global_input.mouse_x, global_input.mouse_y})) {
-        already_hovered2 = false;
-    }
-    else {
-        play_animation(&slip2, &ANIM_STRIP_HIGHLIGHTED);
-        if(!already_hovered2) 
-        {
-            play_override_animation(&slip2, ANIM_STRIP_FLASH);
-            camera_shake(1.0f);
-        }
-        already_hovered2 = true;
-        if(global_input.mouse_l_up) sapp_quit();
-    }
-
-    animator_update(&slip1);
-    animator_update(&slip2);
-
-    animator_get_frame(&slip1, &slip_sprite1);
-    animator_get_frame(&slip2, &slip_sprite2);
-
-    render_text("quit game", 10, (vec2){ (VIRTUAL_WIDTH / 2) - (how_wide_is_text(10) / 2), 350 + 24});
+    if(is_button_clicked(main_menu_btns[0], (vec2){ (VIRTUAL_WIDTH / 2) - (how_wide_is_text(10) / 2), 350 })) load_scene(0);
+    else if(is_button_clicked(main_menu_btns[1], (vec2){ (VIRTUAL_WIDTH / 2) - (how_wide_is_text(10) / 2), 350 + 24})) sapp_quit();
 }
