@@ -117,14 +117,12 @@ void run_gameloop()
             .pos[1] = 55 + pos
         });
 
-        char tx[] = "play game/n/nquit game";
+        char tx[10] = "play game";
 
-        render_text(tx, 64, (vec2){ (640 / 2) - 64, 350});
-
-        if(global_input.mouse_y >= 240 && global_input.mouse_l_up)
-        {
-            loaded_scene = &loaded_scenes[0];
+        if(!is_point_within_text((vec2){ (VIRTUAL_WIDTH / 2) - (how_wide_is_text(10) / 2), 350 }, 10, (vec2){global_input.mouse_x, global_input.mouse_y})) {
+            render_text(tx, 10, (vec2){ (VIRTUAL_WIDTH / 2) - (how_wide_is_text(10) / 2), 350});
         }
+        else if(global_input.mouse_l_up) loaded_scene = &loaded_scenes[0];
     break;
 
     // scene is a level
@@ -166,7 +164,9 @@ void run_gameloop()
 
         render_tilemap(loaded_scene->tilemap);
 
-        // debug
+        draw_hp_ui(get_player());
+
+        // reset button
 
         if(global_input.keys_released[SAPP_KEYCODE_R]) {
             reset_player(); 
@@ -176,12 +176,10 @@ void run_gameloop()
             destroy_crate();
         }
 
-        free_released_keys();
-
-        draw_hp_ui(get_player());
-
     break;
     }
+
+    free_released_keys();
 
     draw_cursor();
 }

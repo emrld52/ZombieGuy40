@@ -48,6 +48,16 @@ void init_text_renderer()
     }
 }
 
+int how_wide_is_text(int len)
+{
+    return (len * LETTER_DISTANCE) + 16;
+}
+
+bool is_point_within_text(vec2 pos, int len, vec2 point)
+{
+    return point[0] <= pos[0] + how_wide_is_text(len) && point[0] >= pos[0] && point[1] <= pos[1] + 16 && point[1] >= pos[1];
+}
+
 // render by iterating through all text, finding the matching letter and applying the position
 
 void render_text(char txt[], int len, vec2 pos)
@@ -58,7 +68,7 @@ void render_text(char txt[], int len, vec2 pos)
 
     for(int i = 0; i < len; i++)
     {
-        // not cleanest way to do this but it works
+        // not cleanest way to do this but it works. sets position of text
 
         int pos_x; 
         if(offset_text == 0) pos_x = pos[0] + ((i - last_line_break_pos) * LETTER_DISTANCE);
