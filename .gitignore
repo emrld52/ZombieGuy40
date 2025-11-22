@@ -24,7 +24,6 @@ assets/img/bob_atlas.png
 src/r_renderfuncs.c
 bin/majBuild6/zom.exe
 bin/majBuild6/readme.txt
-src/r_renderfuncs.c
 bin/majBuild7/readme.txt
 bin/majBuild7/zom.exe
 bin/majBuild7.zip
@@ -39,15 +38,11 @@ assets/img/texture_atlas.png
 bin/major_build9.8.zip
 bin/major_build9.6.zip
 bin/major_builds/major_build9.zip
-assets/img/texture_atlas.png
-bin/zom.exe
 bin/prototype1.3.zip
 bin/prototype1.2.zip
 bin/prot.zip
-assets/img/texture_atlas.png
 bin/prototype1.4.5.zip
 .gitignore
-bin/zom.exe
 bin/major_builds/prot.zip
 bin/major_builds/prototype1.1.zip
 bin/major_builds/prototype1.2.zip
