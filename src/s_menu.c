@@ -5,6 +5,8 @@
 #include "z_coreloop.h"
 #include "s_text_renderer.h"
 
+#include "s_sound.h"
+
 #include "../deps/sokol_app.h"
 
 #include <string.h>
@@ -40,6 +42,7 @@ bool is_button_clicked(button *btn, vec2 pos)
         {
             play_override_animation(&btn->button_animation, ANIM_STRIP_FLASH);
             camera_shake(1.0f);
+            play_sound("select_blip.wav");
         }
         btn->was_hovered = true;
         if(global_input.mouse_l_up) return true;

@@ -14,6 +14,7 @@
 #include "s_input_handling.h"
 #include "z_levels.h"
 #include "s_menu.h"
+#include "s_sound.h"
 
 // test
 
@@ -84,6 +85,8 @@ void gameloop_init()
     init_menus();
 
     loaded_scene = &loaded_scenes[1];
+
+    init_audio();
 }
 
 void load_scene(int scn)
@@ -185,6 +188,7 @@ void program_loop()
 
 void program_cleanup()
 {
+    uninit_sound();
     sapp_show_mouse(true);
     sg_shutdown();
 }

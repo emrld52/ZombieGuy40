@@ -1,3 +1,5 @@
+MAKEFLAGS += -j8
+
 CC = gcc
 LIBS += -lkernel32 -luser32 -lshell32 -lgdi32 -ld3d11 -ldxgi
 
