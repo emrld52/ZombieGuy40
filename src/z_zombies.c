@@ -41,6 +41,9 @@ int king_hp = KING_BASE_HP;
 
 zombie zombie_pool[MAX_ZOMBIES];
 
+int current_max_zombies = STARTING_MAX_ZOMBIES;
+int current_zombies = 0;
+
 void kill_zombie(zombie *zomb)
 {
     // clear collision references with dead body
@@ -76,6 +79,8 @@ void kill_zombie(zombie *zomb)
     zomb->zmb->id = 400;
 
     zomb->zmb = NULL;
+
+    current_zombies -= 1;
 
     zombies_killed_total += 1;
     zombies_killed += 1;
@@ -127,74 +132,80 @@ void reset_zombie_progress() {
             kill_zombie(&zombie_pool[i]);
         }
     }
+
+    current_zombies = 0;
+    current_max_zombies = STARTING_MAX_ZOMBIES;
 }
 
 // spawn zombie function, make new zombie out of object pool with passable info
 
 void spawn_zombie(int tier, int hit_points, float speed, float jump_height)
 {
-    //printf("bazinga!");
-    // linear search through pool to find zombie to spawn, avoids dynamic memory allocation which is probably out of scope for a project this size
+    if(current_zombies < current_max_zombies) {
+        // linear search through pool to find zombie to spawn, avoids dynamic memory allocation which is probably out of scope for a project this size
 
-    for(int i = 0; i < MAX_ZOMBIES; i++)
-    {
-        // spawn first inactive zombie in pool, init all variables and such
-
-        if(!zombie_pool[i].enabled)
+        for(int i = 0; i < MAX_ZOMBIES; i++)
         {
-            zombie_pool[i].zmb = make_entity_in_scene(loaded_scene);
-            play_animation(&zombie_pool[i].zmb->animator_component, &ANIM_MINION_IDLE);
+            // spawn first inactive zombie in pool, init all variables and such
 
-            // spawn in sky at any horizontal position in game-space. will fall down
-
-            zombie_pool[i].zmb->position[0] = rand() % VIRTUAL_WIDTH;
-            zombie_pool[i].zmb->position[1] = -64;
-
-            // spawn at half gravity so when falling down the player has a chance to react
-
-            zombie_pool[i].zmb->gravity = ZOMBIE_GRAV / 2;
-
-            glm_vec3_copy((vec2){ 0.0f, 0.0f }, zombie_pool[i].zmb->velocity);
-            glm_vec2_copy((vec2){ 32, 32 }, zombie_pool[i].zmb->sprite_data.resolution);
-            glm_vec2_copy((vec2){ 1, 1 }, zombie_pool[i].zmb->sprite_data.sprite_coord);
-            glm_vec2_copy((vec2){16, zombie_pool[i].zmb->sprite_data.resolution[1]}, zombie_pool[i].zmb->hit_box);
-            glm_vec2_copy((vec2){8, 0}, zombie_pool[i].zmb->hit_box_offset);
-
-            zombie_pool[i].zmb->velocity[0] = get_player()->position[0] >= zombie_pool[i].zmb->position[0] ? speed : -speed;
-
-            zombie_pool[i].tier = tier;
-            zombie_pool[i].speed = speed;
-            zombie_pool[i].jump_height = jump_height;
-
-            zombie_pool[i].zmb->team = 0;
-
-            zombie_pool[i].zmb->health_points = hit_points;
-
-            zombie_pool[i].time_til_next_jump_impulse = 0;
-
-            zombie_pool[i].enabled = true;
-
-            // init zombies logic time a little off just so that all zombies dont behave in unison like clockwork
-
-            zombie_pool[i].logic_frame_time = rand() % (1000 - 0 + 1) + 1;
-
-            // convert from ms to seconds
-            zombie_pool[i].logic_frame_time /= 1000;
-
-            switch(tier)
+            if(!zombie_pool[i].enabled)
             {
-                case 1:
-                    zombie_pool[i].zmb->damage = 1;
-                    break;
-                case 2:
-                    zombie_pool[i].zmb->damage = 0;
-                    break;
-                case 3:
-                    zombie_pool[i].zmb->damage = 2;
-                    break;
-            }
+                zombie_pool[i].zmb = make_entity_in_scene(loaded_scene);
+                play_animation(&zombie_pool[i].zmb->animator_component, &ANIM_MINION_IDLE);
 
-            return;
+                current_zombies += 1;
+
+                // spawn in sky at any horizontal position in game-space. will fall down
+
+                zombie_pool[i].zmb->position[0] = rand() % VIRTUAL_WIDTH;
+                zombie_pool[i].zmb->position[1] = -64;
+
+                // spawn at half gravity so when falling down the player has a chance to react
+
+                zombie_pool[i].zmb->gravity = ZOMBIE_GRAV / 2;
+
+                glm_vec3_copy((vec2){ 0.0f, 0.0f }, zombie_pool[i].zmb->velocity);
+                glm_vec2_copy((vec2){ 32, 32 }, zombie_pool[i].zmb->sprite_data.resolution);
+                glm_vec2_copy((vec2){ 1, 1 }, zombie_pool[i].zmb->sprite_data.sprite_coord);
+                glm_vec2_copy((vec2){16, zombie_pool[i].zmb->sprite_data.resolution[1]}, zombie_pool[i].zmb->hit_box);
+                glm_vec2_copy((vec2){8, 0}, zombie_pool[i].zmb->hit_box_offset);
+
+                zombie_pool[i].zmb->velocity[0] = get_player()->position[0] >= zombie_pool[i].zmb->position[0] ? speed : -speed;
+
+                zombie_pool[i].tier = tier;
+                zombie_pool[i].speed = speed;
+                zombie_pool[i].jump_height = jump_height;
+
+                zombie_pool[i].zmb->team = 0;
+
+                zombie_pool[i].zmb->health_points = hit_points;
+
+                zombie_pool[i].time_til_next_jump_impulse = 0;
+
+                zombie_pool[i].enabled = true;
+
+                // init zombies logic time a little off just so that all zombies dont behave in unison like clockwork
+
+                zombie_pool[i].logic_frame_time = rand() % (1000 - 0 + 1) + 1;
+
+                // convert from ms to seconds
+                zombie_pool[i].logic_frame_time /= 1000;
+
+                switch(tier)
+                {
+                    case 1:
+                        zombie_pool[i].zmb->damage = 1;
+                        break;
+                    case 2:
+                        zombie_pool[i].zmb->damage = 0;
+                        break;
+                    case 3:
+                        zombie_pool[i].zmb->damage = 2;
+                        break;
+                }
+
+                return;
+            }
         }
     }
 }
@@ -410,6 +421,8 @@ void zombie_spawner_and_tracker()
 {
     time_til_next_zombie += global_delta_time * loaded_scene->scene_game_speed;
     power_timer += global_delta_time * loaded_scene->scene_game_speed;
+
+    current_max_zombies = STARTING_MAX_ZOMBIES + (ADD_ZOMBIE_LIMIT_PER_MINUTE * (floor(power_timer / 60)));
 
     // increase hp based on how much t ime has elapsed
 

@@ -135,19 +135,19 @@ void draw_hp_ui()
     }
 }
 
-void draw_player_stats(int dmg, int attack_speed, bool is_auto, int pierces)
+void draw_player_stats(int dmg, int attack_speed, bool is_auto, int pierces, int bounces, int total_killed)
 {
     int len = 0;
-    char tx[64];
+    char tx[96];
 
     if(!is_auto) {
-        snprintf(tx, sizeof(tx), "dmg %d/natt spd %d/n/npierces %d/n/nsingle fire", dmg, attack_speed, pierces);
-        len = strlen("dmg 1/natt spd 1/n/npierces 1/n/nsingle fire");
+        snprintf(tx, sizeof(tx), "dmg %d/natt spd %d/n/npierces %d/nbounces %d/ntot killed %d/n/nsingle fire", dmg, attack_speed, pierces, bounces, total_killed);
     }
     else {
-        snprintf(tx, sizeof(tx), "dmg %d/natt spd %d/n/npierces %d/n/nauto", dmg, attack_speed, pierces);
-        len = strlen("dmg 1/natt spd 1/n/npierces 1/n/nsingle fire");
+        snprintf(tx, sizeof(tx), "dmg %d/natt spd %d/n/npierces %d/nbounces %d/ntot killed %d/n/nauto", dmg, attack_speed, pierces, bounces, total_killed);
     }
+
+    len = strlen(tx);
 
     render_text(tx, len, (vec2){8, 64});
 }

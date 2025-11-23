@@ -8,7 +8,9 @@
 #include "r_renderfuncs.h"
 #include "s_entities.h"
 
-#define MAX_ZOMBIES 12
+#define STARTING_MAX_ZOMBIES 10
+#define MAX_ZOMBIES 48
+#define ADD_ZOMBIE_LIMIT_PER_MINUTE 2
 #define ZOMBIE_LOGIC_TICK_RATE 5
 
 // THE THREE ZOMBIE TYPES ARE MINION, RANGER AND KING

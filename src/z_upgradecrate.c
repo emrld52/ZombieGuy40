@@ -51,8 +51,7 @@ void init_supply_crate()
     time_til_despawn = CRATE_LIFETIME;
 
     has_played_flash = false;
-
-    zombies_killed_total = 0;
+    
     zombies_killed = 0;
 }
 

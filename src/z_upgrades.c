@@ -23,7 +23,7 @@ void init_upgrades()
     upgrades[UPGRD_ASSAULT_RIFLE] = (upgrade)
     {
         .name = "assault rifle",
-        .desc = "add 20p fire rate/nauto fire/nreduce bullet drop",
+        .desc = "add 15p fire rate/nauto fire/nreduce bullet drop/nremove 1 bounce",
         .does_stack = true,
         .sprite_coord[0] = 9,
         .sprite_coord[1] = 9,
@@ -41,7 +41,7 @@ void init_upgrades()
     upgrades[UPGRD_PLASMA_RIFLE] = (upgrade)
     {
         .name = "plasma rifle",
-        .desc = "add 30p fire rate/nno bullet drop",
+        .desc = "add 20p fire rate/nno bullet drop/nremove 1 bounce",
         .does_stack = true,
         .sprite_coord[0] = 13,
         .sprite_coord[1] = 9,
@@ -104,7 +104,7 @@ void init_upgrades()
     upgrades[UPGRD_DODGE] = (upgrade)
     {
         .name = "dodge",
-        .desc = "add 50p/ninvincibility frames",
+        .desc = "add 25p/ninvincibility frames",
         .does_stack = true,
         .sprite_coord[0] = 9,
         .sprite_coord[1] = 15,
@@ -141,9 +141,10 @@ void apply_upgrade_to_player(player *ply, int UPGRADE_ID)
     switch(UPGRADE_ID)
     {
         case UPGRD_ASSAULT_RIFLE:
-            ply->wpn.fire_rate /= 1.2f;
+            ply->wpn.fire_rate /= 1.15f;
             ply->wpn.is_auto = true;
             ply->player_bullet_type = &REGULAR_BULLETS;
+            ply->bullet_overrides.bounces -= 1;
             break;
         case UPGRD_SNIPER_RIFLE:
             ply->bullet_overrides.damage += 1;
@@ -152,8 +153,9 @@ void apply_upgrade_to_player(player *ply, int UPGRADE_ID)
             ply->player_bullet_type = &DOUBLE_PIERCING_BULLETS;
             break;
         case UPGRD_PLASMA_RIFLE:
-            ply->wpn.fire_rate /= 1.3f;
+            ply->wpn.fire_rate /= 1.2f;
             ply->player_bullet_type = &PIERCING_BULLETS;
+            ply->bullet_overrides.bounces -= 1;
             break;
         case UPGRD_THROWING_KNIFE:
             ply->bullet_overrides.bounces += 1;
@@ -183,7 +185,7 @@ void apply_upgrade_to_player(player *ply, int UPGRADE_ID)
             ply->plyr->health_points += 1;
             break;
         case UPGRD_DODGE:
-            ply->invinc_time *= 1.5f;
+            ply->invinc_time *= 1.25f;
             break;
         case UPGRD_KAMIKAZE:
             ply->plyr->damage += 1;
@@ -195,7 +197,7 @@ void apply_upgrade_to_player(player *ply, int UPGRADE_ID)
 
     // dont deal 0 damage and dont allow 0 max hp
 
-    if(ply->bullet_overrides.damage < 0) ply->bullet_overrides.damage = 1;
+    if(ply->bullet_overrides.damage < 0) ply->bullet_overrides.damage = 0;
 
     if(ply->plyr->max_health_points <= 0)
     {

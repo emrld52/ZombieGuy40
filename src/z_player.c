@@ -116,7 +116,11 @@ void damage_player(entity* attacker) {
     damage_ui_hp(ply.plyr);
     play_sound("hit.wav");
 
-    if(ply.plyr->health_points <= 0) play_sound("player_die.wav");
+    if(ply.plyr->health_points <= 0) 
+    {
+        play_sound("player_die.wav");
+        ply.plyr->damage = 0;
+    }
 }
 
 void player_loop() {
@@ -183,7 +187,8 @@ void player_loop() {
             if(global_input.mouse_x >= ply.plyr->position[0] + (ply.plyr->hit_box[0] / 2) + ply.plyr->hit_box_offset[0]) ply.plyr->sprite_data.flip_x = false;
             else ply.plyr->sprite_data.flip_x = true;
 
-            draw_player_stats(ply.player_bullet_type->damage + ply.bullet_overrides.damage, (int)(1.0f / ply.wpn.fire_rate), ply.wpn.is_auto, ply.player_bullet_type->pierce_count - 1);
+            draw_player_stats(ply.player_bullet_type->damage + ply.bullet_overrides.damage, (int)(1.0f / ply.wpn.fire_rate), 
+                ply.wpn.is_auto, ply.bullet_overrides.pierces - 1, ply.bullet_overrides.bounces, zombies_killed_total);
         }
         // if dead
         else
