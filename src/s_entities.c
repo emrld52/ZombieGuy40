@@ -249,17 +249,3 @@ void entity_override_velocity(entity* ent, vec2 vel)
 {
     glm_vec2_copy(vel, ent->velocity);
 }
-
-
-//WIP thisll be weird
-/*void damage_entity(entity* ent, entity* attacker)
-{
-    play_override_animation(&ent->animator_component, ANIM_PLAYER_DAMAGE);
-    //ply->entity_timer = PLAYER_INVINCIBILITY_TIME_AFTER_HIT;
-    ent->velocity[0] = attacker->position[0] >= ent->position[0] ? -100.0f : 100.0f;
-    ent->velocity[1] = -200.0f;
-    ent->collision_enabled = false;
-    //ply->health_points -= ply->colliding_entities[i]->damage;
-    camera_shake(15.0f);
-    damage_ui_hp(ply);
-}*/

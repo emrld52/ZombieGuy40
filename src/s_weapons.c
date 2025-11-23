@@ -73,7 +73,8 @@ void init_weapon_system()
         .muzzle_flash_animation = ANIM_BULLET_THROWING_KNIFE,
         .bullet_zoom_animation = ANIM_BULLET_THROWING_KNIFE,
         .pierce_count = 1,
-        .sfx = "knife_throw.wav"
+        .sfx = "knife_throw.wav",
+        .is_bouncy = true
     };
 }
 
@@ -120,7 +121,8 @@ void bullets_update() {
                 }
                 
                 if(bullet_object_pool[i].entity->colliding_on_y) {
-                    bullet_object_pool[i].entity->velocity[1] = bullet_object_pool[i].entity->velocity[1] * -1;
+                    if(!bullet_object_pool[i].type->is_bouncy) bullet_object_pool[i].entity->velocity[1] = bullet_object_pool[i].entity->velocity[1] * -1;
+                    else bullet_object_pool[i].entity->velocity[1] = -BOUNCE_UP_STRENGTH;
                 }
 
                 if(bullet_object_pool[i].bounces_left >= 0) play_sound("projectile_bounce.wav");

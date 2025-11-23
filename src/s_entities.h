@@ -59,4 +59,3 @@ typedef struct entity_t {
 
 void entity_run_physics(entity* ent);
 void entity_override_velocity(entity* ent, vec2 vel);
-void damage_entity(entity* ent);

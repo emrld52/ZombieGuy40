@@ -124,7 +124,7 @@ void player_loop() {
         if(ply.plyr->health_points >= 1) {
             // basic movement, can only move if not stunned (tracked in entity timer)
 
-            if(ply.plyr->entity_timer <= PLAYER_STUN_THRESHOLD) {
+            if(ply.plyr->entity_timer <= ply.invinc_time - PLAYER_STUN_THRESHOLD) {
 
                 if(global_input.keys_pressed[SAPP_KEYCODE_D]) ply.plyr->velocity[0] = PLAYER_MAX_SPEED;
                 else if(global_input.keys_pressed[SAPP_KEYCODE_A]) ply.plyr->velocity[0] = -PLAYER_MAX_SPEED;

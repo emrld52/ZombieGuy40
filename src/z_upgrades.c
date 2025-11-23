@@ -193,6 +193,16 @@ void apply_upgrade_to_player(player *ply, int UPGRADE_ID)
             break;*/
     }
 
+    // dont deal 0 damage and dont allow 0 max hp
+
+    if(ply->bullet_overrides.damage < 0) ply->bullet_overrides.damage = 1;
+
+    if(ply->plyr->max_health_points <= 0)
+    {
+        ply->plyr->health_points = 1;
+        ply->plyr->max_health_points = 1;
+    }
+
     init_hp_ui(ply->plyr);
     heal_ui_hp(ply->plyr);
 }

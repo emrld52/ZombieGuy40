@@ -29,6 +29,8 @@ typedef struct bullet_type_t {
     int bounce_count;
 
     char sfx[32];
+
+    bool is_bouncy;
 } bullet_type;
 
 typedef struct bullet_t {
