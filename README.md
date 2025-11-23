@@ -2,23 +2,23 @@
 
 # ZombieGuy40 🕹
 
-ZombieGuy40 is a game made in 2 weeks for a college game jam in C with only a handful of low-level single header libraries (Sokol + CGLM + stb_image).
+ZombieGuy40 is a game made in 2 weeks for a college game jam in C with only a handful of low-level single header libraries (Sokol + CGLM + stb_image + miniaudio).
 
 # Features 🎉
 
-✏ - Working custom 2D Sprite Renderer (Texture Atlas usage)!
+✏ - Working custom 2D Sprite Renderer (Texture Atlas usage)
 
-🏃‍♂️ - Sprite-animation system!
+🏃‍♂️ - Sprite-animation system
 
-📦 - Axis-Aligned Bounding-Box based collision with physics!
+📦 - Axis-Aligned Bounding-Box based collision with physics
 
-😱 - Performant zombie-hordes with multiple AI types!
+👿 - Performant zombie-hordes with multiple AI types
 
-🎵 - Sound system with a custom soundtrack!
+🎵 - Sound system with a custom soundtrack
 
-🖥 - Resizable window for differing aspect ratios and resolutions!
+🖥 - UI systems for text rendering and buttons
 
-And last but not least a fully playable roguelike with build variety, a story and more! 🎮
+And last but not least a fully playable roguelike with build variety and more! 🎮
 
 # Development 🔨
 
