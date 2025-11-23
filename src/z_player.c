@@ -69,10 +69,13 @@ void reset_player()
     ply.fire_both_directions = false;
 
     ply.invinc_time = PLAYER_INVINCIBILITY_TIME_AFTER_HIT;
+    ply.plyr->entity_timer = 0;
 
     player_upgrade_rerolls = DEAFULT_REROLLS;
 
-    memset(&ply.bullet_overrides, 0, sizeof(bullet_type_overrides));
+    ply.bullet_overrides.bounces = 0;
+    ply.bullet_overrides.damage = 0;
+    ply.bullet_overrides.pierces = 0;
 }
 
 // init player position and velocity
@@ -188,7 +191,7 @@ void player_loop() {
             else ply.plyr->sprite_data.flip_x = true;
 
             draw_player_stats(ply.player_bullet_type->damage + ply.bullet_overrides.damage, (int)(1.0f / ply.wpn.fire_rate), 
-                ply.wpn.is_auto, ply.bullet_overrides.pierces - 1, ply.bullet_overrides.bounces, zombies_killed_total);
+                ply.wpn.is_auto, ply.bullet_overrides.pierces, ply.bullet_overrides.bounces, zombies_killed_total);
         }
         // if dead
         else

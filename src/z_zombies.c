@@ -124,14 +124,14 @@ void reset_zombie_progress() {
 
     power_timer = 0.0f;
 
-    zombies_killed_total = 0;
-    zombies_killed = 0;
-
     for(int i = 0; i < MAX_ZOMBIES; i++) {
         if(zombie_pool[i].enabled) {
             kill_zombie(&zombie_pool[i]);
         }
     }
+
+    zombies_killed_total = 0;
+    zombies_killed = 0;
 
     current_zombies = 0;
     current_max_zombies = STARTING_MAX_ZOMBIES;
@@ -422,7 +422,10 @@ void zombie_spawner_and_tracker()
     time_til_next_zombie += global_delta_time * loaded_scene->scene_game_speed;
     power_timer += global_delta_time * loaded_scene->scene_game_speed;
 
-    current_max_zombies = STARTING_MAX_ZOMBIES + (ADD_ZOMBIE_LIMIT_PER_MINUTE * (floor(power_timer / 60)));
+    // avoid crashes
+
+    if(STARTING_MAX_ZOMBIES + (ADD_ZOMBIE_LIMIT_PER_MINUTE * (floor(power_timer / 60))) < MAX_ZOMBIES) 
+        current_max_zombies = STARTING_MAX_ZOMBIES + (ADD_ZOMBIE_LIMIT_PER_MINUTE * (floor(power_timer / 60)));
 
     // increase hp based on how much t ime has elapsed
 

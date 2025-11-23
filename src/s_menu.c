@@ -19,10 +19,6 @@ button main_menu_btns[2];
 
 button pause_menu_btns[2];
 
-// UPGRADE SCREEN
-
-button upgrade_btns[3];
-
 float pos;
 float tme = 0;
 
@@ -120,49 +116,6 @@ void init_menus()
 
     strcpy(pause_menu_btns[0].txt, "resume");
     strcpy(pause_menu_btns[1].txt, "main menu");
-
-    upgrade_btns[0].button_strip = (sprite) {
-        .sprite_coord[0] = 10,
-        .sprite_coord[1] = 1,
-        .resolution[0] = 128 + 32,
-        .resolution[1] = 32,
-        .pos[0] = (VIRTUAL_WIDTH / 2) - ((128 + 32) / 2) - 16,
-        .pos[1] = 350 - 8
-    };
-
-    upgrade_btns[1].button_strip = (sprite) {
-        .sprite_coord[0] = 10,
-        .sprite_coord[1] = 1,
-        .resolution[0] = 128 + 32,
-        .resolution[1] = 32,
-        .pos[0] = (VIRTUAL_WIDTH / 2) - ((128 + 32) / 2) - 16,
-        .pos[1] = 350 - 8 + 24
-    };
-
-    upgrade_btns[2].button_strip = (sprite) {
-        .sprite_coord[0] = 10,
-        .sprite_coord[1] = 1,
-        .resolution[0] = 128 + 32,
-        .resolution[1] = 32,
-        .pos[0] = (VIRTUAL_WIDTH / 2) - ((128 + 32) / 2) - 16,
-        .pos[1] = 350 - 8 + 48
-    };
-
-    upgrade_btns[0].button_animation.not_affected_by_game_speed = true;
-    upgrade_btns[1].button_animation.not_affected_by_game_speed = true;
-    upgrade_btns[2].button_animation.not_affected_by_game_speed = true;
-
-    animator_init(&upgrade_btns[0].button_animation);
-    animator_init(&upgrade_btns[1].button_animation);
-    animator_init(&upgrade_btns[2].button_animation);
-
-    play_animation(&upgrade_btns[0].button_animation, &ANIM_STRIP);
-    play_animation(&upgrade_btns[1].button_animation, &ANIM_STRIP);
-    play_animation(&upgrade_btns[2].button_animation, &ANIM_STRIP);
-
-    strcpy(upgrade_btns[0].txt, "reroll");
-    strcpy(upgrade_btns[1].txt, "accept");
-    strcpy(upgrade_btns[2].txt, "decline");
 }
 
 void draw_main_menu()

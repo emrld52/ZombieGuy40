@@ -18,8 +18,59 @@ bool is_upgrade_menu_open = false;
 int rerolls = DEAFULT_REROLLS;
 int selected_upgrade;
 
+// UPGRADE SCREEN
+
+button upgrade_btns[3];
+
 void init_upgrades()
 {
+    // init upgrade menu
+
+    upgrade_btns[0].button_strip = (sprite) {
+        .sprite_coord[0] = 10,
+        .sprite_coord[1] = 1,
+        .resolution[0] = 128 + 32,
+        .resolution[1] = 32,
+        .pos[0] = (VIRTUAL_WIDTH / 2) - ((128 + 32) / 2) - 16,
+        .pos[1] = 350 - 8
+    };
+
+    upgrade_btns[1].button_strip = (sprite) {
+        .sprite_coord[0] = 10,
+        .sprite_coord[1] = 1,
+        .resolution[0] = 128 + 32,
+        .resolution[1] = 32,
+        .pos[0] = (VIRTUAL_WIDTH / 2) - ((128 + 32) / 2) - 16,
+        .pos[1] = 350 - 8 + 24
+    };
+
+    upgrade_btns[2].button_strip = (sprite) {
+        .sprite_coord[0] = 10,
+        .sprite_coord[1] = 1,
+        .resolution[0] = 128 + 32,
+        .resolution[1] = 32,
+        .pos[0] = (VIRTUAL_WIDTH / 2) - ((128 + 32) / 2) - 16,
+        .pos[1] = 350 - 8 + 48
+    };
+
+    upgrade_btns[0].button_animation.not_affected_by_game_speed = true;
+    upgrade_btns[1].button_animation.not_affected_by_game_speed = true;
+    upgrade_btns[2].button_animation.not_affected_by_game_speed = true;
+
+    animator_init(&upgrade_btns[0].button_animation);
+    animator_init(&upgrade_btns[1].button_animation);
+    animator_init(&upgrade_btns[2].button_animation);
+
+    play_animation(&upgrade_btns[0].button_animation, &ANIM_STRIP);
+    play_animation(&upgrade_btns[1].button_animation, &ANIM_STRIP);
+    play_animation(&upgrade_btns[2].button_animation, &ANIM_STRIP);
+
+    strcpy(upgrade_btns[0].txt, "reroll");
+    strcpy(upgrade_btns[1].txt, "accept");
+    strcpy(upgrade_btns[2].txt, "decline");
+
+    // init upgrades
+
     upgrades[UPGRD_ASSAULT_RIFLE] = (upgrade)
     {
         .name = "assault rifle",
@@ -190,6 +241,7 @@ void apply_upgrade_to_player(player *ply, int UPGRADE_ID)
         case UPGRD_KAMIKAZE:
             ply->plyr->damage += 1;
             break;
+        // OP
         /*case UPGRD_IN_NEED:
             ply->plyr->damage += 1;
             break;*/
@@ -198,6 +250,7 @@ void apply_upgrade_to_player(player *ply, int UPGRADE_ID)
     // dont deal 0 damage and dont allow 0 max hp
 
     if(ply->bullet_overrides.damage < 0) ply->bullet_overrides.damage = 0;
+    if(ply->bullet_overrides.bounces < 0) ply->bullet_overrides.bounces = 0;
 
     if(ply->plyr->max_health_points <= 0)
     {
@@ -220,6 +273,14 @@ void render_upgrade_menu() {
         .sprite_coord[1] = upgrades[selected_upgrade].sprite_coord[1],
         .ui = true,
     });
+
+    // display how many rerolls left
+
+    char txt[10];
+
+    snprintf(txt, 10, "reroll %d", rerolls);
+
+    strcpy(upgrade_btns[0].txt, txt);
 
     render_text(upgrades[selected_upgrade].desc, MAX_UPGRADE_DESC_LENGTH, (vec2){ (VIRTUAL_WIDTH / 2) - (how_wide_is_text(10) / 2) - (UPGRADE_ICON_RES / 2), 160 + UPGRADE_ICON_RES * 1.5f});
 

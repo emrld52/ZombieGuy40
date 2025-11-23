@@ -16,7 +16,4 @@ typedef struct button_t
     char txt[MAX_BUTTON_TEXT_LEN];
     bool was_hovered;
 } button;
-
-extern button upgrade_btns[3];
-
 bool is_button_clicked(button *btn, vec2 pos);
