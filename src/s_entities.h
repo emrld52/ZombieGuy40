@@ -9,7 +9,7 @@
 #include "r_renderfuncs.h"
 #include "s_animation.h"
 
-#define MAX_COLLIDING_ENTITIES 12
+#define MAX_COLLIDING_ENTITIES 16
 
 typedef struct entity_t {
     vec2 position;

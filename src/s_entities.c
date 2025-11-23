@@ -68,8 +68,8 @@ void entity_run_physics(entity* ent)
 
                     // snapping to prevent slow gliding upon being about to collide
 
-                    if(ent->velocity[0] > 0) ent->position[0] = to_collide[0][0] - (ent->hit_box[0] + ent->hit_box_offset[0]) - 0.01f;
-                    else if(ent->velocity[0] < 0) ent->position[0] = to_collide[1][0] - ent->hit_box_offset[0] + 0.01f;
+                    //if(ent->velocity[0] > 0) ent->position[0] = to_collide[0][0] - (ent->hit_box[0] + ent->hit_box_offset[0]) - 0.01f;
+                    //else if(ent->velocity[0] < 0) ent->position[0] = to_collide[1][0] - ent->hit_box_offset[0] + 0.01f;
                 }
                 else if(ent->position[0] + (ent->hit_box_offset[0] / 2) + (ent->velocity[0] * global_delta_time * loaded_scene->scene_game_speed) <= 0)
                 {
@@ -95,8 +95,8 @@ void entity_run_physics(entity* ent)
 
                     // snapping to prevent slow gliding upon being about to collide
 
-                    if(ent->velocity[1] > 0) ent->position[1] = to_collide[0][1] - (ent->hit_box[1] + ent->hit_box_offset[1]) - 0.01f;
-                    else if(ent->velocity[1] < 0) ent->position[1] = to_collide[1][1] + 0.01f;
+                    //if(ent->velocity[1] > 0) ent->position[1] = to_collide[0][1] - (ent->hit_box[1] + ent->hit_box_offset[1]) - 0.01f;
+                    //else if(ent->velocity[1] < 0) ent->position[1] = to_collide[1][1] + 0.01f;
                 }
             }
         }
