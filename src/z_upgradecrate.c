@@ -3,6 +3,9 @@
 #include "s_scene.h"
 #include "g_state.h"
 #include "z_player.h"
+#include "s_sound.h"
+#include "z_upgrades.h"
+#include "s_playerUI.h"
 
 entity *crate;
 sprite crate_sprite;
@@ -83,11 +86,19 @@ void update_supply_crate()
 
         for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
         {
+            // if colliding entity is player
             if(crate->colliding_entities[i] != NULL && crate->colliding_entities[i]->team != crate->team && 
             !crate->colliding_entities[i]->is_projectile && crate->colliding_entities[i]->id == PLAYER_ID) {
-                int upgrade = rand() % 6;
+                if(crate->colliding_entities[i]->health_points < crate->colliding_entities[i]->max_health_points) 
+                {
+                    crate->colliding_entities[i]->health_points += 1;
 
-                player_accept_upgrade(upgrade);
+                    heal_ui_hp(crate->colliding_entities[i]);
+                }
+
+                prepare_upgrade();
+
+                play_sound("crate_collected.wav");
 
                 destroy_crate();
                 return;
@@ -97,6 +108,8 @@ void update_supply_crate()
     else if(zombies_killed >= REQUIREMENT_FOR_CRATE) 
     {
         init_supply_crate();
+
+        play_sound("crate_spawn.wav");
 
         // if player killed more whilst crate was still around
 

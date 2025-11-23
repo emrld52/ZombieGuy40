@@ -39,3 +39,4 @@ extern scene *loaded_scene;
 
 // pause functionality by setting scene speed to 0
 extern bool is_paused;
+extern bool force_paused;

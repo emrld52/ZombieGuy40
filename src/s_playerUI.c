@@ -3,6 +3,7 @@
 #include "g_state.h"
 #include "s_text_renderer.h"
 #include "s_menu.h"
+#include "z_upgrades.h"
 
 #include <string.h>
 
@@ -65,7 +66,11 @@ void damage_ui_hp(entity *plyr)
 
 void heal_ui_hp(entity *plyr)
 {
-    for(int i = 0; i < get_player()->health_points; i++) play_animation(&heart[i], &ANIM_HEART);
+    for(int i = 0; i < plyr->max_health_points; i++) 
+    {
+        if(i < get_player()->health_points) play_animation(&heart[i], &ANIM_HEART);
+        else play_animation(&heart[i], &ANIM_HEART_BROKEN);
+    }
 }
 
 void draw_hp_ui()
@@ -123,6 +128,11 @@ void draw_hp_ui()
         draw_call(pause_icon);
         draw_pause_menu();
     }
+
+    if(is_upgrade_menu_open)
+    {
+        render_upgrade_menu();
+    }
 }
 
 void draw_player_stats(int dmg, int attack_speed, bool is_auto, int pierces)
@@ -130,13 +140,11 @@ void draw_player_stats(int dmg, int attack_speed, bool is_auto, int pierces)
     int len = 0;
     char tx[64];
 
-    if(!is_auto) 
-    {
+    if(!is_auto) {
         snprintf(tx, sizeof(tx), "dmg %d/natt spd %d/n/npierces %d/n/nsingle fire", dmg, attack_speed, pierces);
         len = strlen("dmg 1/natt spd 1/n/npierces 1/n/nsingle fire");
     }
-    else 
-    {
+    else {
         snprintf(tx, sizeof(tx), "dmg %d/natt spd %d/n/npierces %d/n/nauto", dmg, attack_speed, pierces);
         len = strlen("dmg 1/natt spd 1/n/npierces 1/n/nsingle fire");
     }

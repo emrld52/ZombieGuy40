@@ -39,6 +39,8 @@ typedef struct entity_t {
     // with level geometry
 
     bool is_colliding;
+    bool colliding_on_x;
+    bool colliding_on_y;
 
     bool is_projectile;
 

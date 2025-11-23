@@ -11,7 +11,7 @@
 extern int zombies_killed_total;
 extern int zombies_killed;
 
-#define REQUIREMENT_FOR_CRATE 5
+#define REQUIREMENT_FOR_CRATE 6
 
 void init_supply_crate();
 void update_supply_crate();

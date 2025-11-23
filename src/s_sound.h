@@ -1,3 +1,4 @@
 void init_audio();
-void play_sound(int sound_byte);
+void play_sound(char file[]);
 void uninit_sound();
+void play_song();

@@ -6,9 +6,18 @@
 ma_result result;
 ma_engine engine;
 
+ma_sound song;
+
 void init_audio() {
     result = ma_engine_init(NULL, &engine);
     if(result != MA_SUCCESS) return;
+
+    if (ma_sound_init_from_file(&engine, "zombie_killer.wav", 0, NULL, NULL, &song) != MA_SUCCESS) return;
+}
+
+void play_song()
+{
+    ma_sound_start(&song);
 }
 
 // pass in using enum names in header

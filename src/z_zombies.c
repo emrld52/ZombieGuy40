@@ -14,6 +14,7 @@
 #include "s_weapons.h"
 #include "z_upgradecrate.h"
 #include "s_scene.h"
+#include "s_sound.h"
 
 // rendering
 
@@ -78,6 +79,8 @@ void kill_zombie(zombie *zomb)
 
     zombies_killed_total += 1;
     zombies_killed += 1;
+
+    play_sound("kill_zombie.wav");
 }
 
 void damage_zombie(zombie *zomb, entity *attacker)
@@ -97,6 +100,8 @@ void damage_zombie(zombie *zomb, entity *attacker)
         camera_shake(2.0f);
         zomb->zmb->health_points -= attacker->damage;
         zomb->zmb->gravity = ZOMBIE_GRAV;
+
+        play_sound("enemy_hit.wav");
 
         // if zombie hp reaches 0
 
@@ -389,7 +394,11 @@ void king_ai(zombie *zomb, entity *plyr)
 
     // jump on being grounded
 
-    if(zomb->zmb->is_grounded) entity_override_velocity(zomb->zmb, (vec2){zomb->zmb->velocity[0], -zomb->jump_height});
+    if(zomb->zmb->is_grounded) {
+        entity_override_velocity(zomb->zmb, (vec2){zomb->zmb->velocity[0], -zomb->jump_height});
+        play_sound("king_jump.wav");
+        camera_shake(1.0f);
+    }
 
     // flip based on movement direction
 

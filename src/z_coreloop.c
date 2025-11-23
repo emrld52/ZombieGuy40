@@ -15,6 +15,7 @@
 #include "z_levels.h"
 #include "s_menu.h"
 #include "s_sound.h"
+#include "z_upgrades.h"
 
 // test
 
@@ -35,6 +36,7 @@ scene *loaded_scene;
 // init is_paused from game state
 
 bool is_paused = false;
+bool force_paused = false;
 
 void gameloop_init()
 {
@@ -84,6 +86,8 @@ void gameloop_init()
 
     init_menus();
 
+    init_upgrades();
+
     loaded_scene = &loaded_scenes[1];
 
     init_audio();
@@ -116,11 +120,13 @@ void run_gameloop()
 
     // scene is a level
     case SCENE_TYPE_LEVEL:
+        play_song();
+        
         // pause logic
         
-        if(global_input.keys_released[SAPP_KEYCODE_ESCAPE]) is_paused = !is_paused;
+        if(global_input.keys_released[SAPP_KEYCODE_ESCAPE] && !force_paused) is_paused = !is_paused;
 
-        if(is_paused) 
+        if(force_paused || is_paused) 
         {
             loaded_scene->scene_game_speed = 0;
         }

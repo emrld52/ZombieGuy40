@@ -31,6 +31,8 @@ animation ANIM_BULLET_DEAFULT_ZOOM;
 animation ANIM_BULLET_ENEMY_FLASH;
 animation ANIM_BULLET_ENEMY_ZOOM;
 
+animation ANIM_BULLET_THROWING_KNIFE;
+
 animation ANIM_HEART_TOOK_DAMAGE;
 animation ANIM_HEART;
 animation ANIM_HEART_BROKEN;
@@ -447,6 +449,18 @@ void animation_load_animations()
         .dist_between_frames = 0.01f,
         .frames = {
             {5, 1},
+        }
+    };
+
+    ANIM_BULLET_THROWING_KNIFE = (animation) {
+        .id = 32,
+        .length_in_frames = 4,
+        .dist_between_frames = 0.1f,
+        .frames = {
+            {16, 12},
+            {17, 12},
+            {18, 12},
+            {19, 12},
         }
     };
 }

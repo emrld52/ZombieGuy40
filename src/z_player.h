@@ -2,6 +2,7 @@
 
 #include "r_renderfuncs.h"
 #include "s_entities.h"
+#include "s_weapons.h"
 
 #define PLAYER_ID 4096
 
@@ -32,15 +33,23 @@ typedef struct player_weapon_t
     sprite weapon_sprite;
 } player_weapon;
 
-extern player_weapon PLY_WEAPON_HANDGUN;
-extern player_weapon PLY_WEAPON_ASSAULT_RIFLE;
-extern player_weapon PLY_WEAPON_SNIPER;
-extern player_weapon PLY_WEAPON_FLAMETHROWER;
-extern player_weapon PLY_WEAPON_THROWING_KNIVES;
-extern player_weapon PLY_WEAPON_LASER_GUN;
+typedef struct player_t {
+    entity *plyr;
+    player_weapon wpn;
+    bullet_type *player_bullet_type;
+
+    bool fire_both_directions;
+
+    bullet_type_overrides bullet_overrides;
+
+    float invinc_time;
+} player;
+
+extern player ply;
+
+extern int player_upgrade_rerolls;
 
 void player_init();
 void player_loop();
 void reset_player();
-void player_accept_upgrade(int upgrd);
 entity* get_player();

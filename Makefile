@@ -13,7 +13,7 @@ SHADER_FILE_OUTPUT = shaders/shaders.glsl.h
 
 .PHONY: all rungame
 
-all: $(TARGET) rungame
+all: $(TARGET)
 
 rungame:
 	$(TARGET)
