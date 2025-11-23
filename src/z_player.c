@@ -132,7 +132,6 @@ void player_loop() {
             // basic movement, can only move if not stunned (tracked in entity timer)
 
             if(ply.plyr->entity_timer <= ply.invinc_time - PLAYER_STUN_THRESHOLD) {
-
                 if(global_input.keys_pressed[SAPP_KEYCODE_D]) ply.plyr->velocity[0] = PLAYER_MAX_SPEED;
                 else if(global_input.keys_pressed[SAPP_KEYCODE_A]) ply.plyr->velocity[0] = -PLAYER_MAX_SPEED;
                 else ply.plyr->velocity[0] = 0;
@@ -140,8 +139,7 @@ void player_loop() {
 
             // check if colliding with any damaging entities
 
-            for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
-            {
+            for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++) {
                 if(ply.plyr->colliding_entities[i] != NULL && ply.plyr->entity_timer <= 0 
                     && ply.plyr->colliding_entities[i]->collision_enabled && ply.plyr->colliding_entities[i]->team != ply.plyr->team) 
                 {
@@ -151,8 +149,7 @@ void player_loop() {
 
             // animation states and jump logic
 
-            if(ply.plyr->is_grounded) 
-            {
+            if(ply.plyr->is_grounded) {
                 if(global_input.keys_pressed[SAPP_KEYCODE_SPACE] || global_input.keys_pressed[SAPP_KEYCODE_W]) 
                 {
                     entity_override_velocity(ply.plyr, (vec2){ply.plyr->velocity[0], -PLAYER_JUMP_FORCE});
@@ -171,9 +168,13 @@ void player_loop() {
 
                 if((global_input.keys_released[SAPP_KEYCODE_SPACE] || global_input.keys_released[SAPP_KEYCODE_W]) && ply.plyr->velocity[1] < 0) 
                     entity_override_velocity(ply.plyr, (vec2){ply.plyr->velocity[0], ply.plyr->velocity[1] / PLAYER_JUMP_CANCEL_STRENGTH});
+
+                if((global_input.keys_pressed[SAPP_KEYCODE_S] || global_input.keys_pressed[SAPP_KEYCODE_LEFT_CONTROL]) && ply.plyr->velocity[1] > 0)
+                    entity_override_velocity(ply.plyr, (vec2){ply.plyr->velocity[0], ply.plyr->velocity[1] + PLAYER_FORCE_FALL_STRENGTH * global_delta_time * loaded_scene->scene_game_speed});
             }
 
             // reload
+
             time_til_next_can_shoot -= global_delta_time * loaded_scene->scene_game_speed;
 
             // enable player collision upon invinc frames being done

@@ -102,6 +102,7 @@ void destroy_entity_in_scene(entity *ent)
 {
     ent->collision_enabled = false;
     ent->enabled = false;
+    ent->marked_for_garbage_collection = false;
 }
 
 // reset only entity, projectile and camera fields. its likely that things like level layout we want to keep

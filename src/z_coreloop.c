@@ -98,13 +98,11 @@ void load_scene(int scn)
     loaded_scene = &loaded_scenes[scn];
 }
 
-void reset_game_state()
-{
-    reset_player(); 
-    reset_zombie_progress();
-    init_supply_crate();
-    destroy_crate();
-    do_scene_garbage_collection(loaded_scene);
+void reset_game_state() { 
+    reset_player();
+    reset_zombie_progress(); 
+    init_supply_crate(); destroy_crate();
+    do_scene_garbage_collection(loaded_scene); 
 }
 
 void run_gameloop()

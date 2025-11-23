@@ -27,6 +27,11 @@ void init_supply_crate()
         .resolution[1] = 64,
     };
 
+    if(crate != NULL)
+    {
+        crate->marked_for_garbage_collection = true;
+    }
+
     crate = make_entity_in_scene(loaded_scene);
     crate->gravity = CRATE_GRAVITY;
     crate->is_projectile = true;

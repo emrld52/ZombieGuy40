@@ -101,7 +101,7 @@ void damage_zombie(zombie *zomb, entity *attacker)
         zomb->zmb->velocity[0] = attacker->position[0] >= zomb->zmb->position[0] ? -100.0f : 100.0f;
         zomb->zmb->velocity[1] = -200.0f;
 
-        zomb->zmb->collision_enabled = false;
+        //zomb->zmb->collision_enabled = false;
         camera_shake(2.0f);
         zomb->zmb->health_points -= attacker->damage;
         zomb->zmb->gravity = ZOMBIE_GRAV;
@@ -181,6 +181,8 @@ void spawn_zombie(int tier, int hit_points, float speed, float jump_height)
                 zombie_pool[i].zmb->health_points = hit_points;
 
                 zombie_pool[i].time_til_next_jump_impulse = 0;
+
+                zombie_pool[i].zmb->entity_timer = 0;
 
                 zombie_pool[i].enabled = true;
 
@@ -325,18 +327,16 @@ void pathfinding_ai(zombie *zomb, entity *plyr)
                 }
             }
         }
-    }
 
-    if(zomb->zmb->entity_timer <= 0) zomb->zmb->collision_enabled = true;
-
-    // damage
-
-    for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
-    {
-        if(zomb->zmb != NULL && zomb->zmb->colliding_entities[i] != NULL && zomb->zmb->colliding_entities[i]->damage >= 1 
-            && zomb->zmb->colliding_entities[i]->team != zomb->zmb->team && zomb->zmb->health_points >= 1) 
+        // damage
+            
+        for(int i = 0; i < MAX_COLLIDING_ENTITIES; i++)
         {
-            damage_zombie(zomb, zomb->zmb->colliding_entities[i]);
+            if(zomb->zmb != NULL && zomb->zmb->colliding_entities[i] != NULL && zomb->zmb->colliding_entities[i]->damage >= 1 
+                && zomb->zmb->colliding_entities[i]->team != zomb->zmb->team && zomb->zmb->health_points >= 1) 
+            {
+                damage_zombie(zomb, zomb->zmb->colliding_entities[i]);
+            }
         }
     }
 }

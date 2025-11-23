@@ -19,6 +19,7 @@
 #define PLAYER_KNOCKBACK_STRENGTH_X 100.0f
 
 #define PLAYER_JUMP_CANCEL_STRENGTH 4
+#define PLAYER_FORCE_FALL_STRENGTH 1024.0f * 1.5f
 
 typedef struct player_weapon_t
 {

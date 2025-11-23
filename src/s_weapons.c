@@ -115,6 +115,8 @@ void bullets_update() {
             {
                 bullet_object_pool[i].bounces_left -= 1;
 
+                play_override_animation(&bullet_object_pool[i].entity->animator_component, bullet_object_pool[i].type->muzzle_flash_animation);
+
                 if(bullet_object_pool[i].entity->colliding_on_x) {
                     bullet_object_pool[i].entity->velocity[0] *= -1;
                     bullet_object_pool[i].entity->sprite_data.flip_x *= -1;

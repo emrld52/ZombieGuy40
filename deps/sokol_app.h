@@ -8496,7 +8496,12 @@ _SOKOL_PRIVATE void _sapp_win32_create_window(void) {
     */
     const DWORD win_ex_style = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
     RECT rect = { 0, 0, 0, 0 };
-    DWORD win_style = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SIZEBOX;
+    DWORD win_style =
+    WS_CLIPSIBLINGS |
+    WS_CLIPCHILDREN |
+    WS_CAPTION |
+    WS_SYSMENU |
+    WS_MINIMIZEBOX;
     rect.right = (int) ((float)_sapp.window_width * _sapp.win32.dpi.window_scale);
     rect.bottom = (int) ((float)_sapp.window_height * _sapp.win32.dpi.window_scale);
     const bool use_default_width = 0 == _sapp.window_width;
