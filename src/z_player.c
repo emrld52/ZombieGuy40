@@ -110,7 +110,7 @@ void damage_player(entity* attacker) {
     ply.plyr->entity_timer = ply.invinc_time;
     ply.plyr->velocity[0] = attacker->position[0] >= ply.plyr->position[0] ? -PLAYER_KNOCKBACK_STRENGTH_X : PLAYER_KNOCKBACK_STRENGTH_X;
     ply.plyr->velocity[1] = -PLAYER_KNOCKBACK_STRENGTH_Y;
-    ply.plyr->collision_enabled = false;
+    //ply.plyr->collision_enabled = false;
     ply.plyr->health_points -= attacker->damage;
     camera_shake(15.0f);
     damage_ui_hp(ply.plyr);
