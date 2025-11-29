@@ -35,6 +35,7 @@ animation ANIM_BULLET_THROWING_KNIFE;
 
 animation ANIM_HEART_TOOK_DAMAGE;
 animation ANIM_HEART;
+animation ANIM_HEART_OVERHEAL;
 animation ANIM_HEART_BROKEN;
 
 animation ANIM_CRATE_FALLING;
@@ -461,6 +462,15 @@ void animation_load_animations()
             {17, 12},
             {18, 12},
             {19, 12},
+        }
+    };
+
+    ANIM_HEART_OVERHEAL = (animation) {
+        .id = 33,
+        .length_in_frames = 1,
+        .dist_between_frames = 0.01f,
+        .frames = {
+            {19, 4}
         }
     };
 }

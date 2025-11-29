@@ -42,12 +42,12 @@ bool is_button_clicked(button *btn, vec2 pos)
         {
             play_override_animation(&btn->button_animation, ANIM_STRIP_FLASH);
             camera_shake(1.0f);
-            play_sound("select_blip.wav");
+            play_sound("select_blip.mp3");
         }
         btn->was_hovered = true;
         if(global_input.mouse_l_up) 
         {
-            play_sound("click_blip.wav");
+            play_sound("click_blip.mp3");
             return true;
         }
     }

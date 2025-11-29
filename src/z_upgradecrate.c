@@ -102,7 +102,7 @@ void update_supply_crate()
 
                 prepare_upgrade();
 
-                play_sound("crate_collected.wav");
+                play_sound("crate_collected.mp3");
 
                 destroy_crate();
                 return;
@@ -113,7 +113,7 @@ void update_supply_crate()
     {
         init_supply_crate();
 
-        play_sound("crate_spawn.wav");
+        play_sound("crate_spawn.mp3");
 
         // if player killed more whilst crate was still around
 

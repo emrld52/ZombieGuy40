@@ -11,8 +11,8 @@
 
 int heart_count = 3;
 
-animator heart[16];
-sprite heart_sprite[16];
+animator heart[HEART_VISUAL_LIMIT];
+sprite heart_sprite[HEART_VISUAL_LIMIT];
 
 sprite pause_icon;
 

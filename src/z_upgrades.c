@@ -291,17 +291,17 @@ void render_upgrade_menu() {
             selected_upgrade = rand() % UPGRADE_COUNT;  
         }
 
-        play_sound("reroll.wav");
+        play_sound("reroll.mp3");
     }
     else if(is_button_clicked(&upgrade_btns[1], (vec2){ (VIRTUAL_WIDTH / 2) - (how_wide_is_text(10) / 2), 350 + 24 })) {
         apply_upgrade_to_player(&ply, selected_upgrade);
         force_paused = false;
         is_upgrade_menu_open = false;
-        play_sound("accept.wav");
+        play_sound("accept.mp3");
     }
     else if(is_button_clicked(&upgrade_btns[2], (vec2){ (VIRTUAL_WIDTH / 2) - (how_wide_is_text(10) / 2), 350 + 48})) {
         force_paused = false;
         is_upgrade_menu_open = false;
-        play_sound("decline.wav");
+        play_sound("decline.mp3");
     }
 }

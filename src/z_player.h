@@ -46,6 +46,8 @@ typedef struct player_t {
     bullet_type_overrides bullet_overrides;
 
     float invinc_time;
+
+    bool cancelled_jump;
 } player;
 
 extern player ply;

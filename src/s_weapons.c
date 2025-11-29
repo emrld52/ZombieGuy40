@@ -21,7 +21,7 @@ void init_weapon_system()
         .muzzle_flash_animation = ANIM_BULLET_DEAFULT_FLASH,
         .bullet_zoom_animation = ANIM_BULLET_DEAFULT_ZOOM,
         .pierce_count = 1,
-        .sfx = "regular_shot.wav"
+        .sfx = "regular_shot.mp3"
     };
 
     PIERCING_BULLETS = (bullet_type)
@@ -34,7 +34,7 @@ void init_weapon_system()
         .muzzle_flash_animation = ANIM_BULLET_BLUE_FLASH,
         .bullet_zoom_animation = ANIM_BULLET_BLUE_ZOOM,
         .pierce_count = 1,
-        .sfx = "piercing_shot.wav"
+        .sfx = "piercing_shot.mp3"
     };
 
     DOUBLE_PIERCING_BULLETS = (bullet_type)
@@ -47,7 +47,7 @@ void init_weapon_system()
         .muzzle_flash_animation = ANIM_BULLET_GREEN_FLASH,
         .bullet_zoom_animation = ANIM_BULLET_GREEN_ZOOM,
         .pierce_count = 1,
-        .sfx = "double_piercing_shot.wav"
+        .sfx = "double_piercing_shot.mp3"
     };
 
     ENEMY_BULLETS = (bullet_type)
@@ -60,7 +60,7 @@ void init_weapon_system()
         .muzzle_flash_animation = ANIM_BULLET_ENEMY_FLASH,
         .bullet_zoom_animation = ANIM_BULLET_ENEMY_ZOOM,
         .pierce_count = 1,
-        .sfx = "enemy_shoot.wav"
+        .sfx = "enemy_shoot.mp3"
     };
 
     THROWING_KNIFE = (bullet_type)
@@ -73,7 +73,7 @@ void init_weapon_system()
         .muzzle_flash_animation = ANIM_BULLET_THROWING_KNIFE,
         .bullet_zoom_animation = ANIM_BULLET_THROWING_KNIFE,
         .pierce_count = 1,
-        .sfx = "knife_throw.wav",
+        .sfx = "knife_throw.mp3",
         .is_bouncy = true
     };
 }
@@ -127,7 +127,7 @@ void bullets_update() {
                     else bullet_object_pool[i].entity->velocity[1] = -BOUNCE_UP_STRENGTH;
                 }
 
-                if(bullet_object_pool[i].bounces_left >= 0) play_sound("projectile_bounce.wav");
+                if(bullet_object_pool[i].bounces_left >= 0) play_sound("projectile_bounce.mp3");
 
                 bullet_object_pool[i].bounce_time_immunity = BOUNCE_TIME_IMMUNITY;
             }

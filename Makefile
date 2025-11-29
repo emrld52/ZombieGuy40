@@ -21,7 +21,7 @@ rungame: $(TARGET)
 	cd $(BIN_DIR) && ./zom.exe
 
 $(TARGET): $(OBJ) | $(BIN_DIR)
-	$(CC) $(OBJ) -o $(TARGET) $(LIBS) -static -lwinpthread -mwindows
+	$(CC) $(OBJ) -o $(TARGET) $(LIBS) -static -lwinpthread
 
 $(OBJ_DIR)/%.o: src/%.c $(SHADER_FILE_OUTPUT) | $(OBJ_DIR)
 	$(CC) -c $< -o $@

@@ -85,7 +85,7 @@ void kill_zombie(zombie *zomb)
     zombies_killed_total += 1;
     zombies_killed += 1;
 
-    play_sound("kill_zombie.wav");
+    play_sound("kill_zombie.mp3");
 }
 
 void damage_zombie(zombie *zomb, entity *attacker)
@@ -106,7 +106,7 @@ void damage_zombie(zombie *zomb, entity *attacker)
         zomb->zmb->health_points -= attacker->damage;
         zomb->zmb->gravity = ZOMBIE_GRAV;
 
-        play_sound("enemy_hit.wav");
+        play_sound("enemy_hit.mp3");
 
         // if zombie hp reaches 0
 
@@ -411,7 +411,7 @@ void king_ai(zombie *zomb, entity *plyr)
 
     if(zomb->zmb->is_grounded) {
         entity_override_velocity(zomb->zmb, (vec2){zomb->zmb->velocity[0], -zomb->jump_height});
-        play_sound("king_jump.wav");
+        play_sound("king_jump.mp3");
         camera_shake(1.0f);
     }
 

@@ -55,8 +55,8 @@ void reset_player()
 
     // init stats and such from here
 
-    ply.plyr->health_points = 2;
-    ply.plyr->max_health_points = 2;
+    ply.plyr->health_points = 3;
+    ply.plyr->max_health_points = 3;
 
     ply.plyr->id = PLAYER_ID;
 
@@ -76,6 +76,8 @@ void reset_player()
     ply.bullet_overrides.bounces = 0;
     ply.bullet_overrides.damage = 0;
     ply.bullet_overrides.pierces = 0;
+
+    ply.cancelled_jump = false;
 }
 
 // init player position and velocity
@@ -122,10 +124,10 @@ void damage_player(entity* attacker) {
         ply.plyr->health_points -= attacker->damage;
         camera_shake(15.0f);
         damage_ui_hp(ply.plyr);
-        play_sound("hit.wav");
+        play_sound("hit.mp3");
 
         if(ply.plyr->health_points <= 0) {
-            play_sound("player_die.wav");
+            play_sound("player_die.mp3");
             ply.plyr->damage = 0;
         }
     }
@@ -159,11 +161,13 @@ void player_loop() {
                 {
                     entity_override_velocity(ply.plyr, (vec2){ply.plyr->velocity[0], -PLAYER_JUMP_FORCE});
                     camera_shake(2.0f);
-                    play_sound("jump.wav");
+                    play_sound("jump.mp3");
                 }
 
                 if(ply.plyr->velocity[0] == 0) play_animation(&ply.plyr->animator_component, &ANIM_PLAYER_IDLE);
                 else if(ply.plyr->is_grounded) play_animation(&ply.plyr->animator_component, &ANIM_PLAYER_RUN);
+
+                ply.cancelled_jump = false;
             }
             else 
             {
@@ -171,8 +175,10 @@ void player_loop() {
 
                 // variable jump height
 
-                if((global_input.keys_released[SAPP_KEYCODE_SPACE] || global_input.keys_released[SAPP_KEYCODE_W]) && ply.plyr->velocity[1] < 0) 
+                if((global_input.keys_released[SAPP_KEYCODE_SPACE] || global_input.keys_released[SAPP_KEYCODE_W]) && ply.plyr->velocity[1] < 0 && !ply.cancelled_jump) { 
                     entity_override_velocity(ply.plyr, (vec2){ply.plyr->velocity[0], ply.plyr->velocity[1] / PLAYER_JUMP_CANCEL_STRENGTH});
+                    ply.cancelled_jump = true;
+                }
 
                 if((global_input.keys_pressed[SAPP_KEYCODE_S] || global_input.keys_pressed[SAPP_KEYCODE_LEFT_CONTROL]))
                     entity_override_velocity(ply.plyr, (vec2){ply.plyr->velocity[0], ply.plyr->velocity[1] + PLAYER_FORCE_FALL_STRENGTH * global_delta_time * loaded_scene->scene_game_speed});

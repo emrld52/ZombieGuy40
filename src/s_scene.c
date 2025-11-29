@@ -65,7 +65,7 @@ entity* make_entity_in_scene(scene *scn)
 
     for(int i = 0; i < MAX_ENTITIES; i++)
     {
-        if(scn->entities[i].enabled != true && &scn->entities[i] != NULL) 
+        if(scn->entities[i].enabled != true) 
         {
             reset_entity(&scn->entities[i]);
 
@@ -77,12 +77,14 @@ entity* make_entity_in_scene(scene *scn)
             return &scn->entities[i];
         }
 
-        if(scn->entities[i].marked_for_garbage_collection == true && optional_free_slot == -1) {
+        if(scn->entities[i].marked_for_garbage_collection == true && optional_free_slot == -1) 
+        {
             optional_free_slot = i;
         }
     }
 
-    if(optional_free_slot != -1 && &scn->entities[optional_free_slot] != NULL) {
+    if(optional_free_slot != -1)
+    {
         reset_entity(&scn->entities[optional_free_slot]);
 
         // mark as now in use

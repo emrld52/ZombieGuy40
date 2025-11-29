@@ -80,6 +80,7 @@ extern animation ANIM_BULLET_THROWING_KNIFE;
 
 extern animation ANIM_HEART_TOOK_DAMAGE;
 extern animation ANIM_HEART;
+extern animation ANIM_HEART_OVERHEAL;
 extern animation ANIM_HEART_BROKEN;
 
 extern animation ANIM_CRATE_FALLING;

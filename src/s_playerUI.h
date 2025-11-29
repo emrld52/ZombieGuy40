@@ -1,5 +1,7 @@
 #pragma once
 
+#define HEART_VISUAL_LIMIT 16
+
 #include "s_entities.h"
 #include "r_renderfuncs.h"
 #include "s_animation.h"

@@ -8,15 +8,11 @@ ma_engine engine;
 
 ma_sound song;
 
-float song_vol;
-
 void init_audio() {
     result = ma_engine_init(NULL, &engine);
     if(result != MA_SUCCESS) return;
 
-    if (ma_sound_init_from_file(&engine, "zombie_killer.wav", 0, NULL, NULL, &song) != MA_SUCCESS) return;
-
-    song_vol = 1.0f;
+    if (ma_sound_init_from_file(&engine, "zombie_killer.mp3", 0, NULL, NULL, &song) != MA_SUCCESS) return;
 }
 
 void play_song()
