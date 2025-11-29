@@ -16,11 +16,15 @@ ZombieGuy40 is a game made in 2 weeks for a college game jam in C with only a ha
 
 🎵 - Sound system with a custom soundtrack
 
-🖥 - UI systems for text rendering and buttons
+🖱 - UI systems for text rendering and buttons
+
+🖥 - Resizable Window
 
 And last but not least a fully playable roguelike with build variety and more! 🎮
 
 # Development 🔨
+
+**FOR THE ORIGINAL GAME ACHIEVED IN 2 WEEKS, DOWNLOAD AND RUN ZG40 1.0.0 IN RELEASES. MINOR QOL AND BUGFIXING HAS TAKEN PLACE SINCE THEN.**
 
 ZombieGuy40 was my first ever project programmed from the ground up in pure C. I had to learn about various graphics programming concepts such as how to set up vertex and index buffers to pass into the GPU, vertex and fragment shaders, creating a draw queue and more. Sokol is deliberately designed to be unintrusive, providing only a minimal abstraction layer compared to APIs like OpenGL. This forced me to step out of my comfort zone from engines such as Unity and implement a sprite renderer completely from scratch, all under a tight two-week deadline. I also had to adapt to procedural programming concepts and patterns when writing in C, this was very different to the object-oriented nature of languages I had experience in prior such as C#. However I felt I really learned a lot from this project.
 
@@ -47,7 +51,7 @@ Clone repo and (with Make & GCC installed) run "make".
 **Mac/Linux**
 Build instructions coming soon — the project currently depends on Windows-specific paths and libraries.
 
-# Further Planned Features 🗺
+# Further Planned Features (When/if I have the time) 🗺
 
 - PS Vita port through the VitaSDK library.
 - A larger content update with more zombie types, a reworked scene/level system to enable larger, more complex levels and more!
