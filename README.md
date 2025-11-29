@@ -1,5 +1,7 @@
 ![App screenshot](git_images/logo.png)
 
+# FOR THE ORIGINAL GAME ACHIEVED IN 2 WEEKS, DOWNLOAD AND RUN ZG40 1.0.0 IN RELEASES. MINOR QOL AND BUGFIXING HAS TAKEN PLACE SINCE THEN.
+
 # ZombieGuy40 🕹
 
 ZombieGuy40 is a game made in 2 weeks for a college game jam in C with only a handful of low-level single header libraries (Sokol + CGLM + stb_image + miniaudio).
@@ -16,7 +18,9 @@ ZombieGuy40 is a game made in 2 weeks for a college game jam in C with only a ha
 
 🎵 - Sound system with a custom soundtrack
 
-🖥 - UI systems for text rendering and buttons
+🖱 - UI systems for text rendering and buttons
+
+🖥 - Resizable Window
 
 And last but not least a fully playable roguelike with build variety and more! 🎮
 
@@ -47,7 +51,7 @@ Clone repo and (with Make & GCC installed) run "make".
 **Mac/Linux**
 Build instructions coming soon — the project currently depends on Windows-specific paths and libraries.
 
-# Further Planned Features 🗺
+# Further Planned Features (When/if I have the time) 🗺
 
 - PS Vita port through the VitaSDK library.
 - A larger content update with more zombie types, a reworked scene/level system to enable larger, more complex levels and more!
