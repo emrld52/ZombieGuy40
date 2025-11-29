@@ -151,62 +151,66 @@ void spawn_zombie(int tier, int hit_points, float speed, float jump_height)
             if(!zombie_pool[i].enabled)
             {
                 zombie_pool[i].zmb = make_entity_in_scene(loaded_scene);
-                play_animation(&zombie_pool[i].zmb->animator_component, &ANIM_MINION_IDLE);
+                if(zombie_pool[i].zmb != NULL) {
+                    play_animation(&zombie_pool[i].zmb->animator_component, &ANIM_MINION_IDLE);
 
-                current_zombies += 1;
+                    current_zombies += 1;
 
-                // spawn in sky at any horizontal position in game-space. will fall down
+                    // spawn in sky at any horizontal position in game-space. will fall down
 
-                zombie_pool[i].zmb->position[0] = rand() % VIRTUAL_WIDTH;
-                zombie_pool[i].zmb->position[1] = -64;
+                    zombie_pool[i].zmb->position[0] = rand() % VIRTUAL_WIDTH;
+                    zombie_pool[i].zmb->position[1] = -64;
 
-                // spawn at half gravity so when falling down the player has a chance to react
+                    // spawn at half gravity so when falling down the player has a chance to react
 
-                zombie_pool[i].zmb->gravity = ZOMBIE_GRAV / 2;
+                    zombie_pool[i].zmb->gravity = ZOMBIE_GRAV / 2;
 
-                glm_vec3_copy((vec2){ 0.0f, 0.0f }, zombie_pool[i].zmb->velocity);
-                glm_vec2_copy((vec2){ 32, 32 }, zombie_pool[i].zmb->sprite_data.resolution);
-                glm_vec2_copy((vec2){ 1, 1 }, zombie_pool[i].zmb->sprite_data.sprite_coord);
-                glm_vec2_copy((vec2){16, zombie_pool[i].zmb->sprite_data.resolution[1]}, zombie_pool[i].zmb->hit_box);
-                glm_vec2_copy((vec2){8, 0}, zombie_pool[i].zmb->hit_box_offset);
+                    glm_vec3_copy((vec2){ 0.0f, 0.0f }, zombie_pool[i].zmb->velocity);
+                    glm_vec2_copy((vec2){ 32, 32 }, zombie_pool[i].zmb->sprite_data.resolution);
+                    glm_vec2_copy((vec2){ 1, 1 }, zombie_pool[i].zmb->sprite_data.sprite_coord);
+                    glm_vec2_copy((vec2){16, zombie_pool[i].zmb->sprite_data.resolution[1]}, zombie_pool[i].zmb->hit_box);
+                    glm_vec2_copy((vec2){8, 0}, zombie_pool[i].zmb->hit_box_offset);
 
-                zombie_pool[i].zmb->velocity[0] = get_player()->position[0] >= zombie_pool[i].zmb->position[0] ? speed : -speed;
+                    zombie_pool[i].zmb->velocity[0] = get_player()->position[0] >= zombie_pool[i].zmb->position[0] ? speed : -speed;
 
-                zombie_pool[i].tier = tier;
-                zombie_pool[i].speed = speed;
-                zombie_pool[i].jump_height = jump_height;
+                    zombie_pool[i].tier = tier;
+                    zombie_pool[i].speed = speed;
+                    zombie_pool[i].jump_height = jump_height;
 
-                zombie_pool[i].zmb->team = 0;
+                    zombie_pool[i].zmb->team = 0;
 
-                zombie_pool[i].zmb->health_points = hit_points;
+                    zombie_pool[i].zmb->health_points = hit_points;
 
-                zombie_pool[i].time_til_next_jump_impulse = 0;
+                    zombie_pool[i].time_til_next_jump_impulse = 0;
 
-                zombie_pool[i].zmb->entity_timer = 0;
+                    zombie_pool[i].zmb->entity_timer = 0;
 
-                zombie_pool[i].enabled = true;
+                    zombie_pool[i].enabled = true;
 
-                // init zombies logic time a little off just so that all zombies dont behave in unison like clockwork
+                    // init zombies logic time a little off just so that all zombies dont behave in unison like clockwork
 
-                zombie_pool[i].logic_frame_time = rand() % (1000 - 0 + 1) + 1;
+                    zombie_pool[i].logic_frame_time = rand() % (1000 - 0 + 1) + 1;
 
-                // convert from ms to seconds
-                zombie_pool[i].logic_frame_time /= 1000;
+                    // convert from ms to seconds
+                    zombie_pool[i].logic_frame_time /= 1000;
 
-                switch(tier)
-                {
-                    case 1:
-                        zombie_pool[i].zmb->damage = 1;
-                        break;
-                    case 2:
-                        zombie_pool[i].zmb->damage = 0;
-                        break;
-                    case 3:
-                        zombie_pool[i].zmb->damage = 2;
-                        break;
+                    switch(tier)
+                    {
+                        case 1:
+                            zombie_pool[i].zmb->damage = 1;
+                            break;
+                        case 2:
+                            zombie_pool[i].zmb->damage = 0;
+                            break;
+                        case 3:
+                            zombie_pool[i].zmb->damage = 2;
+                            break;
+                    }
+
+                    return;
                 }
 
-                return;
+                zombie_pool[i].zmb = NULL;
             }
         }
     }
@@ -461,10 +465,8 @@ void simulate_zombies(entity *player)
 {
     // iterate through all zombies and perform logic
 
-    for(int i = 0; i < MAX_ZOMBIES; i++)
-    {
-        if(zombie_pool[i].enabled && zombie_pool[i].zmb != NULL) 
-        {
+    for(int i = 0; i < MAX_ZOMBIES; i++) {
+        if(zombie_pool[i].enabled && zombie_pool[i].zmb != NULL) {
             // zombies fall down slower upon spawning to be fairer, upon reaching ground they return to normal
             
             if(zombie_pool[i].zmb->is_grounded) zombie_pool[i].zmb->gravity = ZOMBIE_GRAV;
@@ -472,8 +474,7 @@ void simulate_zombies(entity *player)
             // only perform if not stunned (i.e entity timer 0 or below)
 
             if(zombie_pool[i].zmb->entity_timer <= 0) {
-                switch (zombie_pool[i].tier)
-                {
+                switch (zombie_pool[i].tier) {
                     case 1:
                         minion_ai(&zombie_pool[i], player);
                         break;

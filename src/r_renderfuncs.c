@@ -42,6 +42,14 @@ float global_delta_time = 0;
 
 int render_game_width = 640;
 
+float target_aspect = 4.0f / 3.0f;
+float screen_width;
+float screen_height;
+float screen_aspect;
+
+float scale;
+float game_width, game_height;
+
 // define simple ortho matrix to avoid stretching, keep aspect ratios and such consistent
 
 mat4 proj;
@@ -206,8 +214,33 @@ void begin_drawing()
     state.vertex_shader_params.cam_position[0] = loaded_scene->scene_camera_position[0];
     state.vertex_shader_params.cam_position[1] = loaded_scene->scene_camera_position[1];
 
-    // each frame rebuild matrix in the event that window has been stretched, might remove when i implement fixed aspect ratio
-    glm_ortho(0.0f, 640, 480, 0.0f, -1.0f, 1.0f, proj);
+    // scale game to fit in window after resizing whilst keeping aspect ratio
+
+    target_aspect = 4.0f / 3.0f;
+    screen_width = sapp_width();
+    screen_height = sapp_height();
+    screen_aspect = screen_width / screen_height;
+
+    // if window is wider than taller
+
+    if (screen_aspect > target_aspect) {
+        scale = screen_height / 480.0f;
+        game_height = 480.0f;
+        game_width = screen_width / scale;
+    } else {
+        scale = screen_width / 640.0f;
+        game_width = 640.0f;
+        game_height = screen_height / scale;
+    }
+
+    // offset game window
+
+    float offset_x = (640.0f - game_width) * 0.5f;
+    float offset_y = (480.0f - game_height) * 0.5f;
+
+    // scale game to fit window
+
+    glm_ortho(offset_x, 640.0f - offset_x, 480.0f - offset_y, offset_y, -1.0f, 1.0f, proj);
     memcpy(state.vertex_shader_params.projection, proj, sizeof(float) * 16);
 }
 

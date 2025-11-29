@@ -86,22 +86,26 @@ void player_init() {
     reset_player();
 }
 
-void fire_gun() {
+void fire_gun(int dir) {
     if(!ply.fire_both_directions) {
-        bullet* b = make_bullet(ply.player_bullet_type, ply.plyr->position, global_input.mouse_x + 16 >= ply.plyr->position[0] ? 1 : -1, ply.plyr->team);
-        b->entity->damage += ply.bullet_overrides.damage;
-        b->bounces_left += ply.bullet_overrides.bounces;
-        b->pierces_left +=ply.bullet_overrides.pierces;
+        bullet* b = make_bullet(ply.player_bullet_type, ply.plyr->position, dir, ply.plyr->team);
+        if(b != NULL) {
+            b->entity->damage += ply.bullet_overrides.damage;
+            b->bounces_left += ply.bullet_overrides.bounces;
+            b->pierces_left +=ply.bullet_overrides.pierces;
+        }
     }
     else {
         bullet* b1 = make_bullet(ply.player_bullet_type, ply.plyr->position, 1, ply.plyr->team);
-        b1->entity->damage += ply.bullet_overrides.damage;
-        b1->bounces_left += ply.bullet_overrides.bounces;
-        b1->pierces_left +=ply.bullet_overrides.pierces;
-        bullet* b2 = make_bullet(ply.player_bullet_type, ply.plyr->position, -1, ply.plyr->team);
-        b2->entity->damage += ply.bullet_overrides.damage;
-        b2->bounces_left += ply.bullet_overrides.bounces;
-        b2->pierces_left +=ply.bullet_overrides.pierces;
+        if(b1 != NULL) {
+            b1->entity->damage += ply.bullet_overrides.damage;
+            b1->bounces_left += ply.bullet_overrides.bounces;
+            b1->pierces_left +=ply.bullet_overrides.pierces;
+            bullet* b2 = make_bullet(ply.player_bullet_type, ply.plyr->position, -1, ply.plyr->team);
+            b2->entity->damage += ply.bullet_overrides.damage;
+            b2->bounces_left += ply.bullet_overrides.bounces;
+            b2->pierces_left +=ply.bullet_overrides.pierces;
+        }
     }
 
     camera_shake(5.0f);
@@ -109,20 +113,21 @@ void fire_gun() {
 }
 
 void damage_player(entity* attacker) {
-    play_override_animation(&ply.plyr->animator_component, ANIM_PLAYER_DAMAGE);
-    ply.plyr->entity_timer = ply.invinc_time;
-    ply.plyr->velocity[0] = attacker->position[0] >= ply.plyr->position[0] ? -PLAYER_KNOCKBACK_STRENGTH_X : PLAYER_KNOCKBACK_STRENGTH_X;
-    ply.plyr->velocity[1] = -PLAYER_KNOCKBACK_STRENGTH_Y;
-    //ply.plyr->collision_enabled = false;
-    ply.plyr->health_points -= attacker->damage;
-    camera_shake(15.0f);
-    damage_ui_hp(ply.plyr);
-    play_sound("hit.wav");
+    if(!DEBUG_INVINCIBILITY) {
+        play_override_animation(&ply.plyr->animator_component, ANIM_PLAYER_DAMAGE);
+        ply.plyr->entity_timer = ply.invinc_time;
+        ply.plyr->velocity[0] = attacker->position[0] >= ply.plyr->position[0] ? -PLAYER_KNOCKBACK_STRENGTH_X : PLAYER_KNOCKBACK_STRENGTH_X;
+        ply.plyr->velocity[1] = -PLAYER_KNOCKBACK_STRENGTH_Y;
+        //ply.plyr->collision_enabled = false;
+        ply.plyr->health_points -= attacker->damage;
+        camera_shake(15.0f);
+        damage_ui_hp(ply.plyr);
+        play_sound("hit.wav");
 
-    if(ply.plyr->health_points <= 0) 
-    {
-        play_sound("player_die.wav");
-        ply.plyr->damage = 0;
+        if(ply.plyr->health_points <= 0) {
+            play_sound("player_die.wav");
+            ply.plyr->damage = 0;
+        }
     }
 }
 
@@ -169,7 +174,7 @@ void player_loop() {
                 if((global_input.keys_released[SAPP_KEYCODE_SPACE] || global_input.keys_released[SAPP_KEYCODE_W]) && ply.plyr->velocity[1] < 0) 
                     entity_override_velocity(ply.plyr, (vec2){ply.plyr->velocity[0], ply.plyr->velocity[1] / PLAYER_JUMP_CANCEL_STRENGTH});
 
-                if((global_input.keys_pressed[SAPP_KEYCODE_S] || global_input.keys_pressed[SAPP_KEYCODE_LEFT_CONTROL]) && ply.plyr->velocity[1] > 0)
+                if((global_input.keys_pressed[SAPP_KEYCODE_S] || global_input.keys_pressed[SAPP_KEYCODE_LEFT_CONTROL]))
                     entity_override_velocity(ply.plyr, (vec2){ply.plyr->velocity[0], ply.plyr->velocity[1] + PLAYER_FORCE_FALL_STRENGTH * global_delta_time * loaded_scene->scene_game_speed});
             }
 
@@ -183,8 +188,10 @@ void player_loop() {
 
             // check for shooting, if auto you can hold to shoot, otherwise its manual click
 
-            if(ply.wpn.is_auto && global_input.mouse_l && time_til_next_can_shoot <= 0) fire_gun();
-            else if(global_input.mouse_l_up && time_til_next_can_shoot <= 0) fire_gun();
+            int player_fire_dir = global_input.mouse_x + 16 >= ply.plyr->position[0] ? 1 : -1;
+
+            if(ply.wpn.is_auto && global_input.mouse_l && time_til_next_can_shoot <= 0) fire_gun(player_fire_dir);
+            else if(global_input.mouse_l_up && time_til_next_can_shoot <= 0) fire_gun(player_fire_dir);
 
             // look right or left dependent on where the mouse is of the player center
 

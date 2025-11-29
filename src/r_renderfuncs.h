@@ -52,3 +52,8 @@ void init_rendering();
 void camera_shake(float magnitude);
 
 extern int render_game_width;
+
+extern float target_aspect;
+extern float screen_width;
+extern float screen_height;
+extern float screen_aspect;

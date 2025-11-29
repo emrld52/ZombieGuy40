@@ -21,6 +21,8 @@
 #define PLAYER_JUMP_CANCEL_STRENGTH 4
 #define PLAYER_FORCE_FALL_STRENGTH 1024.0f * 1.5f
 
+#define DEBUG_INVINCIBILITY false
+
 typedef struct player_weapon_t
 {
     bool is_auto;

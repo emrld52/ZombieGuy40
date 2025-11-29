@@ -51,61 +51,65 @@ void entity_run_physics(entity* ent)
     ent->colliding_on_x = false;
     ent->colliding_on_y = false;
 
-    for(int y = 0; y < LEVELS_HEIGHT; y++)
-    {
-        for(int x = 0; x < LEVELS_WIDTH; x++)
-        {
-            if(loaded_scene->tilemap[y][x].is_filled) 
-            {
+    // check collision only in a 5x5 square around the player, not the whole tilemap
+
+    for(int y = (int)floor(ent->position[1] / LEVELS_TILE_RESOLUTION) - 2; y <= (int)ceil(ent->position[1] / LEVELS_TILE_RESOLUTION) + 2; y++) {
+        for(int x = (int)floor(ent->position[0] / LEVELS_TILE_RESOLUTION) - 1; x <= (int)ceil(ent->position[0] / LEVELS_TILE_RESOLUTION) + 2; x++) {
+            if(y >= 0 && y < LEVELS_HEIGHT && x >= 0 && x < LEVELS_WIDTH && loaded_scene->tilemap[y][x].is_filled) {
                 glm_vec2_copy((vec2){x * LEVELS_TILE_RESOLUTION, y * LEVELS_TILE_RESOLUTION}, to_collide[0]);
                 glm_vec2_copy((vec2){(x * LEVELS_TILE_RESOLUTION) + LEVELS_TILE_RESOLUTION, (y * LEVELS_TILE_RESOLUTION) + LEVELS_TILE_RESOLUTION}, to_collide[1]);
                 
-                if(glm_aabb2d_aabb(ent_box_x_check, to_collide)) 
-                {
+                if(glm_aabb2d_aabb(ent_box_x_check, to_collide)) {
                     x_colliding = true;
                     ent->colliding_on_x = true;
                     ent->is_colliding = true;
 
                     // snapping to prevent slow gliding upon being about to collide
 
-                    //if(ent->velocity[0] > 0) ent->position[0] = to_collide[0][0] - (ent->hit_box[0] + ent->hit_box_offset[0]) - 0.01f;
-                    //else if(ent->velocity[0] < 0) ent->position[0] = to_collide[1][0] - ent->hit_box_offset[0] + 0.01f;
-                }
-                else if(ent->position[0] + (ent->hit_box_offset[0] / 2) + (ent->velocity[0] * global_delta_time * loaded_scene->scene_game_speed) <= 0)
-                {
-                    x_colliding = true;
-                    ent->colliding_on_x = true;
-                    ent->is_colliding = true;
-                    ent->position[0] = (ent->hit_box_offset[0] / 2) * -1;
-                }
-                else if(ent->position[0] + ent->hit_box[0] + ent->hit_box_offset[0] + 
-                    ent->velocity[0] * global_delta_time * loaded_scene->scene_game_speed >= VIRTUAL_WIDTH)
-                {
-                    x_colliding = true;
-                    ent->colliding_on_x = true;
-                    ent->is_colliding = true;
-                    ent->position[0] = VIRTUAL_WIDTH - (ent->hit_box[0] + ent->hit_box_offset[0]);
+                    if(ent->velocity[0] > 0) ent->position[0] = to_collide[0][0] - (ent->hit_box[0] + ent->hit_box_offset[0]) - 0.01f;
+                    else if(ent->velocity[0] < 0) ent->position[0] = to_collide[1][0] - ent->hit_box_offset[0] + 0.01f;
                 }
 
-                if(glm_aabb2d_aabb(ent_box_y_check, to_collide)) 
-                {
+                if(glm_aabb2d_aabb(ent_box_y_check, to_collide)) {
                     y_colliding = true;
                     ent->colliding_on_y = true;
                     ent->is_colliding = true;
 
                     // snapping to prevent slow gliding upon being about to collide
 
-                    //if(ent->velocity[1] > 0) ent->position[1] = to_collide[0][1] - (ent->hit_box[1] + ent->hit_box_offset[1]) - 0.01f;
-                    //else if(ent->velocity[1] < 0) ent->position[1] = to_collide[1][1] + 0.01f;
+                    if(ent->velocity[1] > 0) ent->position[1] = to_collide[0][1] - (ent->hit_box[1] + ent->hit_box_offset[1]) - 0.01f;
+                    else if(ent->velocity[1] < 0) ent->position[1] = to_collide[1][1] + 0.01f;
                 }
             }
         }
     }
 
+    // check if colliding with world bounds
+
+    if(ent->position[0] + (ent->hit_box_offset[0] / 2) + (ent->velocity[0] * 
+        global_delta_time * loaded_scene->scene_game_speed) <= 0)
+    {
+        x_colliding = true;
+        ent->colliding_on_x = true;
+        ent->is_colliding = true;
+        ent->position[0] = (ent->hit_box_offset[0] / 2) * -1;
+    }
+    else if(ent->position[0] + ent->hit_box[0] + ent->hit_box_offset[0] + 
+        ent->velocity[0] * global_delta_time * loaded_scene->scene_game_speed >= VIRTUAL_WIDTH)
+    {
+        x_colliding = true;
+        ent->colliding_on_x = true;
+        ent->is_colliding = true;
+        ent->position[0] = VIRTUAL_WIDTH - (ent->hit_box[0] + ent->hit_box_offset[0]);
+    }
+
+    // cancel velocity on axis were colliding with
+
     if(!x_colliding) ent->position[0] += ent->velocity[0] * global_delta_time * loaded_scene->scene_game_speed;
     if(!y_colliding) ent->position[1] += ent->velocity[1] * global_delta_time * loaded_scene->scene_game_speed;
-    else if(ent->velocity[1] >= 0)
+    else if(y_colliding && ent->velocity[1] >= 0)
     {
+        // mark is grounded if we are colliding downward on y axis
         ent->is_grounded = true;
         ent->velocity[1] = 0;
     }

@@ -122,7 +122,7 @@ void run_gameloop()
         
         // pause logic
         
-        if(global_input.keys_released[SAPP_KEYCODE_ESCAPE] && !force_paused) is_paused = !is_paused;
+        if(global_input.keys_clicked[SAPP_KEYCODE_ESCAPE] && !force_paused) is_paused = !is_paused;
 
         if(force_paused || is_paused) 
         {
@@ -160,10 +160,16 @@ void run_gameloop()
 
         // reset button
 
-        if(global_input.keys_released[SAPP_KEYCODE_R]) reset_game_state();
+        if(global_input.keys_clicked[SAPP_KEYCODE_R]) reset_game_state();
+
+        // DEBUG if(global_input.keys_clicked[SAPP_KEYCODE_MINUS]) spawn_zombie(1, 1, 64, 512);
 
     break;
     }
+
+    // fullscreen
+
+    if(global_input.keys_clicked[SAPP_KEYCODE_F11]) sapp_toggle_fullscreen();
 
     free_released_keys();
 

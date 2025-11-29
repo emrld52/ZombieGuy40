@@ -6,7 +6,7 @@
 
 #include "../deps/cglm/cglm.h"
 
-#define MAX_BULLETS 96
+#define MAX_BULLETS 128
 #define COLLISION_HISTORY_LIMIT 8
 
 #define BOUNCE_UP_STRENGTH 512.0f

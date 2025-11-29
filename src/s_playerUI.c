@@ -11,8 +11,8 @@
 
 int heart_count = 3;
 
-animator heart[12];
-sprite heart_sprite[12];
+animator heart[16];
+sprite heart_sprite[16];
 
 sprite pause_icon;
 
@@ -141,10 +141,10 @@ void draw_player_stats(int dmg, int attack_speed, bool is_auto, int pierces, int
     char tx[96];
 
     if(!is_auto) {
-        snprintf(tx, sizeof(tx), "dmg %d/natt spd %d/n/npierces %d/nbounces %d/ntot killed %d/n/nsingle fire", dmg, attack_speed, pierces, bounces, total_killed);
+        snprintf(tx, sizeof(tx), "dmg %d/natt spd %d/npierces %d/nbounces %d/n/ntot killed %d/n/nsingle fire", dmg, attack_speed, pierces, bounces, total_killed);
     }
     else {
-        snprintf(tx, sizeof(tx), "dmg %d/natt spd %d/n/npierces %d/nbounces %d/ntot killed %d/n/nauto", dmg, attack_speed, pierces, bounces, total_killed);
+        snprintf(tx, sizeof(tx), "dmg %d/natt spd %d/npierces %d/nbounces %d/n/ntot killed %d/n/nauto", dmg, attack_speed, pierces, bounces, total_killed);
     }
 
     len = strlen(tx);

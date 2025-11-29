@@ -15,6 +15,7 @@
 typedef struct input_reader_t {
     bool keys_pressed[512];
     bool key_tracker[512];
+    bool keys_clicked[512];
     bool keys_released[512];
     float mouse_x;
     float mouse_y;
